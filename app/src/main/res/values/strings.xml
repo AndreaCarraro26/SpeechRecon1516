@@ -1,3 +1,14 @@
 <resources>
-    <string name="app_name">SpeechRecon1516</string>
+    <string name="app_name">KaldiMobile</string>
+
+    <!-- Main-->
+    <string name="title_activity_main">KaldiMobile</string>
+
+    <!-- List -->
+    <string name="title_activity_list">File List</string>
+    <string name="subtitle_activity_list">Tap the name to begin transcription</string>
+
+    <!-- Altro-->
+    <string name="hello">Hello World</string>
+
 </resources>
