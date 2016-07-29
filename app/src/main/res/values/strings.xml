@@ -7,6 +7,9 @@
     <!-- List -->
     <string name="title_activity_list">File List</string>
     <string name="subtitle_activity_list">Tap the name to begin transcription</string>
+    <string name="dialog1">Play the record</string>
+    <string name="dialog2">Transcribe</string>
+    <string name="dialog3">Rename file</string>
 
     <!-- Altro-->
     <string name="hello">Hello World</string>

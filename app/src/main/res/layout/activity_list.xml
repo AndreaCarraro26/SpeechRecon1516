@@ -1,20 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="include_team.speechrecon1516.ListActivity" >
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="include_team.speechrecon1516.ListActivity">
 
-    <include layout="@layout/toolbar_list"
-        android:id="@+id/include"></include>
+    <android.support.v7.widget.Toolbar
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/toolbarList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:title="@string/title_activity_list"
+        app:subtitle="@string/subtitle_activity_list"
+        app:titleMarginStart="16dp"
+        android:background="?attr/colorPrimary"
+        />
 
     <ListView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/include" />
-
+        android:layout_centerVertical="true"
+        android:layout_below="@id/toolbarList"
+               />
 
 </RelativeLayout>
 
