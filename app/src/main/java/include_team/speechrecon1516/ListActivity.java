@@ -48,6 +48,9 @@ public class ListActivity extends AppCompatActivity {
     SeekBar seek;
     TextView timeText;
 
+    // Dialog must be closed in onPause
+    AlertDialog dialog;
+    AlertDialog dialog2;
     public class ListViewCache  {
 
         private View baseView;
@@ -181,7 +184,7 @@ public class ListActivity extends AppCompatActivity {
                             player = MediaPlayer.create(ac, R.raw.prova);
                             player.setLooping(true);
                             player.start();
-                            AlertDialog dialog2 = builder2.create();
+                            dialog2 = builder2.create();
                             dialog2.show();
 
                             timeText = (TextView) dialog2.findViewById(R.id.time);
@@ -190,7 +193,6 @@ public class ListActivity extends AppCompatActivity {
                             seek = (SeekBar) dialog2.findViewById(R.id.seekBar);
                             seek.setMax((int) endTime);
                             seek.setProgress((int)startTime);
-
 
                             handy.postDelayed(UpdateSongTime,100);
                             playPause = (ToggleButton) dialog2.findViewById(R.id.togglePlay);
@@ -208,15 +210,15 @@ public class ListActivity extends AppCompatActivity {
                             dialog2.setOnDismissListener(new DialogInterface.OnDismissListener() {
                                 @Override
                                 public void onDismiss(DialogInterface dialog) {
-                                    player.release();
                                     handy.removeCallbacks(UpdateSongTime);
+                                    player.release();
                                 }
                             });
                             dialog2.setOnCancelListener(new DialogInterface.OnCancelListener() {
                                 @Override
                                 public void onCancel(DialogInterface dialog) {
-                                    player.release();
                                     handy.removeCallbacks(UpdateSongTime);
+                                    player.release();
                                 }
                             });
                             break;
@@ -231,7 +233,7 @@ public class ListActivity extends AppCompatActivity {
                     }
                 });
 
-                AlertDialog dialog = builder.create();
+                dialog = builder.create();
                 dialog.show();
             }
         });
@@ -254,7 +256,7 @@ public class ListActivity extends AppCompatActivity {
         }
     };
 
-   /*
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -268,17 +270,22 @@ public class ListActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        // Another activity is taking focus (this activity is about to be "paused").
+        handy.removeCallbacks(UpdateSongTime);
+        if(player!=null)
+            player.release();
+        if(dialog!=null)
+            dialog.dismiss();
+        if(dialog2!=null)
+            dialog2.dismiss();
     }
     @Override
     protected void onStop() {
         super.onStop();
-        // The activity is no longer visible (it is now "stopped")
     }
     @Override
     protected void onDestroy() {
         super.onDestroy();
         // The activity is about to be destroyed.
     }
-*/
+
 }
