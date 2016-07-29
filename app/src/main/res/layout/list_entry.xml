@@ -9,7 +9,7 @@
    >
 
     <ImageView
-        android:id="@+id/play_button"
+        android:id="@+id/equalizer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingLeft="10dp"
@@ -21,7 +21,7 @@
         android:layout_height="56dp"
         android:paddingLeft="8dp"
         android:textSize="20sp"
-        android:layout_toRightOf="@id/play_button"
+        android:layout_toRightOf="@id/equalizer"
         android:gravity="center|left"
         />
 

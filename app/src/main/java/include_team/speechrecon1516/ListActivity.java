@@ -1,13 +1,12 @@
 package include_team.speechrecon1516;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.app.Activity;
-import android.support.v4.app.NavUtils;
+import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -15,7 +14,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -24,20 +22,31 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class ListActivity extends AppCompatActivity {
 
     private static final String TAG = "ListActivity";
     boolean toggle[];
     private ListView mylist;
+    ToggleButton playPause;
+    MediaPlayer player;
+    Activity ac = this;
 
-
+    // variables needed for playback
+    private Handler handy = new Handler();
+    private double startTime = 0;
+    private double endTime= 0;
+    SeekBar seek;
+    TextView timeText;
 
     public class ListViewCache  {
 
@@ -62,7 +71,7 @@ public class ListActivity extends AppCompatActivity {
 
         public ImageView getImageView(int resource) {
             if (imagePlay == null) {
-                imagePlay = (ImageView) baseView.findViewById(R.id.play_button);
+                imagePlay = (ImageView) baseView.findViewById(R.id.equalizer);
             }
             return imagePlay;
         }
@@ -83,17 +92,6 @@ public class ListActivity extends AppCompatActivity {
                 inflater = LayoutInflater.from( ctx );
                 context=ctx;
             }
-
-           /* private View.OnClickListener PlayButtonListener = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    final int position = getListView().getPositionForView(v);
-                    if (position != ListView.INVALID_POSITION) {
-                        showMessage(getString(R.string.you_want_to_buy_format, CHEESES[position]));
-                    }
-                }
-           }
-    */
 
         @Override
         public View getView (int position, View convertView, ViewGroup parent ) {
@@ -127,8 +125,6 @@ public class ListActivity extends AppCompatActivity {
         }
     }
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -152,15 +148,7 @@ public class ListActivity extends AppCompatActivity {
         arr_list.add("aaa");
         arr_list.add("zzz");
         arr_list.add("cwewreulo");
-        arr_list.add("aaggghaa");
-        arr_list.add("zzssad");
-        arr_list.add("ciao");
-        arr_list.add("culo");
-        arr_list.add("aaa");
-        arr_list.add("zzz");
-        arr_list.add("cwewreulo");
-        arr_list.add("aaggghaa");
-        arr_list.add("zzssad");
+
 
         toggle = new boolean[arr_list.size()];
         Arrays.fill(toggle, false);
@@ -171,6 +159,8 @@ public class ListActivity extends AppCompatActivity {
         final Context cx = this;
         // 1. Instantiate an AlertDialog.Builder with its constructor
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog.Builder builder2 = new AlertDialog.Builder(this);
+        final LayoutInflater inflater = getLayoutInflater();
 
 
         mylist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -178,29 +168,69 @@ public class ListActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view,
                                     final int position, long id) {
 
-                Object o = mylist.getItemAtPosition(position);
-                String file = o.toString();
-                // Toast.makeText(getApplicationContext(), "You have chosen the pen: " + " " + pen, Toast.LENGTH_LONG).show();
-                // 2. Chain together various setter methods to set the dialog characteristics
+                final String file =  (String) mylist.getItemAtPosition(position);
+
                 builder.setTitle(file);
-                String choises[] = {(String)getText(R.string.dialog1),(String)getText(R.string.dialog1),(String)getText(R.string.dialog1)};
+                String choises[] = {(String)getText(R.string.dialog1),(String)getText(R.string.dialog2),(String)getText(R.string.dialog3)};
                 builder.setItems(choises, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which){
                         case 0:
-                            Toast.makeText(getApplicationContext(), "Caso1", Toast.LENGTH_LONG).show();
+                            builder2.setTitle(file);
+                            builder2.setView(inflater.inflate(R.layout.dialog_play, null));
+                            player = MediaPlayer.create(ac, R.raw.prova);
+                            player.setLooping(true);
+                            player.start();
+                            AlertDialog dialog2 = builder2.create();
+                            dialog2.show();
+
+                            timeText = (TextView) dialog2.findViewById(R.id.time);
+                            endTime = player.getDuration();
+                            startTime = player.getCurrentPosition();
+                            seek = (SeekBar) dialog2.findViewById(R.id.seekBar);
+                            seek.setMax((int) endTime);
+                            seek.setProgress((int)startTime);
+
+
+                            handy.postDelayed(UpdateSongTime,100);
+                            playPause = (ToggleButton) dialog2.findViewById(R.id.togglePlay);
+                            playPause.setOnClickListener(new View.OnClickListener() {
+                                public void onClick(View view) {
+                                    if (player.isPlaying()) {
+                                        player.pause();
+                                    } else {
+                                        player.start();
+                                    }
+                                }
+
+                            });
+
+                            dialog2.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                @Override
+                                public void onDismiss(DialogInterface dialog) {
+                                    player.release();
+                                    handy.removeCallbacks(UpdateSongTime);
+                                }
+                            });
+                            dialog2.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                @Override
+                                public void onCancel(DialogInterface dialog) {
+                                    player.release();
+                                    handy.removeCallbacks(UpdateSongTime);
+                                }
+                            });
                             break;
                         case 1:
-                            Toast.makeText(getApplicationContext(), "Caso3", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "Caso2", Toast.LENGTH_LONG).show();
                             break;
                         case 2:
-                            Toast.makeText(getApplicationContext(), "Caso2", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "Caso3", Toast.LENGTH_LONG).show();
                             break;
                         }
 
                     }
                 });
-                // 3. Get the AlertDialog from create()
+
                 AlertDialog dialog = builder.create();
                 dialog.show();
             }
@@ -208,18 +238,21 @@ public class ListActivity extends AppCompatActivity {
 
 
 
-
-       /* mylist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> listView, View itemView, int position, long id) {
-                toggle[position] = !toggle[position];
-
-                ImageView imageView = (ImageView) itemView.findViewById(R.id.play_button);
-                imageView.setImageResource(toggle[position] ? R.drawable.ic_play_circle_outline_black_48dp : R.drawable.ic_pause_circle_filled_black_48dp);
-            }
-
-        });*/
     }
 
+    private Runnable UpdateSongTime = new Runnable() {
+        public void run() {
+            startTime = player.getCurrentPosition();
+            timeText.setText(String.format("%d′%d″/%d′%d″",
+                    TimeUnit.MILLISECONDS.toMinutes((long) startTime),
+                    TimeUnit.MILLISECONDS.toSeconds((long) startTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) startTime)),
+                    TimeUnit.MILLISECONDS.toMinutes((long) endTime),
+                    TimeUnit.MILLISECONDS.toSeconds((long) endTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) endTime)))
+            );
+            seek.setProgress((int)startTime);
+            handy.postDelayed(this, 100);
+        }
+    };
 
    /*
     @Override
