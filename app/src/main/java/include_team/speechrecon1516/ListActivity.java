@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -18,7 +19,9 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -37,6 +40,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class ListActivity extends AppCompatActivity {
@@ -128,9 +132,22 @@ public class ListActivity extends AppCompatActivity {
 
             // metti il simbolo di play
             ImageView img=(ImageView)viewCache.getImageView(resource);
-            Drawable buttonPlay = getDrawable(R.drawable.ic_equalizer_black_48dp);
-            //Drawable buttonPause = getDrawable(R.drawable.ic_play_circle_outline_black_48dp);
-            img.setImageDrawable(buttonPlay);
+            Drawable iconFile = getDrawable(R.drawable.ic_equalizer_black_48dp);
+//            int rand = (int) Math.random()*3;
+//            switch(rand){
+//                case 0:
+//                    iconFile.setColorFilter(getColor(R.color.primary), PorterDuff.Mode.SRC_ATOP);
+//                    break;
+//                case 1:
+//                    iconFile.setColorFilter(getColor(R.color.primary_dark), PorterDuff.Mode.SRC_ATOP);
+//                    break;
+//                case 2:
+//                    iconFile.setColorFilter(getColor(R.color.accent), PorterDuff.Mode.SRC_ATOP);
+//                    break;
+//            }
+//            ;
+            iconFile.setColorFilter(getColor(R.color.primary_dark), PorterDuff.Mode.SRC_ATOP);
+            img.setImageDrawable(iconFile);
 
             return convertView;
         }
@@ -250,7 +267,8 @@ public class ListActivity extends AppCompatActivity {
                             builder2.setView(dialogView);
                             builder2.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
-                                    String text = editText.getText().toString();
+                                    String text = editText.getText().toString().replaceAll(" ", "");
+                                    text = text.toString().replaceAll("\n", "");
                                     boolean rename = true;
                                     if (text.compareTo("")==0){
                                         Toast.makeText(getApplicationContext(), getString(R.string.noRename), Toast.LENGTH_LONG).show();
@@ -266,6 +284,14 @@ public class ListActivity extends AppCompatActivity {
                                     }
                                     if (rename)
                                         arr_list.set(position,text);
+                                }
+                            });
+                            editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                                @Override
+                                public void onFocusChange(View v, boolean hasFocus) {
+                                    if (hasFocus) {
+                                        dialog2.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                                    }
                                 }
                             });
                             dialog2 = builder2.create();
