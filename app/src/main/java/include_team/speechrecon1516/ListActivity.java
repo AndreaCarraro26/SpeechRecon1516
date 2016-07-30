@@ -3,6 +3,8 @@ package include_team.speechrecon1516;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -11,10 +13,12 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -27,6 +31,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,12 +41,13 @@ import java.util.concurrent.TimeUnit;
 
 public class ListActivity extends AppCompatActivity {
 
-    private static final String TAG = "ListActivity";
+    private static final String TAG = "ListActivityDebug";
     boolean toggle[];
     private ListView mylist;
     ToggleButton playPause;
     MediaPlayer player;
     Activity ac = this;
+    ArrayList<String> arr_list;
 
     // variables needed for playback
     private Handler handy = new Handler();
@@ -131,6 +139,7 @@ public class ListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate Method");
         setContentView(R.layout.activity_list);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarList);
@@ -138,27 +147,37 @@ public class ListActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        ArrayList<String> arr_list = new ArrayList<String>();
-        arr_list.add("ciao");
-        arr_list.add("culo");
-        arr_list.add("aaa");
-        arr_list.add("zzz");
-        arr_list.add("cwewreulo");
-        arr_list.add("aaggghaa");
-        arr_list.add("zzssad");
-        arr_list.add("ciao");
-        arr_list.add("culo");
-        arr_list.add("aaa");
-        arr_list.add("zzz");
-        arr_list.add("cwewreulo");
+        SharedPreferences prefs = getSharedPreferences("Prefs", Context.MODE_PRIVATE);
 
+        try {
+            arr_list = (ArrayList<String>) ObjectSerializer.deserialize(prefs.getString("arr_list", ObjectSerializer.serialize(new ArrayList<List>())));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        toggle = new boolean[arr_list.size()];
-        Arrays.fill(toggle, false);
+        if (arr_list==null){
+            arr_list = new ArrayList<String>();
+            arr_list.add("ciao");
+            arr_list.add("culo");
+            arr_list.add("aaa");
+            arr_list.add("zzz");
+            arr_list.add("cwewreulo");
+            arr_list.add("aaggghaa");
+            arr_list.add("zzssad");
+            arr_list.add("ciao");
+            arr_list.add("culo");
+            arr_list.add("aaa");
+            arr_list.add("zzz");
+            arr_list.add("cwewreulo");
+            arr_list.add("aaa");
+            arr_list.add("zzz");
+            arr_list.add("cwewreulo");
+        }
 
         mylist = (ListView) findViewById(R.id.listView);
         mylist.setItemsCanFocus(true);
-        mylist.setAdapter(new ListAdapter(this, R.layout.list_entry, arr_list));
+        final ListAdapter arr_adapter = new ListAdapter(this, R.layout.list_entry, arr_list);
+        mylist.setAdapter(arr_adapter);
         final Context cx = this;
         // 1. Instantiate an AlertDialog.Builder with its constructor
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -174,7 +193,7 @@ public class ListActivity extends AppCompatActivity {
                 final String file =  (String) mylist.getItemAtPosition(position);
 
                 builder.setTitle(file);
-                String choises[] = {(String)getText(R.string.dialog1),(String)getText(R.string.dialog2),(String)getText(R.string.dialog3)};
+                String choises[] = {(String)getText(R.string.dialog1),(String)getText(R.string.dialog2),(String)getText(R.string.dialog3),(String)getText(R.string.dialog4)};
                 builder.setItems(choises, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which){
@@ -194,7 +213,7 @@ public class ListActivity extends AppCompatActivity {
                             seek.setMax((int) endTime);
                             seek.setProgress((int)startTime);
 
-                            handy.postDelayed(UpdateSongTime,100);
+                            handy.postDelayed(UpdateSongTime,50);
                             playPause = (ToggleButton) dialog2.findViewById(R.id.togglePlay);
                             playPause.setOnClickListener(new View.OnClickListener() {
                                 public void onClick(View view) {
@@ -204,7 +223,6 @@ public class ListActivity extends AppCompatActivity {
                                         player.start();
                                     }
                                 }
-
                             });
 
                             dialog2.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -226,8 +244,40 @@ public class ListActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), "Caso2", Toast.LENGTH_LONG).show();
                             break;
                         case 2:
-                            Toast.makeText(getApplicationContext(), "Caso3", Toast.LENGTH_LONG).show();
+                            final View dialogView =inflater.inflate(R.layout.rename, null);
+                            final EditText editText = (EditText) dialogView.findViewById(R.id.editText);
+                            builder2.setTitle("Rename");
+                            builder2.setView(dialogView);
+                            builder2.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    String text = editText.getText().toString();
+                                    boolean rename = true;
+                                    if (text.compareTo("")==0){
+                                        Toast.makeText(getApplicationContext(), getString(R.string.noRename), Toast.LENGTH_LONG).show();
+                                        rename = !rename;
+                                    }
+                                    else {
+                                        for(int i=0; i<arr_list.size(); i++)
+                                            if(text.compareTo(arr_list.get(i))==0) {
+                                                rename = !rename;
+                                                Toast.makeText(getApplicationContext(), getString(R.string.nameInUse), Toast.LENGTH_LONG).show();
+                                                break;
+                                            }
+                                    }
+                                    if (rename)
+                                        arr_list.set(position,text);
+                                }
+                            });
+                            dialog2 = builder2.create();
+                            dialog2.show();
                             break;
+                        case 3:
+                            String nome = arr_list.get(position);
+                            arr_list.remove(position);
+                            arr_adapter.notifyDataSetChanged();
+                            Toast.makeText(getApplicationContext(), nome + getString(R.string.removed), Toast.LENGTH_LONG).show();
+                            break;
+
                         }
 
                     }
@@ -256,36 +306,63 @@ public class ListActivity extends AppCompatActivity {
         }
     };
 
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putSerializable("arr_list", arr_list);
+        Log.d(TAG,"State Saved");
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    /*@Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Log.v(TAG, "Inside of onRestoreInstanceState");
+        arr_list = (ArrayList<String>) savedInstanceState.getSerializable("array_list");
+    }*/
 
     @Override
     protected void onStart() {
         super.onStart();
-        // The activity is about to become visible.
+        Log.d(TAG,"onStart Method");
     }
     @Override
     protected void onResume() {
         super.onResume();
-        // The activity has become visible (it is now "resumed").
+        Log.d(TAG,"onResume Method");
     }
     @Override
     protected void onPause() {
         super.onPause();
+        Log.d(TAG, "onPause Method");
         handy.removeCallbacks(UpdateSongTime);
-        if(player!=null)
+        if (player != null)
             player.release();
-        if(dialog!=null)
+        if (dialog != null)
             dialog.dismiss();
-        if(dialog2!=null)
+        if (dialog2 != null)
             dialog2.dismiss();
+
+
+        SharedPreferences prefs = getSharedPreferences("Prefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        try {
+            editor.putString("arr_list", ObjectSerializer.serialize(arr_list));
+            Log.d(TAG, "Saved Persistent State");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        editor.commit();
     }
+
     @Override
     protected void onStop() {
         super.onStop();
+        Log.d(TAG,"onStopMethod");
     }
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // The activity is about to be destroyed.
+        Log.d(TAG,"onDestroy Method");
     }
 
 }

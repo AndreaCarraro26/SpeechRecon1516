@@ -13,14 +13,23 @@
     android:subtitleTextColor="@color/subtitle"
     />-->
 
-<android.support.v7.widget.Toolbar
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/toolbar"
+
+<RelativeLayout
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:title="@string/title_activity_list"
-    app:subtitle="@string/subtitle_activity_list"
-    app:titleMarginStart="16dp"
-    app:theme="@style/Theme.MyTheme"
-    />
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <android.support.v7.widget.Toolbar
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:title="@string/title_activity_list"
+        app:subtitle="@string/subtitle_activity_list"
+        app:titleMarginStart="16dp"
+        app:theme="@style/Theme.MyTheme"
+
+        />
+
+</RelativeLayout>

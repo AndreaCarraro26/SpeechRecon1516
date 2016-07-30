@@ -20,13 +20,20 @@
         android:background="?attr/colorPrimary"
         />
 
+    <View
+        android:id="@+id/toolbar_shadow"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/toolbar_shadow"
+        android:layout_below="@id/toolbarList"
+        android:background="@drawable/shadow" />
+
     <ListView
         android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:layout_below="@id/toolbarList"
+        android:layout_below="@id/toolbar_shadow"
                />
 
 </RelativeLayout>
