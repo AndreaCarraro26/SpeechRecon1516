@@ -1,6 +1,8 @@
 package include_team.speechrecon1516;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,6 +10,10 @@ import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
@@ -34,9 +40,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import org.w3c.dom.Text;
+
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,6 +77,7 @@ public class ListActivity extends AppCompatActivity {
     // Dialog must be closed in onPause
     AlertDialog dialog;
     AlertDialog dialog2;
+
     public class ListViewCache  {
 
         private View baseView;
@@ -91,8 +106,6 @@ public class ListActivity extends AppCompatActivity {
             return imagePlay;
         }
     }
-
-
     public class ListAdapter extends ArrayAdapter{
 
             private int resource;
@@ -132,26 +145,127 @@ public class ListActivity extends AppCompatActivity {
 
             // metti il simbolo di play
             ImageView img=(ImageView)viewCache.getImageView(resource);
-            Drawable iconFile = getDrawable(R.drawable.ic_equalizer_black_48dp);
-//            int rand = (int) Math.random()*3;
-//            switch(rand){
-//                case 0:
-//                    iconFile.setColorFilter(getColor(R.color.primary), PorterDuff.Mode.SRC_ATOP);
-//                    break;
-//                case 1:
-//                    iconFile.setColorFilter(getColor(R.color.primary_dark), PorterDuff.Mode.SRC_ATOP);
-//                    break;
-//                case 2:
-//                    iconFile.setColorFilter(getColor(R.color.accent), PorterDuff.Mode.SRC_ATOP);
-//                    break;
-//            }
-//            ;
+            Drawable iconFile = getDrawable(R.drawable.ic_record_voice_over_black_36dp);
             iconFile.setColorFilter(getColor(R.color.primary_dark), PorterDuff.Mode.SRC_ATOP);
             img.setImageDrawable(iconFile);
 
             return convertView;
         }
     }
+
+
+    // Class with extends AsyncTask class
+    private class callToServer  extends AsyncTask<String, Void, Void>  {
+
+        URL url;
+        private HttpURLConnection conn;
+        FileInputStream fileInputStream;
+        DataOutputStream dos;
+
+        private ProgressDialog Dialog = new ProgressDialog(ListActivity.this);
+
+        String fileName = "text.txt";
+
+        String lineEnd = "\r\n";
+        String twoHyphens = "--";
+        String boundary = "*****";
+        int bytesRead, bytesAvailable, bufferSize;
+        byte[] buffer;
+        int maxBufferSize = 1 * 1024 * 1024;
+        int serverResponseCode = 0;
+
+        //File sourceFile = getResources().openRawResource(R.raw.text); // ???????
+        Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.text);
+        File source = new File(uri.toString());
+
+        protected void onPreExecute() {
+            // NOTE: You can call UI Element here.
+
+            //UI Element
+            //uiUpdate.setText("Output : ");
+            Dialog.setMessage("Uploading...");
+            Dialog.show();
+        }
+
+        // Call after onPreExecute method
+        protected Void doInBackground(String... urls) {
+
+            try{
+                // open a URL connection to the Servlet
+                url = new URL("http://192.168.115/save.php");
+                // fileInputStream = new FileInputStream(sourceFile);
+
+                // Open a HTTP  connection to  the URL
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setDoInput(true); // Allow Inputs
+                conn.setDoOutput(true); // Allow Outputs
+                conn.setUseCaches(false); // Don't use a Cached Copy
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Connection", "Keep-Alive");
+                conn.setRequestProperty("ENCTYPE", "multipart/form-data");
+                conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+                conn.setRequestProperty("uploaded_file", fileName);
+
+                dos = new DataOutputStream(conn.getOutputStream());
+
+                dos.writeBytes(twoHyphens + boundary + lineEnd);
+                dos.writeBytes("Content-Disposition: form-data; name=uploaded_file;filename=" + fileName  + lineEnd);
+                dos.writeBytes(lineEnd);
+
+
+                // create a buffer of  maximum size
+                bytesAvailable = fileInputStream.available();
+
+                bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                buffer = new byte[bufferSize];
+
+                // read file and write it into form...
+                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+
+                while (bytesRead > 0) {
+
+                    dos.write(buffer, 0, bufferSize);
+                    bytesAvailable = fileInputStream.available();
+                    bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+
+                }
+
+                // send multipart form data necesssary after file data...
+                dos.writeBytes(lineEnd);
+                dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+                // Responses from the server (code and message)
+                serverResponseCode = conn.getResponseCode();
+                String serverResponseMessage = conn.getResponseMessage();
+
+                Log.i("uploadFile", "HTTP Response is : "
+                        + serverResponseMessage + ": " + serverResponseCode);
+
+                //close the streams //
+                fileInputStream.close();
+                dos.flush();
+                dos.close();
+
+            }
+            catch (Exception e){
+
+            }
+
+            return null;
+        }
+
+        protected void onPostExecute(Void unused) {
+            // NOTE: You can call UI Element here.
+
+            // Close progress dialog
+            Dialog.dismiss();
+
+        }
+
+    }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -258,13 +372,50 @@ public class ListActivity extends AppCompatActivity {
                             });
                             break;
                         case 1:
-                            Toast.makeText(getApplicationContext(), "Caso2", Toast.LENGTH_LONG).show();
+                            ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                            NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+                            if (networkInfo != null && networkInfo.isConnected()) {
+                               new callToServer().execute();
+                            }
+                            else{
+                                Toast.makeText(getApplicationContext(), getString(R.string.noNetwork), Toast.LENGTH_LONG).show();
+                                break;
+                            }
+
+
+
+//                            final View dialogView1 =inflater.inflate(R.layout.dialog_server, null);
+//                            final TextView textP = (TextView) dialogView1.findViewById(R.id.textProgress);
+//                            builder2.setTitle("Connecting with server");
+//                            builder2.setView(dialogView1);
+//                            textP.setText(getString(R.string.textServer));
+//                            dialog2 = builder2.create();
+//                            dialog2.show();
+//                            dialog2.setCancelable(false);
+//
+//
+
                             break;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         case 2:
-                            final View dialogView =inflater.inflate(R.layout.rename, null);
-                            final EditText editText = (EditText) dialogView.findViewById(R.id.editText);
+                            final View dialogView2 =inflater.inflate(R.layout.rename, null);
+                            final EditText editText = (EditText) dialogView2.findViewById(R.id.editText);
                             builder2.setTitle("Rename");
-                            builder2.setView(dialogView);
+                            builder2.setView(dialogView2);
                             builder2.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                     String text = editText.getText().toString().replaceAll(" ", "");
@@ -339,12 +490,6 @@ public class ListActivity extends AppCompatActivity {
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    /*@Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        Log.v(TAG, "Inside of onRestoreInstanceState");
-        arr_list = (ArrayList<String>) savedInstanceState.getSerializable("array_list");
-    }*/
 
     @Override
     protected void onStart() {
