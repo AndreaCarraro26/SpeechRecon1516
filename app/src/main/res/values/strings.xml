@@ -3,6 +3,13 @@
 
     <!-- Main-->
     <string name="title_activity_main">KaldiMobile</string>
+    <string name="record_button">START NEW RECORD</string>
+    <string name="stop_button">STOP RECORD</string>
+    <string name="list_button">List of records</string>
+
+    <!-- Dialog-->
+    <string name="save">Save audio with name:</string>
+    <string name="save_button">SAVE</string>
 
     <!-- List -->
     <string name="title_activity_list">File List</string>
