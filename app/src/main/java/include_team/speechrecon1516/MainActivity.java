@@ -12,21 +12,27 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "MainActivityDebug";
     private static final String MyPREFERENCES = "MyPrefs";
     SharedPreferences sharedpreferences;
+
+    File file[] ;
 
     // Create a new instance of android.media.MediaRecorder
     private MediaRecorder audio_recorder = null;
@@ -84,6 +90,55 @@ public class MainActivity extends AppCompatActivity {
         audio_recorder = null;
     }
 
+    public void renameFile() {
+
+        final Dialog dialog = new Dialog(ctx);
+        dialog.setContentView(R.layout.dialog);
+        TextView tv = (TextView) dialog.findViewById(R.id.textView1);
+        et = (EditText) dialog.findViewById(R.id.editText1);
+        et.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                }
+            }
+        });
+
+        et.setText(audio_name);
+        Button btn = (Button) dialog.findViewById(R.id.button1);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                from = new File(audio_filename);
+
+                new_audio_filename = et.getText().toString().replaceAll(" ", "");
+                new_audio_filename = new_audio_filename.toString().replaceAll("\n", "");
+                if (new_audio_filename.compareTo("") != 0)
+                    new_audio_filename = new_audio_filename.substring(0, 1).toUpperCase() + new_audio_filename.substring(1);
+                if (new_audio_filename.compareTo("") == 0) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.noRename), Toast.LENGTH_LONG).show();
+                    renameFile();
+                    dialog.dismiss();
+                    return;
+                } else {
+                    for (int i = 0; i < file.length; i++)
+                        if (new_audio_filename.compareTo(file[i].getName().substring(0, file[i].getName().length() - 4)) == 0) {
+                            Toast.makeText(getApplicationContext(), getString(R.string.nameInUse), Toast.LENGTH_LONG).show();
+                            renameFile();
+                            dialog.dismiss();
+                            return;
+                        }
+                }
+
+                to = new File(audio_path + new_audio_filename + ".mp3");
+                from.renameTo(to);
+                Toast.makeText(getApplicationContext(), new_audio_filename + " " + getString(R.string.saved), Toast.LENGTH_LONG).show();
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,10 +178,13 @@ public class MainActivity extends AppCompatActivity {
                     btn_record.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_stop_48dp, 0, 0);
                     assert main_layout != null;
                     main_layout.addView(timer);
+
                     audio_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String)getText(R.string.directory) + "/";
                     final File dir = new File(audio_path);
                     dir.mkdir();
-                    audio_name = "record" + audioCounter;
+                    file = dir.listFiles();
+
+                    audio_name = "Record" + audioCounter;
                     audio_filename = audio_path + audio_name + ".mp3";
                     Log.d("nome", audio_filename);
                     audioCounter++;
@@ -139,24 +197,7 @@ public class MainActivity extends AppCompatActivity {
                     btn_record.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_mic_48dp, 0, 0);
                     chronometer.stop();
 
-                    final Dialog dialog = new Dialog(ctx);
-                    dialog.setContentView(R.layout.dialog);
-                    TextView tv = (TextView) dialog.findViewById(R.id.textView1);
-                    et = (EditText) dialog.findViewById(R.id.editText1);
-
-                    et.setText(audio_name);
-                    Button btn = (Button) dialog.findViewById(R.id.button1);
-                    btn.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            from = new File(audio_filename);
-                            new_audio_filename = et.getText().toString();
-                            to = new File(audio_path + new_audio_filename + ".mp3");
-                            from.renameTo(to);
-                            dialog.dismiss();
-                        }
-                    });
-                    dialog.show();
+                    renameFile();
 
                     assert main_layout != null;
                     main_layout.removeView(timer);
