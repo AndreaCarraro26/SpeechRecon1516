@@ -7,6 +7,7 @@
     <string name="record_button">START NEW RECORD</string>
     <string name="stop_button">STOP RECORD</string>
     <string name="list_button">List of records</string>
+    <string name="saved">record has been saved</string>
 
     <!-- Dialog-->
     <string name="save">Save audio with name:</string>

@@ -77,6 +77,10 @@ public class ListActivity extends AppCompatActivity {
     SeekBar seek;
     TextView timeText;
 
+    AlertDialog.Builder builder;
+    AlertDialog.Builder builder2;
+    LayoutInflater inflater;
+
     // Dialog must be closed in onPause
     AlertDialog dialog;
     AlertDialog dialog2;
@@ -109,6 +113,7 @@ public class ListActivity extends AppCompatActivity {
             return imagePlay;
         }
     }
+
     public class ListAdapter extends ArrayAdapter{
 
             private int resource;
@@ -156,11 +161,6 @@ public class ListActivity extends AppCompatActivity {
         }
     }
 
-    /*static public void add(String s){
-        arr_list.add(s);
-    }*/
-
-    // Class with extends AsyncTask class
     private class callToServer  extends AsyncTask<String, Void, Void>  {
 
         URL url;
@@ -271,6 +271,51 @@ public class ListActivity extends AppCompatActivity {
 
     }
 
+    private void rename(final int position, final String fileName) {
+        final View dialogView2 =inflater.inflate(R.layout.rename, null);
+        final EditText editText = (EditText) dialogView2.findViewById(R.id.editText);
+
+        builder2.setTitle("Rename");
+        builder2.setView(dialogView2);
+        builder2.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                String text = editText.getText().toString().replaceAll(" ", "");
+                text = text.toString().replaceAll("\n", "");
+                text = text.substring(0, 1).toUpperCase() + text.substring(1);
+                if (text.compareTo("")==0){
+                    Toast.makeText(getApplicationContext(), getString(R.string.noRename), Toast.LENGTH_LONG).show();
+                    rename(position, fileName);
+                    return;
+                }
+                else {
+                    for(int i=0; i<arr_list.size(); i++)
+                        if(text.compareTo(arr_list.get(i))==0) {
+                            Toast.makeText(getApplicationContext(), getString(R.string.nameInUse), Toast.LENGTH_LONG).show();
+                            rename(position, fileName);
+                            return;
+                        }
+                }
+
+                arr_list.set(position,text);
+                File newFile = new File(audio_path + "/" + text + ".mp3");
+                File oldFile = new File(audio_path + "/" + fileName + ".mp3");
+                oldFile.renameTo(newFile);
+
+
+            }
+        });
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    dialog2.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                }
+            }
+        });
+        dialog2 = builder2.create();
+        dialog2.show();
+
+    }
 
 
     @Override
@@ -286,6 +331,10 @@ public class ListActivity extends AppCompatActivity {
 
         SharedPreferences prefs = getSharedPreferences("Prefs", Context.MODE_PRIVATE);
 
+        builder = new AlertDialog.Builder(this);
+        builder2 = new AlertDialog.Builder(this);
+        inflater = getLayoutInflater();
+
 
 
         audio_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String)getText(R.string.directory) + "/";
@@ -300,44 +349,12 @@ public class ListActivity extends AppCompatActivity {
                 arr_list.add(name.substring(0, name.length() - 4));
             }
         }
-/*
-
-        try {
-            arr_list = (ArrayList<String>) ObjectSerializer.deserialize(prefs.getString("arr_list", ObjectSerializer.serialize(new ArrayList<List>())));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-*/
-
-/*        if (arr_list==null){
-            arr_list = new ArrayList<String>();
-            arr_list.add("ciao");
-            arr_list.add("culo");
-            arr_list.add("aaa");
-            arr_list.add("zzz");
-            arr_list.add("cwewreulo");
-            arr_list.add("aaggghaa");
-            arr_list.add("zzssad");
-            arr_list.add("ciao");
-            arr_list.add("culo");
-            arr_list.add("aaa");
-            arr_list.add("zzz");
-            arr_list.add("cwewreulo");
-            arr_list.add("aaa");
-            arr_list.add("zzz");
-            arr_list.add("cwewreulo");
-        }*/
 
         mylist = (ListView) findViewById(R.id.listView);
         mylist.setItemsCanFocus(true);
         final ListAdapter arr_adapter = new ListAdapter(this, R.layout.list_entry, arr_list);
         mylist.setAdapter(arr_adapter);
         final Context cx = this;
-        // 1. Instantiate an AlertDialog.Builder with its constructor
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        final AlertDialog.Builder builder2 = new AlertDialog.Builder(this);
-        final LayoutInflater inflater = getLayoutInflater();
-
 
         mylist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -421,46 +438,7 @@ public class ListActivity extends AppCompatActivity {
                             break;
 
                         case 2: // rename
-                            final View dialogView2 =inflater.inflate(R.layout.rename, null);
-                            final EditText editText = (EditText) dialogView2.findViewById(R.id.editText);
-                            builder2.setTitle("Rename");
-                            builder2.setView(dialogView2);
-                            builder2.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    String text = editText.getText().toString().replaceAll(" ", "");
-                                    text = text.toString().replaceAll("\n", "");
-                                    boolean rename = true;
-                                    if (text.compareTo("")==0){
-                                        Toast.makeText(getApplicationContext(), getString(R.string.noRename), Toast.LENGTH_LONG).show();
-                                        rename = !rename;
-                                    }
-                                    else {
-                                        for(int i=0; i<arr_list.size(); i++)
-                                            if(text.compareTo(arr_list.get(i))==0) {
-                                                rename = !rename;
-                                                Toast.makeText(getApplicationContext(), getString(R.string.nameInUse), Toast.LENGTH_LONG).show();
-                                                break;
-                                            }
-                                    }
-                                    if (rename) {
-                                        arr_list.set(position,text);
-                                        File newFile = new File(audio_path + "/" + text + ".mp3");
-                                        File oldFile = new File(audio_path + "/" + fileName + ".mp3");
-                                        oldFile.renameTo(newFile);
-                                    }
-
-                                }
-                            });
-                            editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                                @Override
-                                public void onFocusChange(View v, boolean hasFocus) {
-                                    if (hasFocus) {
-                                        dialog2.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                                    }
-                                }
-                            });
-                            dialog2 = builder2.create();
-                            dialog2.show();
+                            rename(position, fileName);
                             break;
                         case 3: // delete
                             String nome = arr_list.get(position);
@@ -468,7 +446,7 @@ public class ListActivity extends AppCompatActivity {
                             toDelete.delete();
                             arr_list.remove(position);
                             arr_adapter.notifyDataSetChanged();
-                            Toast.makeText(getApplicationContext(), nome + getString(R.string.removed), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), nome + " " + getString(R.string.removed), Toast.LENGTH_LONG).show();
                             break;
 
                         }
