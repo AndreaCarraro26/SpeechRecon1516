@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -21,17 +20,12 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -60,9 +54,11 @@ import java.util.concurrent.TimeUnit;
 
 public class ListActivity extends AppCompatActivity {
 
+    private Toolbar toolbar;
+
     private static final String TAG = "ListActivityDebug";
-    boolean toggle[];
     private ListView mylist;
+    private File file[];
     ToggleButton playPause;
     MediaPlayer player;
     Activity ac = this;
@@ -77,6 +73,7 @@ public class ListActivity extends AppCompatActivity {
     SeekBar seek;
     TextView timeText;
 
+    Context cx;
     AlertDialog.Builder builder;
     AlertDialog.Builder builder2;
     LayoutInflater inflater;
@@ -271,6 +268,144 @@ public class ListActivity extends AppCompatActivity {
 
     }
 
+    private void setToolbar(){
+        toolbar = (Toolbar) findViewById(R.id.toolbarList);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
+
+    private void setBuilders(){
+        builder = new AlertDialog.Builder(cx);
+        builder2 = new AlertDialog.Builder(cx);
+        inflater = getLayoutInflater();
+    }
+
+    private void setAudioFiles(){
+        audio_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String)getText(R.string.directory) + "/";
+        Log.d(TAG, "Path for file: " + audio_path);
+        File dir = new File(audio_path);
+        dir.mkdir();
+        file = dir.listFiles();
+        if(file!=null){
+            Log.d(TAG, "Files in directory: "+ file.length);
+            for (int i=0;i<file.length;i++){
+                String name = file[i].getName();
+                arr_list.add(name.substring(0, name.length() - 4));
+            }
+        }
+    }
+
+    private void setViewList(){
+        mylist = (ListView) findViewById(R.id.listView);
+        mylist.setItemsCanFocus(true);
+        final ListAdapter arr_adapter = new ListAdapter(this, R.layout.list_entry, arr_list);
+        mylist.setAdapter(arr_adapter);
+
+        mylist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+
+                final String fileName =  (String) mylist.getItemAtPosition(position);
+
+                builder.setTitle(fileName);
+                String choises[] = {(String)getText(R.string.dialog1),(String)getText(R.string.dialog2),(String)getText(R.string.dialog3),(String)getText(R.string.dialog4)};
+                builder.setItems(choises, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which){
+                            case 0: // play record
+                                builder2.setTitle(fileName);
+                                builder2.setView(inflater.inflate(R.layout.dialog_play, null));
+                                player = MediaPlayer.create(ac, Uri.parse(audio_path + "/" + fileName + ".mp3"));
+                                player.setLooping(true);
+                                player.start();
+                                dialog2 = builder2.create();
+                                dialog2.show();
+
+                                timeText = (TextView) dialog2.findViewById(R.id.time);
+                                endTime = player.getDuration();
+                                startTime = player.getCurrentPosition();
+                                seek = (SeekBar) dialog2.findViewById(R.id.seekBar);
+                                seek.setMax((int) endTime);
+                                seek.setProgress((int)startTime);
+
+                                handy.postDelayed(UpdateSongTime,50);
+                                playPause = (ToggleButton) dialog2.findViewById(R.id.togglePlay);
+                                playPause.setOnClickListener(new View.OnClickListener() {
+                                    public void onClick(View view) {
+                                        if (player.isPlaying()) {
+                                            player.pause();
+                                        } else {
+                                            player.start();
+                                        }
+                                    }
+                                });
+
+                                dialog2.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                    @Override
+                                    public void onDismiss(DialogInterface dialog) {
+                                        handy.removeCallbacks(UpdateSongTime);
+                                        player.release();
+                                    }
+                                });
+                                dialog2.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                    @Override
+                                    public void onCancel(DialogInterface dialog) {
+                                        handy.removeCallbacks(UpdateSongTime);
+                                        player.release();
+                                    }
+                                });
+                                break;
+                            case 1: // transcribe
+                                ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+                                if (networkInfo != null && networkInfo.isConnected()) {
+                                    new callToServer().execute();
+                                }
+                                else{
+                                    Toast.makeText(getApplicationContext(), getString(R.string.noNetwork), Toast.LENGTH_LONG).show();
+                                    break;
+                                }
+
+
+
+//                            final View dialogView1 =inflater.inflate(R.layout.dialog_server, null);
+//                            final TextView textP = (TextView) dialogView1.findViewById(R.id.textProgress);
+//                            builder2.setTitle("Connecting with server");
+//                            builder2.setView(dialogView1);
+//                            textP.setText(getString(R.string.textServer));
+//                            dialog2 = builder2.create();
+//                            dialog2.show();
+//                            dialog2.setCancelable(false);
+//
+//
+
+                                break;
+
+                            case 2: // rename
+                                rename(position, fileName);
+                                break;
+                            case 3: // delete
+                                String nome = arr_list.get(position);
+                                File toDelete = new File(audio_path + "/" + fileName + ".mp3");
+                                toDelete.delete();
+                                arr_list.remove(position);
+                                arr_adapter.notifyDataSetChanged();
+                                Toast.makeText(getApplicationContext(), nome + " " + getString(R.string.removed), Toast.LENGTH_LONG).show();
+                                break;
+
+                        }
+
+                    }
+                });
+
+                dialog = builder.create();
+                dialog.show();
+            }
+        });
+
+    }
+
     private void rename(final int position, final String fileName) {
         final View dialogView2 =inflater.inflate(R.layout.rename, null);
         final EditText editText = (EditText) dialogView2.findViewById(R.id.editText);
@@ -281,7 +416,8 @@ public class ListActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String text = editText.getText().toString().replaceAll(" ", "");
                 text = text.toString().replaceAll("\n", "");
-                text = text.substring(0, 1).toUpperCase() + text.substring(1);
+                if (text.compareTo("") != 0)
+                    text = text.substring(0, 1).toUpperCase() + text.substring(1);
                 if (text.compareTo("")==0){
                     Toast.makeText(getApplicationContext(), getString(R.string.noRename), Toast.LENGTH_LONG).show();
                     rename(position, fileName);
@@ -317,149 +453,21 @@ public class ListActivity extends AppCompatActivity {
 
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate Method");
         setContentView(R.layout.activity_list);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarList);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-
+        cx = this;
         SharedPreferences prefs = getSharedPreferences("Prefs", Context.MODE_PRIVATE);
 
-        builder = new AlertDialog.Builder(this);
-        builder2 = new AlertDialog.Builder(this);
-        inflater = getLayoutInflater();
+        setToolbar();
 
+        setBuilders();
 
+        setAudioFiles();
 
-        audio_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String)getText(R.string.directory) + "/";
-        Log.d(TAG, "Path for file: " + audio_path);
-        File dir = new File(audio_path);
-        dir.mkdir();
-        File file[] = dir.listFiles();
-        if(file!=null){
-            Log.d(TAG, "Files in directory: "+ file.length);
-            for (int i=0;i<file.length;i++){
-                String name = file[i].getName();
-                arr_list.add(name.substring(0, name.length() - 4));
-            }
-        }
-
-        mylist = (ListView) findViewById(R.id.listView);
-        mylist.setItemsCanFocus(true);
-        final ListAdapter arr_adapter = new ListAdapter(this, R.layout.list_entry, arr_list);
-        mylist.setAdapter(arr_adapter);
-        final Context cx = this;
-
-        mylist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    final int position, long id) {
-
-                final String fileName =  (String) mylist.getItemAtPosition(position);
-
-                builder.setTitle(fileName);
-                String choises[] = {(String)getText(R.string.dialog1),(String)getText(R.string.dialog2),(String)getText(R.string.dialog3),(String)getText(R.string.dialog4)};
-                builder.setItems(choises, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
-                        case 0: // play record
-                            builder2.setTitle(fileName);
-                            builder2.setView(inflater.inflate(R.layout.dialog_play, null));
-                            player = MediaPlayer.create(ac, Uri.parse(audio_path + "/" + fileName + ".mp3"));
-                            player.setLooping(true);
-                            player.start();
-                            dialog2 = builder2.create();
-                            dialog2.show();
-
-                            timeText = (TextView) dialog2.findViewById(R.id.time);
-                            endTime = player.getDuration();
-                            startTime = player.getCurrentPosition();
-                            seek = (SeekBar) dialog2.findViewById(R.id.seekBar);
-                            seek.setMax((int) endTime);
-                            seek.setProgress((int)startTime);
-
-                            handy.postDelayed(UpdateSongTime,50);
-                            playPause = (ToggleButton) dialog2.findViewById(R.id.togglePlay);
-                            playPause.setOnClickListener(new View.OnClickListener() {
-                                public void onClick(View view) {
-                                    if (player.isPlaying()) {
-                                        player.pause();
-                                    } else {
-                                        player.start();
-                                    }
-                                }
-                            });
-
-                            dialog2.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                                @Override
-                                public void onDismiss(DialogInterface dialog) {
-                                    handy.removeCallbacks(UpdateSongTime);
-                                    player.release();
-                                }
-                            });
-                            dialog2.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                                @Override
-                                public void onCancel(DialogInterface dialog) {
-                                    handy.removeCallbacks(UpdateSongTime);
-                                    player.release();
-                                }
-                            });
-                            break;
-                        case 1: // transcribe
-                            ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                            NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-                            if (networkInfo != null && networkInfo.isConnected()) {
-                               new callToServer().execute();
-                            }
-                            else{
-                                Toast.makeText(getApplicationContext(), getString(R.string.noNetwork), Toast.LENGTH_LONG).show();
-                                break;
-                            }
-
-
-
-//                            final View dialogView1 =inflater.inflate(R.layout.dialog_server, null);
-//                            final TextView textP = (TextView) dialogView1.findViewById(R.id.textProgress);
-//                            builder2.setTitle("Connecting with server");
-//                            builder2.setView(dialogView1);
-//                            textP.setText(getString(R.string.textServer));
-//                            dialog2 = builder2.create();
-//                            dialog2.show();
-//                            dialog2.setCancelable(false);
-//
-//
-
-                            break;
-
-                        case 2: // rename
-                            rename(position, fileName);
-                            break;
-                        case 3: // delete
-                            String nome = arr_list.get(position);
-                            File toDelete = new File(audio_path + "/" + fileName + ".mp3");
-                            toDelete.delete();
-                            arr_list.remove(position);
-                            arr_adapter.notifyDataSetChanged();
-                            Toast.makeText(getApplicationContext(), nome + " " + getString(R.string.removed), Toast.LENGTH_LONG).show();
-                            break;
-
-                        }
-
-                    }
-                });
-
-                dialog = builder.create();
-                dialog.show();
-            }
-        });
-
-
+        setViewList();
 
     }
 
@@ -473,7 +481,7 @@ public class ListActivity extends AppCompatActivity {
                     TimeUnit.MILLISECONDS.toSeconds((long) endTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) endTime)))
             );
             seek.setProgress((int)startTime);
-            handy.postDelayed(this, 100);
+            handy.postDelayed(this, 16);
         }
     };
 
@@ -483,7 +491,6 @@ public class ListActivity extends AppCompatActivity {
         Log.d(TAG,"State Saved");
         super.onSaveInstanceState(savedInstanceState);
     }
-
 
     @Override
     protected void onStart() {
@@ -518,7 +525,6 @@ public class ListActivity extends AppCompatActivity {
         }
         editor.commit();
     }
-
     @Override
     protected void onStop() {
         super.onStop();
