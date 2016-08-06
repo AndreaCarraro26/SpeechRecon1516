@@ -123,9 +123,12 @@ public class MainActivity extends AppCompatActivity {
                     btn_record.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_stop_48dp, 0, 0);
                     assert main_layout != null;
                     main_layout.addView(timer);
-                    audio_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
+                    audio_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String)getText(R.string.directory) + "/";
+                    final File dir = new File(audio_path);
+                    dir.mkdir();
                     audio_name = "record" + audioCounter;
                     audio_filename = audio_path + audio_name + ".mp3";
+                    Log.d("nome", audio_filename);
                     audioCounter++;
                     chronometer = (Chronometer) findViewById(R.id.chronometer);
                     chronometer.setBase(SystemClock.elapsedRealtime());

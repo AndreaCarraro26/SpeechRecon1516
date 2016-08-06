@@ -15,6 +15,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -65,7 +66,9 @@ public class ListActivity extends AppCompatActivity {
     ToggleButton playPause;
     MediaPlayer player;
     Activity ac = this;
-    ArrayList<String> arr_list;
+    ArrayList<String> arr_list = new ArrayList<String>();
+
+    String audio_path;
 
     // variables needed for playback
     private Handler handy = new Handler();
@@ -153,6 +156,9 @@ public class ListActivity extends AppCompatActivity {
         }
     }
 
+    /*static public void add(String s){
+        arr_list.add(s);
+    }*/
 
     // Class with extends AsyncTask class
     private class callToServer  extends AsyncTask<String, Void, Void>  {
@@ -280,13 +286,30 @@ public class ListActivity extends AppCompatActivity {
 
         SharedPreferences prefs = getSharedPreferences("Prefs", Context.MODE_PRIVATE);
 
+
+
+        audio_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String)getText(R.string.directory) + "/";
+        Log.d(TAG, "Path for file: " + audio_path);
+        File dir = new File(audio_path);
+        dir.mkdir();
+        File file[] = dir.listFiles();
+        if(file!=null){
+            Log.d(TAG, "Files in directory: "+ file.length);
+            for (int i=0;i<file.length;i++){
+                String name = file[i].getName();
+                arr_list.add(name.substring(0, name.length() - 4));
+            }
+        }
+/*
+
         try {
             arr_list = (ArrayList<String>) ObjectSerializer.deserialize(prefs.getString("arr_list", ObjectSerializer.serialize(new ArrayList<List>())));
         } catch (IOException e) {
             e.printStackTrace();
         }
+*/
 
-        if (arr_list==null){
+/*        if (arr_list==null){
             arr_list = new ArrayList<String>();
             arr_list.add("ciao");
             arr_list.add("culo");
@@ -303,7 +326,7 @@ public class ListActivity extends AppCompatActivity {
             arr_list.add("aaa");
             arr_list.add("zzz");
             arr_list.add("cwewreulo");
-        }
+        }*/
 
         mylist = (ListView) findViewById(R.id.listView);
         mylist.setItemsCanFocus(true);
@@ -321,17 +344,17 @@ public class ListActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view,
                                     final int position, long id) {
 
-                final String file =  (String) mylist.getItemAtPosition(position);
+                final String fileName =  (String) mylist.getItemAtPosition(position);
 
-                builder.setTitle(file);
+                builder.setTitle(fileName);
                 String choises[] = {(String)getText(R.string.dialog1),(String)getText(R.string.dialog2),(String)getText(R.string.dialog3),(String)getText(R.string.dialog4)};
                 builder.setItems(choises, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which){
-                        case 0:
-                            builder2.setTitle(file);
+                        case 0: // play record
+                            builder2.setTitle(fileName);
                             builder2.setView(inflater.inflate(R.layout.dialog_play, null));
-                            player = MediaPlayer.create(ac, R.raw.prova);
+                            player = MediaPlayer.create(ac, Uri.parse(audio_path + "/" + fileName + ".mp3"));
                             player.setLooping(true);
                             player.start();
                             dialog2 = builder2.create();
@@ -371,7 +394,7 @@ public class ListActivity extends AppCompatActivity {
                                 }
                             });
                             break;
-                        case 1:
+                        case 1: // transcribe
                             ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                             NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
                             if (networkInfo != null && networkInfo.isConnected()) {
@@ -397,21 +420,7 @@ public class ListActivity extends AppCompatActivity {
 
                             break;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                        case 2:
+                        case 2: // rename
                             final View dialogView2 =inflater.inflate(R.layout.rename, null);
                             final EditText editText = (EditText) dialogView2.findViewById(R.id.editText);
                             builder2.setTitle("Rename");
@@ -433,8 +442,13 @@ public class ListActivity extends AppCompatActivity {
                                                 break;
                                             }
                                     }
-                                    if (rename)
+                                    if (rename) {
                                         arr_list.set(position,text);
+                                        File newFile = new File(audio_path + "/" + text + ".mp3");
+                                        File oldFile = new File(audio_path + "/" + fileName + ".mp3");
+                                        oldFile.renameTo(newFile);
+                                    }
+
                                 }
                             });
                             editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -448,8 +462,10 @@ public class ListActivity extends AppCompatActivity {
                             dialog2 = builder2.create();
                             dialog2.show();
                             break;
-                        case 3:
+                        case 3: // delete
                             String nome = arr_list.get(position);
+                            File toDelete = new File(audio_path + "/" + fileName + ".mp3");
+                            toDelete.delete();
                             arr_list.remove(position);
                             arr_adapter.notifyDataSetChanged();
                             Toast.makeText(getApplicationContext(), nome + getString(R.string.removed), Toast.LENGTH_LONG).show();

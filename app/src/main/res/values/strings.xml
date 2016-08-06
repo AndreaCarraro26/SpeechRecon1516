@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">KaldiMobile</string>
+    <string name="directory">KaldiMobile</string>
 
     <!-- Main-->
     <string name="title_activity_main">KaldiMobile</string>
@@ -21,6 +22,11 @@
     <string name="noRename">Filename not valid</string>
     <string name="nameInUse">Filename already in use</string>
     <string name="removed"> has been removed from list</string>
+    <string name="textServer">Please wait the process to be completed...</string>
+    <string name="noNetwork">No internet access. Please check your connection</string>
+
+
+
     <!-- Altro-->
     <string name="hello">Hello World</string>
 
