@@ -18,14 +18,19 @@ import android.os.Environment;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -64,12 +69,16 @@ public class ListActivity extends AppCompatActivity {
     private Toolbar toolbar;
 
     private static final String TAG = "ListActivityDebug";
-    private ListView mylist;
     private File file[];
     private ToggleButton playPause;
     private MediaPlayer player;
     private Activity ac = this;
+
+    private ListView mylist;
     private ArrayList<String> arr_list = new ArrayList<String>();
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
 
     private String audio_path;
 
@@ -162,6 +171,60 @@ public class ListActivity extends AppCompatActivity {
             img.setImageDrawable(iconFile);
 
             return convertView;
+        }
+    }
+
+    public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
+        ArrayList<String> list ;
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+
+            public TextView textView;
+            public ImageView icon;
+
+            public ViewHolder(View itemView) {
+                // Stores the itemView in a public final member variable that can be used
+                // to access the context from any ViewHolder instance.
+                super(itemView);
+
+                textView = (TextView) itemView.findViewById(R.id.name_file);
+                icon = (ImageView) itemView.findViewById(R.id.equalizer);
+            }
+
+        }
+
+        // Provide a suitable constructor (depends on the kind of dataset)
+        public MyAdapter(ArrayList<String> ls) {
+            list = ls;
+        }
+
+        // Create new views (invoked by the layout manager)
+        @Override
+        public MyAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+                                                       int viewType) {
+            // create a new view
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.list_entry, parent, false);
+            ViewHolder vh = new ViewHolder(v);
+            return vh;
+        }
+
+        // Replace the contents of a view (invoked by the layout manager)
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {
+            // - get element from your dataset at this position
+            // - replace the contents of the view with that element
+            holder.textView.setText(list.get(position));
+            Drawable iconFile = getDrawable(R.drawable.ic_record_voice_over_black_36dp);
+            iconFile.setColorFilter(getColor(R.color.primary_dark), PorterDuff.Mode.SRC_ATOP);
+            holder.icon.setImageDrawable(iconFile);
+
+        }
+
+        // Return the size of your dataset (invoked by the layout manager)
+        @Override
+        public int getItemCount() {
+            return list.size();
         }
     }
 
@@ -375,8 +438,66 @@ public class ListActivity extends AppCompatActivity {
         });
     }
 
+
+    private void setReciclerList(){
+        mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
+
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
+        mRecyclerView.setHasFixedSize(true);
+
+        // use a linear layout manager
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        // specify an adapter (see also next example)
+        mAdapter = new MyAdapter(arr_list);
+        mRecyclerView.setAdapter(mAdapter);
+
+        mRecyclerView.addOnItemTouchListener(
+                new RecyclerItemClickListener(cx, new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override public void onItemClick(View view, final int position) {
+
+                        final String fileName =  (String) arr_list.get(position);
+
+                        builder.setTitle(fileName);
+                        String choises[] = {(String)getText(R.string.dialog1),(String)getText(R.string.dialog2),(String)getText(R.string.dialog3),(String)getText(R.string.dialog4)};
+                        builder.setItems(choises, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which){
+                                    case 0: // play record
+                                        playRecord(fileName);
+                                        break;
+                                    case 1: // transcribe
+                                        new callToServer().execute(position);
+                                        break;
+
+                                    case 2: // rename
+                                        rename(position, fileName);
+                                        break;
+                                    case 3: // delete
+                                        String nome = arr_list.get(position);
+                                        File toDelete = new File(audio_path + "/" + fileName + ".mp3");
+                                        toDelete.delete();
+                                        arr_list.remove(position);
+                                        mAdapter.notifyItemRemoved(position);
+                                        Toast.makeText(getApplicationContext(), nome + " " + getString(R.string.removed), Toast.LENGTH_LONG).show();
+                                        break;
+
+                                }
+
+                            }
+                        });
+
+                        dialog = builder.create();
+                        dialog.show();
+                    }
+                }));
+
+    }
+
     private void setViewList(){
-        mylist = (ListView) findViewById(R.id.listView);
+       // mylist = (ListView) findViewById(R.id.listView);
         mylist.setItemsCanFocus(true);
         final ListAdapter arr_adapter = new ListAdapter(this, R.layout.list_entry, arr_list);
         mylist.setAdapter(arr_adapter);
@@ -453,7 +574,7 @@ public class ListActivity extends AppCompatActivity {
                 File newFile = new File(audio_path + "/" + text + ".mp3");
                 File oldFile = new File(audio_path + "/" + fileName + ".mp3");
                 oldFile.renameTo(newFile);
-
+                mAdapter.notifyItemChanged(position);
 
             }
         });
@@ -465,6 +586,8 @@ public class ListActivity extends AppCompatActivity {
                 }
             }
         });
+        editText.setText(fileName);
+        editText.selectAll();
         dialog2 = builder2.create();
         dialog2.show();
 
@@ -484,7 +607,7 @@ public class ListActivity extends AppCompatActivity {
 
         setAudioFiles();
 
-        setViewList();
+        setReciclerList();
 
     }
 
