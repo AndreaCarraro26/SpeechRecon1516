@@ -38,13 +38,20 @@ import android.widget.ToggleButton;
 import org.w3c.dom.Text;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,28 +66,28 @@ public class ListActivity extends AppCompatActivity {
     private static final String TAG = "ListActivityDebug";
     private ListView mylist;
     private File file[];
-    ToggleButton playPause;
-    MediaPlayer player;
-    Activity ac = this;
-    ArrayList<String> arr_list = new ArrayList<String>();
+    private ToggleButton playPause;
+    private MediaPlayer player;
+    private Activity ac = this;
+    private ArrayList<String> arr_list = new ArrayList<String>();
 
-    String audio_path;
+    private String audio_path;
 
     // variables needed for playback
     private Handler handy = new Handler();
     private double startTime = 0;
     private double endTime= 0;
-    SeekBar seek;
-    TextView timeText;
+    private SeekBar seek;
+    private TextView timeText;
 
-    Context cx;
-    AlertDialog.Builder builder;
-    AlertDialog.Builder builder2;
-    LayoutInflater inflater;
+    private Context cx;
+    private AlertDialog.Builder builder;
+    private AlertDialog.Builder builder2;
+    private LayoutInflater inflater;
 
     // Dialog must be closed in onPause
-    AlertDialog dialog;
-    AlertDialog dialog2;
+    private AlertDialog dialog;
+    private AlertDialog dialog2;
 
     public class ListViewCache  {
 
@@ -158,34 +165,55 @@ public class ListActivity extends AppCompatActivity {
         }
     }
 
-    private class callToServer  extends AsyncTask<String, Void, Void>  {
+    private class callToServer extends AsyncTask<String, Void, Void>  {
 
+        boolean noConnectivity = false;
         URL url;
-        private HttpURLConnection conn;
-        FileInputStream fileInputStream;
+        HttpURLConnection connection;
+
+        String file_path;
+        String filename;
+        String serverResponse ;
+
+        InputStream inputStream;
+        FileInputStream fileInputStream ;
         DataOutputStream dos;
 
-        private ProgressDialog Dialog = new ProgressDialog(ListActivity.this);
-
-        String fileName = "text.txt";
+        ProgressDialog Dialog = new ProgressDialog(ListActivity.this);
 
         String lineEnd = "\r\n";
         String twoHyphens = "--";
         String boundary = "*****";
-        int bytesRead, bytesAvailable, bufferSize;
-        byte[] buffer;
-        int maxBufferSize = 1 * 1024 * 1024;
-        int serverResponseCode = 0;
 
-        //File sourceFile = getResources().openRawResource(R.raw.text); // ???????
-        Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.text);
-        File source = new File(uri.toString());
+        int pos ; // position on the list
+
+        public void execute(int position){
+            pos = position;
+            execute();
+        }
 
         protected void onPreExecute() {
-            // NOTE: You can call UI Element here.
 
-            //UI Element
-            //uiUpdate.setText("Output : ");
+            ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+            if (!(networkInfo != null && networkInfo.isConnected())) {
+                Toast.makeText(getApplicationContext(), getString(R.string.noNetwork), Toast.LENGTH_LONG).show();
+                noConnectivity = true;
+                return;
+            }
+
+            file_path = Environment.getExternalStorageDirectory().toString()+"/KaldiMobile/" + arr_list.get(pos) + ".mp3";
+            filename = arr_list.get(pos) + ".mp3";
+
+            try {
+                fileInputStream = new FileInputStream(file_path);
+            } catch (FileNotFoundException e) {
+                Log.d(TAG, "onPreExecute - callToServer - " + e.getMessage());
+            }
+
+            Log.d(TAG, "onPreExecute - callToServer - File: " + file_path);
+
             Dialog.setMessage("Uploading...");
             Dialog.show();
         }
@@ -193,78 +221,85 @@ public class ListActivity extends AppCompatActivity {
         // Call after onPreExecute method
         protected Void doInBackground(String... urls) {
 
+            if (noConnectivity)
+                return null;
+
             try{
-                // open a URL connection to the Servlet
-                url = new URL("http://192.168.115/save.php");
-                // fileInputStream = new FileInputStream(sourceFile);
+                Log.d(TAG, "doInBackground - Connecting..");
+                url = new URL(getString(R.string.serverLocation));
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setDoOutput(true);
+                connection.setRequestProperty("Connection", "Keep-Alive");
+                connection.setRequestProperty("Content-Type", "multipart/form-data;boundary="+boundary);
+                connection.setRequestProperty("uploaded_file", file_path);
 
-                // Open a HTTP  connection to  the URL
-                conn = (HttpURLConnection) url.openConnection();
-                conn.setDoInput(true); // Allow Inputs
-                conn.setDoOutput(true); // Allow Outputs
-                conn.setUseCaches(false); // Don't use a Cached Copy
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Connection", "Keep-Alive");
-                conn.setRequestProperty("ENCTYPE", "multipart/form-data");
-                conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
-                conn.setRequestProperty("uploaded_file", fileName);
 
-                dos = new DataOutputStream(conn.getOutputStream());
+                dos = new DataOutputStream(connection.getOutputStream());
 
                 dos.writeBytes(twoHyphens + boundary + lineEnd);
-                dos.writeBytes("Content-Disposition: form-data; name=uploaded_file;filename=" + fileName  + lineEnd);
+                dos.writeBytes("Content-Disposition: form-data; name=\"uploadedfile\"; filename=\"" + filename +"\"" + lineEnd);
                 dos.writeBytes(lineEnd);
 
+                // create a buffer of maximum size
+                int bytesAvailable = fileInputStream.available();
 
-                // create a buffer of  maximum size
-                bytesAvailable = fileInputStream.available();
-
-                bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                buffer = new byte[bufferSize];
+                int maxBufferSize = 1024;
+                int bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                byte[ ] buffer = new byte[bufferSize];
 
                 // read file and write it into form...
-                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                int bytesRead = fileInputStream.read(buffer, 0, bufferSize);
 
-                while (bytesRead > 0) {
-
+                while (bytesRead > 0)
+                {
                     dos.write(buffer, 0, bufferSize);
                     bytesAvailable = fileInputStream.available();
-                    bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-
+                    bufferSize = Math.min(bytesAvailable,maxBufferSize);
+                    bytesRead = fileInputStream.read(buffer, 0,bufferSize);
                 }
-
-                // send multipart form data necesssary after file data...
                 dos.writeBytes(lineEnd);
                 dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
 
-                // Responses from the server (code and message)
-                serverResponseCode = conn.getResponseCode();
-                String serverResponseMessage = conn.getResponseMessage();
-
-                Log.i("uploadFile", "HTTP Response is : "
-                        + serverResponseMessage + ": " + serverResponseCode);
-
-                //close the streams //
+                // close streams
                 fileInputStream.close();
+
                 dos.flush();
+
+                InputStream is = connection.getInputStream();
+
+                // retrieve the response from server
+                int ch;
+
+                StringBuffer b =new StringBuffer();
+                while( ( ch = is.read() ) != -1 ){ b.append( (char)ch ); }
+                serverResponse =b.toString();
                 dos.close();
-
+                Log.d(TAG, "doInBackground terminated - callToServer");
             }
-            catch (Exception e){
+            catch (MalformedURLException ex)
+            {
+                Log.e(TAG, "URL error: " + ex.getMessage(), ex);
+            }
 
+            catch (IOException ioe)
+            {
+                Log.e(TAG, "IO error: " + ioe.getMessage(), ioe);
             }
 
             return null;
         }
 
         protected void onPostExecute(Void unused) {
-            // NOTE: You can call UI Element here.
+           if(noConnectivity)
+               return;
 
-            // Close progress dialog
+            Log.d(TAG, "onPostExecute - callToServer");
+
             Dialog.dismiss();
+            Toast.makeText(cx,"Message from Server: \n"+ serverResponse, Toast.LENGTH_LONG).show();
 
         }
+
 
     }
 
@@ -296,6 +331,50 @@ public class ListActivity extends AppCompatActivity {
         }
     }
 
+    private void playRecord(String fileName){
+        builder2.setTitle(fileName);
+        builder2.setView(inflater.inflate(R.layout.dialog_play, null));
+        player = MediaPlayer.create(ac, Uri.parse(audio_path + "/" + fileName + ".mp3"));
+        player.setLooping(true);
+        player.start();
+        dialog2 = builder2.create();
+        dialog2.show();
+
+        timeText = (TextView) dialog2.findViewById(R.id.time);
+        endTime = player.getDuration();
+        startTime = player.getCurrentPosition();
+        seek = (SeekBar) dialog2.findViewById(R.id.seekBar);
+        seek.setMax((int) endTime);
+        seek.setProgress((int)startTime);
+
+        handy.postDelayed(UpdateSongTime,50);
+        playPause = (ToggleButton) dialog2.findViewById(R.id.togglePlay);
+        playPause.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                if (player.isPlaying()) {
+                    player.pause();
+                } else {
+                    player.start();
+                }
+            }
+        });
+
+        dialog2.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                handy.removeCallbacks(UpdateSongTime);
+                player.release();
+            }
+        });
+        dialog2.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                handy.removeCallbacks(UpdateSongTime);
+                player.release();
+            }
+        });
+    }
+
     private void setViewList(){
         mylist = (ListView) findViewById(R.id.listView);
         mylist.setItemsCanFocus(true);
@@ -314,72 +393,10 @@ public class ListActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which){
                             case 0: // play record
-                                builder2.setTitle(fileName);
-                                builder2.setView(inflater.inflate(R.layout.dialog_play, null));
-                                player = MediaPlayer.create(ac, Uri.parse(audio_path + "/" + fileName + ".mp3"));
-                                player.setLooping(true);
-                                player.start();
-                                dialog2 = builder2.create();
-                                dialog2.show();
-
-                                timeText = (TextView) dialog2.findViewById(R.id.time);
-                                endTime = player.getDuration();
-                                startTime = player.getCurrentPosition();
-                                seek = (SeekBar) dialog2.findViewById(R.id.seekBar);
-                                seek.setMax((int) endTime);
-                                seek.setProgress((int)startTime);
-
-                                handy.postDelayed(UpdateSongTime,50);
-                                playPause = (ToggleButton) dialog2.findViewById(R.id.togglePlay);
-                                playPause.setOnClickListener(new View.OnClickListener() {
-                                    public void onClick(View view) {
-                                        if (player.isPlaying()) {
-                                            player.pause();
-                                        } else {
-                                            player.start();
-                                        }
-                                    }
-                                });
-
-                                dialog2.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                                    @Override
-                                    public void onDismiss(DialogInterface dialog) {
-                                        handy.removeCallbacks(UpdateSongTime);
-                                        player.release();
-                                    }
-                                });
-                                dialog2.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                                    @Override
-                                    public void onCancel(DialogInterface dialog) {
-                                        handy.removeCallbacks(UpdateSongTime);
-                                        player.release();
-                                    }
-                                });
+                                playRecord(fileName);
                                 break;
                             case 1: // transcribe
-                                ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-                                if (networkInfo != null && networkInfo.isConnected()) {
-                                    new callToServer().execute();
-                                }
-                                else{
-                                    Toast.makeText(getApplicationContext(), getString(R.string.noNetwork), Toast.LENGTH_LONG).show();
-                                    break;
-                                }
-
-
-
-//                            final View dialogView1 =inflater.inflate(R.layout.dialog_server, null);
-//                            final TextView textP = (TextView) dialogView1.findViewById(R.id.textProgress);
-//                            builder2.setTitle("Connecting with server");
-//                            builder2.setView(dialogView1);
-//                            textP.setText(getString(R.string.textServer));
-//                            dialog2 = builder2.create();
-//                            dialog2.show();
-//                            dialog2.setCancelable(false);
-//
-//
-
+                                new callToServer().execute(position);
                                 break;
 
                             case 2: // rename

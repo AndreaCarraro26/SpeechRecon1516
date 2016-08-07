@@ -22,13 +22,11 @@
     <string name="dialog4">Delete file</string>
     <string name="noRename">Filename not valid</string>
     <string name="nameInUse">Filename already in use</string>
+
+    <!-- Server -->
     <string name="removed"> has been removed from list</string>
     <string name="textServer">Please wait the process to be completed...</string>
     <string name="noNetwork">No internet access. Please check your connection</string>
-
-
-
-    <!-- Altro-->
-    <string name="hello">Hello World</string>
+    <string name="serverLocation">http://192.168.1.115/save.php</string>
 
 </resources>
