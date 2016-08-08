@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">KaldiMobile</string>
-    <string name="directory">KaldiMobile</string>
+    <string name="directory_audio">KaldiMobile/Audio</string>
+    <string name="directory_txt">KaldiMobile/Txt</string>
 
     <!-- Main-->
     <string name="title_activity_main">KaldiMobile</string>
@@ -20,6 +21,7 @@
     <string name="dialog2">Transcribe</string>
     <string name="dialog3">Rename file</string>
     <string name="dialog4">Delete file</string>
+    <string name="dialogX">View Transcription</string>
     <string name="noRename">Filename not valid</string>
     <string name="nameInUse">Filename already in use</string>
 

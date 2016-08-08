@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
                     assert main_layout != null;
                     main_layout.addView(timer);
 
-                    audio_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String)getText(R.string.directory) + "/";
+                    audio_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + getString(R.string.directory_audio) + "/";
                     final File dir = new File(audio_path);
                     dir.mkdir();
                     file = dir.listFiles();

@@ -8,6 +8,7 @@
     android:background="?android:attr/selectableItemBackground"
     android:focusable="true"
     android:clickable="true"
+    android:id="@+id/list_entry"
    >
 
     <ImageView
@@ -16,6 +17,16 @@
         android:layout_height="wrap_content"
         android:paddingLeft="16dp"
         android:layout_centerVertical="true"/>
+
+    <ImageView
+        android:id="@+id/done"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingRight="16dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+
+        />
 
     <TextView
         android:id="@+id/name_file"
@@ -27,5 +38,7 @@
         android:layout_toRightOf="@id/equalizer"
         android:gravity="center|left"
         />
+
+
 
 </RelativeLayout>
