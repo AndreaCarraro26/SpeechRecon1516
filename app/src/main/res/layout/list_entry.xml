@@ -28,16 +28,34 @@
 
         />
 
-    <TextView
-        android:id="@+id/name_file"
+    <LinearLayout
+        android:id="@+id/texts_layout"
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="60dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
-        android:textSize="16sp"
-        android:layout_toRightOf="@id/equalizer"
-        android:gravity="center|left"
-        />
+        android:layout_toRightOf="@id/equalizer">
+
+        <TextView
+            android:id="@+id/name_file"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:textSize="16sp"
+            android:gravity="bottom|left"
+            android:textColor="@color/title"
+            />
+        <TextView
+            android:id="@+id/data_string"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:textSize="16sp"
+            android:gravity="top|left"
+            android:textColor="@color/subtitle"
+            />
+    </LinearLayout>
 
 
 

@@ -58,9 +58,14 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -94,25 +99,27 @@ public class ListActivity extends AppCompatActivity {
 
     private Context cx;
     private AlertDialog.Builder builderMenu;
-    private AlertDialog.Builder builder2;
+    private AlertDialog.Builder builderRename;
     private AlertDialog.Builder builderPlay;
     private AlertDialog.Builder builderText;
     private LayoutInflater inflater;
 
     // Dialog must be closed in onPause
     private AlertDialog dialogMenu;
-    private AlertDialog dialogReplace;
+    private AlertDialog dialogRename;
     private AlertDialog dialogPlay;
     private AlertDialog dialogText;
 
+    DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,DateFormat.MEDIUM);
+
     private class ArrayEntry {
         private String name;
-        private String info;
         private boolean transcribed;
+        Date date;
 
-        public ArrayEntry(String cname, String cinfo, boolean ctranscribed){
+        public ArrayEntry(String cname, Date dd, boolean ctranscribed){
             name = cname;
-            info = cinfo;
+            date = dd;
             transcribed = ctranscribed;
         }
 
@@ -120,8 +127,8 @@ public class ListActivity extends AppCompatActivity {
             return name;
         }
 
-        public String getInfo() {
-            return info;
+        public Date getDate() {
+            return date;
         }
 
         public boolean isTranscribed() {
@@ -136,8 +143,8 @@ public class ListActivity extends AppCompatActivity {
             this.transcribed = transcribed;
         }
 
-        public void setInfo(String info) {
-            this.info = info;
+        public void setDate(Date date) {
+            this.date = date;
         }
     }
 
@@ -236,6 +243,7 @@ public class ListActivity extends AppCompatActivity {
         String lineEnd = "\r\n";
         String twoHyphens = "--";
         String boundary = "*****";
+        String error;
 
         int pos ; // position on the list
 
@@ -266,8 +274,10 @@ public class ListActivity extends AppCompatActivity {
 
             Log.d(TAG, "onPreExecute - callToServer - File: " + file_path);
 
-            Dialog.setMessage("Uploading...");
+            Dialog.setMessage(getString(R.string.connecting));
             Dialog.show();
+            Dialog.setCancelable(false);
+            Dialog.setCanceledOnTouchOutside(false);
         }
 
         // Call after onPreExecute method
@@ -284,9 +294,11 @@ public class ListActivity extends AppCompatActivity {
                 connection.setRequestProperty("Connection", "Keep-Alive");
                 connection.setRequestProperty("Content-Type", "multipart/form-data;boundary="+boundary);
                 connection.setRequestProperty("uploaded_file", file_path);
+                connection.setConnectTimeout(5000); //set timeout to 5 seconds
 
 
                 dos = new DataOutputStream(connection.getOutputStream());
+                Dialog.setMessage(getString(R.string.uploading));
 
                 dos.writeBytes(twoHyphens + boundary + lineEnd);
                 dos.writeBytes("Content-Disposition: form-data; name=\"uploadedfile\"; filename=\"" + filename +"\"" + lineEnd);
@@ -312,9 +324,7 @@ public class ListActivity extends AppCompatActivity {
                 dos.writeBytes(lineEnd);
                 dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
 
-                // close streams
                 fileInputStream.close();
-
                 dos.flush();
 
                 InputStream is = connection.getInputStream();
@@ -331,34 +341,42 @@ public class ListActivity extends AppCompatActivity {
             catch (MalformedURLException ex)
             {
                 Log.e(TAG, "URL error: " + ex.getMessage(), ex);
+                error = "Cannot connect to server: URL malformed.";
             }
-
+            catch (SocketTimeoutException toe) {
+                Log.e(TAG, "Timeout error: " + toe.getMessage(), toe);
+                error = "Cannot connect to server: timeout expired";
+            }
             catch (IOException ioe)
             {
                 Log.e(TAG, "IO error: " + ioe.getMessage(), ioe);
             }
 
+
             return null;
         }
 
         protected void onPostExecute(Void unused) {
-           if(noConnectivity)
+            Log.d(TAG, "onPostExecute - callToServer");
+            if(noConnectivity)
                return;
 
-            Log.d(TAG, "onPostExecute - callToServer");
+            if(error!=null){
+                Dialog.dismiss();
+                Log.d(TAG, error);
+                Toast.makeText(getApplicationContext(), error, Toast.LENGTH_LONG).show();
+            }
+            else {
+                MyAdapter.ViewHolder holder = (MyAdapter.ViewHolder) mRecyclerView.findViewHolderForAdapterPosition(pos);
+                arr_list.get(pos).setTranscribed(true);
+                mAdapter.notifyItemChanged(pos);
 
-            MyAdapter.ViewHolder holder = (MyAdapter.ViewHolder) mRecyclerView.findViewHolderForAdapterPosition(pos);
-            //holder.done.setVisibility(View.VISIBLE);
-            arr_list.get(pos).setTranscribed(true);
-            mAdapter.notifyItemChanged(pos);
+                Dialog.dismiss();
 
-            Dialog.dismiss();
-
-            Log.d(TAG, "Message from Server: "+ serverResponse);
-            setTxtFile(filename, serverResponse);
-            viewTranscription(pos);
-
-
+                Log.d(TAG, "Message from Server: " + serverResponse);
+                setTxtFile(filename, serverResponse);
+                viewTranscription(pos);
+            }
         }
 
 
@@ -373,7 +391,7 @@ public class ListActivity extends AppCompatActivity {
 
     private void setBuilders(){
         builderMenu = new AlertDialog.Builder(cx);
-        builder2 = new AlertDialog.Builder(cx);
+        builderRename = new AlertDialog.Builder(cx);
         builderPlay = new AlertDialog.Builder(cx);
         builderText = new AlertDialog.Builder(cx);
         inflater = getLayoutInflater();
@@ -407,8 +425,15 @@ public class ListActivity extends AppCompatActivity {
                         hasBeenTranscribed = true;
                 }
 
-                arr_list.add(new ArrayEntry(name, null, hasBeenTranscribed));
+                arr_list.add(new ArrayEntry(name, new Date(audio_file[i].lastModified()), hasBeenTranscribed));
             }
+
+            Collections.sort(arr_list, new Comparator<ArrayEntry>() {
+                @Override
+                public int compare(ArrayEntry a1, ArrayEntry a2) {
+                    return a2.getDate().compareTo(a1.getDate());
+                }
+            });
             Log.d(TAG, "arr_list size: "+ arr_list.size());
         }
     }
@@ -419,18 +444,18 @@ public class ListActivity extends AppCompatActivity {
         player = MediaPlayer.create(ac, Uri.parse(audio_path + "/" + fileName + ".mp3"));
         player.setLooping(true);
         player.start();
-        dialogPlay = builder2.create();
+        dialogPlay = builderPlay.create();
         dialogPlay.show();
 
-        timeText = (TextView) dialogReplace.findViewById(R.id.time);
+        timeText = (TextView) dialogPlay.findViewById(R.id.time);
         endTime = player.getDuration();
         startTime = player.getCurrentPosition();
-        seek = (SeekBar) dialogReplace.findViewById(R.id.seekBar);
+        seek = (SeekBar) dialogPlay.findViewById(R.id.seekBar);
         seek.setMax((int) endTime);
         seek.setProgress((int)startTime);
 
         handy.postDelayed(UpdateSongTime,50);
-        playPause = (ToggleButton) dialogReplace.findViewById(R.id.togglePlay);
+        playPause = (ToggleButton) dialogPlay.findViewById(R.id.togglePlay);
         playPause.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 if (player.isPlaying()) {
@@ -463,6 +488,7 @@ public class ListActivity extends AppCompatActivity {
         public class ViewHolder extends RecyclerView.ViewHolder {
 
             public TextView textView;
+            public TextView dateView;
             public ImageView icon;
             public ImageView done;
 
@@ -472,6 +498,7 @@ public class ListActivity extends AppCompatActivity {
                 super(itemView);
 
                 textView = (TextView) itemView.findViewById(R.id.name_file);
+                dateView = (TextView) itemView.findViewById(R.id.data_string);
                 icon = (ImageView) itemView.findViewById(R.id.equalizer);
                 done = (ImageView) itemView.findViewById(R.id.done);
 
@@ -498,9 +525,10 @@ public class ListActivity extends AppCompatActivity {
         // Replace the contents of a view (invoked by the layout manager)
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            // - get element from your dataset at this position
-            // - replace the contents of the view with that element
+
             holder.textView.setText(list.get(position).getName());
+            holder.dateView.setText(df.format( list.get(position).getDate()));
+            Log.d(TAG, df.format( list.get(position).getDate()));
             Drawable iconFile = getDrawable(R.drawable.ic_record_voice_over_black_36dp);
             iconFile.setColorFilter(getColor(R.color.primary_dark), PorterDuff.Mode.SRC_ATOP);
             holder.icon.setImageDrawable(iconFile);
@@ -670,9 +698,9 @@ public class ListActivity extends AppCompatActivity {
         final View dialogView2 =inflater.inflate(R.layout.rename, null);
         final EditText editText = (EditText) dialogView2.findViewById(R.id.editText);
 
-        builder2.setTitle("Rename");
-        builder2.setView(dialogView2);
-        builder2.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builderRename.setTitle("Rename");
+        builderRename.setView(dialogView2);
+        builderRename.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String text = editText.getText().toString().replaceAll(" ", "");
                 text = text.toString().replaceAll("\n", "");
@@ -704,14 +732,14 @@ public class ListActivity extends AppCompatActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    dialogReplace.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                    dialogRename.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                 }
             }
         });
         editText.setText(fileName);
         editText.selectAll();
-        dialogReplace = builder2.create();
-        dialogReplace.show();
+        dialogRename = builderRename.create();
+        dialogRename.show();
 
     }
 
@@ -793,8 +821,8 @@ public class ListActivity extends AppCompatActivity {
             player.release();
         if (dialogMenu != null)
             dialogMenu.dismiss();
-        if (dialogReplace != null)
-            dialogReplace.dismiss();
+        if (dialogRename != null)
+            dialogRename.dismiss();
         if (dialogText != null)
             dialogText.dismiss();
         if (dialogPlay != null)
