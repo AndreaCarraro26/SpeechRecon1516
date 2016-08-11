@@ -30,7 +30,7 @@
     <string name="removed"> has been removed from list</string>
     <string name="textServer">Please wait the process to be completed...</string>
     <string name="noNetwork">No internet access. Please check your connection</string>
-    <string name="connecting">Trying to contact the server...</string>
+    <string name="connecting">Trying to contact the server and uploading the file...</string>
     <string name="uploading">Uploading file..</string>
 
 
