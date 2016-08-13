@@ -325,9 +325,9 @@ public class ListActivity extends AppCompatActivity {
     }
 
     private void setAudioFiles(){
-        audio_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String)getText(R.string.directory_main) + "/" +(String)getText(R.string.directory_audio) + "/";
-        txt_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String)getText(R.string.directory_main) + "/" + (String)getText(R.string.directory_txt) + "/";
-        Log.d(TAG, "Path for file: " + audio_path);
+        audio_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String)getText(R.string.directory_main) + "/" + (String)getText(R.string.directory_audio) + "/";
+        txt_path   = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String)getText(R.string.directory_main) + "/" + (String)getText(R.string.directory_txt) + "/";
+        Log.d(TAG, "Path for file: " + txt_path);
 
         File audio_dir = new File(audio_path);
         audio_dir.mkdir();
@@ -338,7 +338,8 @@ public class ListActivity extends AppCompatActivity {
         txt_file = txt_dir.listFiles();
 
         if(audio_file!=null){
-            Log.d(TAG, "Files in directory: "+ audio_file.length);
+            Log.d(TAG, "Files in directory audio : "+ audio_file.length);
+            Log.d(TAG, "Files in directory text : "+ txt_file.length);
             for (int i=0;i<audio_file.length;i++){
                 String name = audio_file[i].getName();
                 name = name.substring(0, name.length() - 4);
@@ -600,11 +601,8 @@ public class ListActivity extends AppCompatActivity {
     }
 
     private void setTxtFile(String filename, String text){
-        txt_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String)getText(R.string.directory_txt) + "/";
-        Log.d(TAG, "Path for txt file: " + txt_path);
-        File dir = new File(txt_path);
-        dir.mkdir();
-
+        txt_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String)getText(R.string.directory_main) + "/" + (String)getText(R.string.directory_txt) + "/";
+    
         try{
             File newfile = new File(txt_path + filename.substring(0, filename.length()-4) + ".txt");
             newfile.createNewFile();
