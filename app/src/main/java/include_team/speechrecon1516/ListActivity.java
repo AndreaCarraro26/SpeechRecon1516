@@ -2,6 +2,7 @@ package include_team.speechrecon1516;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -69,6 +70,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.Inflater;
 
 public class ListActivity extends AppCompatActivity {
 
@@ -99,17 +101,14 @@ public class ListActivity extends AppCompatActivity {
 
     private Context cx;
     private AlertDialog.Builder builderMenu;
-    private AlertDialog.Builder builderRename;
     private AlertDialog.Builder builderPlay;
-    private AlertDialog.Builder builderText;
+
     private LayoutInflater inflater;
 
     // Dialog must be closed in onPause
     private AlertDialog dialogMenu;
-    private AlertDialog dialogRename;
     private AlertDialog dialogPlay;
-    private AlertDialog dialogText;
-
+    
     DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,DateFormat.MEDIUM);
 
     private class ArrayEntry {
@@ -148,82 +147,6 @@ public class ListActivity extends AppCompatActivity {
         }
     }
 
-    public class ListViewCache  {
-
-        private View baseView;
-        private TextView textName;
-        private ImageView imagePlay;
-
-        public ListViewCache(View baseView) {
-            this.baseView = baseView;
-        }
-
-        public View getViewBase() {
-            return baseView;
-        }
-
-        public TextView getTextName(int resource) {
-            if (textName == null) {
-                textName = (TextView) baseView.findViewById(R.id.name_file);
-            }
-            return textName;
-        }
-
-        public ImageView getImageView(int resource) {
-            if (imagePlay == null) {
-                imagePlay = (ImageView) baseView.findViewById(R.id.equalizer);
-            }
-            return imagePlay;
-        }
-    }
-
-    public class ListAdapter extends ArrayAdapter{
-
-            private int resource;
-            private LayoutInflater inflater;
-            private Context context;
-
-
-            public ListAdapter ( Context ctx, int resourceId, List objects) {
-
-                super( ctx, resourceId, objects );
-                resource = resourceId;
-                inflater = LayoutInflater.from( ctx );
-                context=ctx;
-            }
-
-        @Override
-        public View getView (int position, View convertView, ViewGroup parent ) {
-
-            String name_file = (String) getItem( position );
-            ListViewCache viewCache;
-
-
-            if ( convertView == null ) {
-                convertView = ( RelativeLayout ) inflater.inflate( resource, null );
-                viewCache = new ListViewCache( convertView );
-                //((ImageView) convertView.findViewById(R.id.play_button)).setOnClickListener(PlayButtonListener);
-                convertView.setTag( viewCache );
-            }
-            else {
-                convertView = ( RelativeLayout ) convertView;
-                viewCache = ( ListViewCache ) convertView.getTag();
-            }
-
-            // metti il nome della lista nella view
-            TextView txtName = (TextView) viewCache.getTextName(resource);
-            txtName.setText(name_file);
-
-            // metti il simbolo di play
-            ImageView img=(ImageView)viewCache.getImageView(resource);
-            Drawable iconFile = getDrawable(R.drawable.ic_record_voice_over_black_36dp);
-            iconFile.setColorFilter(getColor(R.color.primary_dark), PorterDuff.Mode.SRC_ATOP);
-            img.setImageDrawable(iconFile);
-
-            return convertView;
-        }
-    }
-
     private class callToServer extends AsyncTask<String, Void, Void>  {
 
         boolean noConnectivity = false;
@@ -238,7 +161,7 @@ public class ListActivity extends AppCompatActivity {
         FileInputStream fileInputStream ;
         DataOutputStream dos;
 
-        ProgressDialog Dialog = new ProgressDialog(ListActivity.this);
+        ProgressDialog dialogP = new ProgressDialog(ListActivity.this);
 
         String lineEnd = "\r\n";
         String twoHyphens = "--";
@@ -274,10 +197,10 @@ public class ListActivity extends AppCompatActivity {
 
             Log.d(TAG, "onPreExecute - callToServer - File: " + file_path);
 
-            Dialog.setMessage(getString(R.string.connecting));
-            Dialog.show();
-            Dialog.setCancelable(false);
-            Dialog.setCanceledOnTouchOutside(false);
+            dialogP.setMessage(getString(R.string.connecting));
+            dialogP.show();
+            dialogP.setCancelable(false);
+            dialogP.setCanceledOnTouchOutside(false);
         }
 
         // Call after onPreExecute method
@@ -287,6 +210,9 @@ public class ListActivity extends AppCompatActivity {
                 return null;
 
             try{
+
+
+
                 Log.d(TAG, "doInBackground - Connecting..");
                 url = new URL(getString(R.string.serverLocation));
                 connection = (HttpURLConnection) url.openConnection();
@@ -298,7 +224,9 @@ public class ListActivity extends AppCompatActivity {
 
 
                 dos = new DataOutputStream(connection.getOutputStream());
-                Dialog.setMessage(getString(R.string.uploading));
+
+                // Lancia eccezione se fatto partire da qua dentro
+                //dialogP.setMessage(getString(R.string.uploading));
 
                 dos.writeBytes(twoHyphens + boundary + lineEnd);
                 dos.writeBytes("Content-Disposition: form-data; name=\"uploadedfile\"; filename=\"" + filename +"\"" + lineEnd);
@@ -362,7 +290,7 @@ public class ListActivity extends AppCompatActivity {
                return;
 
             if(error!=null){
-                Dialog.dismiss();
+                dialogP.dismiss();
                 Log.d(TAG, error);
                 Toast.makeText(getApplicationContext(), error, Toast.LENGTH_LONG).show();
             }
@@ -371,7 +299,7 @@ public class ListActivity extends AppCompatActivity {
                 arr_list.get(pos).setTranscribed(true);
                 mAdapter.notifyItemChanged(pos);
 
-                Dialog.dismiss();
+                dialogP.dismiss();
 
                 Log.d(TAG, "Message from Server: " + serverResponse);
                 setTxtFile(filename, serverResponse);
@@ -391,9 +319,8 @@ public class ListActivity extends AppCompatActivity {
 
     private void setBuilders(){
         builderMenu = new AlertDialog.Builder(cx);
-        builderRename = new AlertDialog.Builder(cx);
         builderPlay = new AlertDialog.Builder(cx);
-        builderText = new AlertDialog.Builder(cx);
+
         inflater = getLayoutInflater();
     }
 
@@ -420,7 +347,6 @@ public class ListActivity extends AppCompatActivity {
                 String txtname;
                 for(int j=0; j<txt_file.length; j++){
                     txtname = txt_file[j].getName();
-                    Log.d(TAG+"moi", txtname.substring(0, txtname.length() - 4) +" " + name);
                     if (txtname.substring(0, txtname.length() - 4).compareTo(name)==0)
                         hasBeenTranscribed = true;
                 }
@@ -554,14 +480,10 @@ public class ListActivity extends AppCompatActivity {
     }
 
     public void viewTranscription(int position){
-        builderText.setTitle(arr_list.get(position).getName());
 
-        //Get the text file
         File file = new File(txt_path,arr_list.get(position).getName() +".txt");
 
-        //Read text from file
         StringBuilder text = new StringBuilder();
-
         try {
             BufferedReader br = new BufferedReader(new FileReader(file));
             String line;
@@ -576,11 +498,15 @@ public class ListActivity extends AppCompatActivity {
             //You'll need to add proper error handling here
         }
 
-        builderText.setMessage(text.toString());
-        dialogText = builderText.create();
-        dialogText.show();
-    }
+        MyAlertDialogFragment diaText = MyAlertDialogFragment.newInstance();
+        Bundle args = new Bundle();
+        args.putInt("type", MyAlertDialogFragment.TEXT);
+        args.putString("title", arr_list.get(position).getName());
+        args.putString("message", text.toString());
+        diaText.setArguments(args);
+        diaText.show(getFragmentManager(), "tag");
 
+    }
 
     private void setRecyclerList(){
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
@@ -646,100 +572,30 @@ public class ListActivity extends AppCompatActivity {
 
     }
 
-    private void setViewList(){
-       // mylist = (ListView) findViewById(R.id.listView);
-        mylist.setItemsCanFocus(true);
-        final ListAdapter arr_adapter = new ListAdapter(this, R.layout.list_entry, arr_list);
-        mylist.setAdapter(arr_adapter);
+    private void rename(final int position, final String fileName) {
 
-        mylist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+        MyAlertDialogFragment diaRename = MyAlertDialogFragment.newInstance();
+        Bundle args = new Bundle();
+        args.putString("filename", arr_list.get(position).getName());
+        args.putInt("size", arr_list.size());
+        args.putInt("position", position);
+        args.putInt("type", MyAlertDialogFragment.RENAME);
+        ArrayList<String> arr_strings = new ArrayList<String>();
+        for (int i=0; i<arr_list.size();i++)
+            arr_strings.add(arr_list.get(i).getName());
+        args.putStringArrayList("files", arr_strings);
+        diaRename.setArguments(args);
+        diaRename.show(getFragmentManager(), "tag");
 
-                final String fileName =  (String) mylist.getItemAtPosition(position);
-
-                builderMenu.setTitle(fileName);
-                String choises[] = {(String)getText(R.string.dialog1),(String)getText(R.string.dialog2),(String)getText(R.string.dialog3),(String)getText(R.string.dialog4)};
-                builderMenu.setItems(choises, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
-                            case 0: // play record
-                                playRecord(fileName);
-                                break;
-                            case 1: // transcribe
-                                new callToServer().execute(position);
-                                break;
-
-                            case 2: // rename
-                                rename(position, fileName);
-                                break;
-                            case 3: // delete
-                                String nome = arr_list.get(position).getName();
-                                File toDelete = new File(audio_path + "/" + fileName + ".mp3");
-                                toDelete.delete();
-                                arr_list.remove(position);
-                                arr_adapter.notifyDataSetChanged();
-                                Toast.makeText(getApplicationContext(), nome + " " + getString(R.string.removed), Toast.LENGTH_LONG).show();
-                                break;
-
-                        }
-
-                    }
-                });
-
-                dialogMenu = builderMenu.create();
-                dialogMenu.show();
-            }
-        });
 
     }
 
-    private void rename(final int position, final String fileName) {
-        final View dialogView2 =inflater.inflate(R.layout.rename, null);
-        final EditText editText = (EditText) dialogView2.findViewById(R.id.editText);
-
-        builderRename.setTitle("Rename");
-        builderRename.setView(dialogView2);
-        builderRename.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                String text = editText.getText().toString().replaceAll(" ", "");
-                text = text.toString().replaceAll("\n", "");
-                if (text.compareTo("") != 0)
-                    text = text.substring(0, 1).toUpperCase() + text.substring(1);
-                if (text.compareTo("")==0){
-                    Toast.makeText(getApplicationContext(), getString(R.string.noRename), Toast.LENGTH_LONG).show();
-                    rename(position, fileName);
-                    return;
-                }
-                else {
-                    for(int i=0; i<arr_list.size(); i++)
-                        if(text.compareTo(arr_list.get(i).getName())==0) {
-                            Toast.makeText(getApplicationContext(), getString(R.string.nameInUse), Toast.LENGTH_LONG).show();
-                            rename(position, fileName);
-                            return;
-                        }
-                }
-
-                arr_list.get(position).setName(text);
-                File newFile = new File(audio_path + "/" + text + ".mp3");
-                File oldFile = new File(audio_path + "/" + fileName + ".mp3");
-                oldFile.renameTo(newFile);
-                mAdapter.notifyItemChanged(position);
-
-            }
-        });
-        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    dialogRename.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                }
-            }
-        });
-        editText.setText(fileName);
-        editText.selectAll();
-        dialogRename = builderRename.create();
-        dialogRename.show();
+    public void finalizeCaseRename(int pos, String text, String fileName){
+        arr_list.get(pos).setName(text);
+        File newFile = new File(audio_path + "/" + text + ".mp3");
+        File oldFile = new File(audio_path + "/" + fileName + ".mp3");
+        oldFile.renameTo(newFile);
+        mAdapter.notifyItemChanged(pos);
 
     }
 
@@ -763,6 +619,7 @@ public class ListActivity extends AppCompatActivity {
         }
 
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -816,15 +673,13 @@ public class ListActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         Log.d(TAG, "onPause Method");
+
         handy.removeCallbacks(UpdateSongTime);
+
         if (player != null)
             player.release();
         if (dialogMenu != null)
             dialogMenu.dismiss();
-        if (dialogRename != null)
-            dialogRename.dismiss();
-        if (dialogText != null)
-            dialogText.dismiss();
         if (dialogPlay != null)
             dialogPlay.dismiss();
 
@@ -848,6 +703,105 @@ public class ListActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG,"onDestroy Method");
+    }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
+
+
+    public ArrayList<ArrayEntry> getList(){
+        return arr_list;
+    }
+
+    public static class MyAlertDialogFragment extends DialogFragment {
+        static final int TEXT = 0;
+        static final int RENAME = 1;
+        static final int PLAY = 2;
+        static final int START = 3;
+
+
+        public static MyAlertDialogFragment newInstance() {
+            MyAlertDialogFragment frag = new MyAlertDialogFragment();
+            Bundle args = new Bundle();
+            frag.setArguments(args);
+            return frag;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+            switch (getArguments().getInt("type")) {
+                case TEXT:
+                    Log.d(TAG, "Case Text");
+                    return new AlertDialog.Builder(getActivity())
+
+                            .setTitle(getArguments().getString("title"))
+                            .setMessage(getArguments().getString("message"))
+
+
+                            .create();
+                case RENAME:
+                    Log.d(TAG, "Case Rename");
+                    final View dialogView = getActivity().getLayoutInflater().inflate(R.layout.rename, null);
+                    final EditText editText = (EditText) dialogView.findViewById(R.id.editText);
+                    editText.setText(getArguments().getString("filename"));
+                    editText.selectAll();
+
+                    final AlertDialog alDiag = new AlertDialog.Builder(getActivity())
+                            .setTitle("Rename")
+                            .setView(dialogView)
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    String text = editText.getText().toString().replaceAll(" ", "");
+                                    text = text.toString().replaceAll("\n", "");
+                                    if (text.compareTo("") != 0)
+                                        text = text.substring(0, 1).toUpperCase() + text.substring(1);
+                                    if (text.compareTo("")==0){
+                                        Toast.makeText(getActivity().getApplicationContext(), getString(R.string.noRename), Toast.LENGTH_LONG).show();
+                                        ((ListActivity)getActivity()).rename(getArguments().getInt("position"), getArguments().getString("filename"));
+                                        return;
+                                    }
+                                    else {
+                                        for(int i=0; i< getArguments().getInt("size"); i++)
+                                            if(text.compareTo(getArguments().getStringArrayList("files").get(i))==0) {
+                                                Toast.makeText(getActivity().getApplicationContext(), getString(R.string.nameInUse), Toast.LENGTH_LONG).show();
+                                                ((ListActivity)getActivity()).rename(getArguments().getInt("position"), getArguments().getString("filename"));
+                                                return;
+                                            }
+                                    }
+
+                                    ((ListActivity)getActivity()).finalizeCaseRename(getArguments().getInt("position"), text, getArguments().getString("filename"));
+
+
+                                }
+                            })
+                            .create();
+
+                    editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                        @Override
+                        public void onFocusChange(View v, boolean hasFocus) {
+                            if (hasFocus) {
+                                alDiag.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                            }
+                        }
+                    });
+
+                    return alDiag;
+
+            }
+
+            return null;
+        }
     }
 
 }
