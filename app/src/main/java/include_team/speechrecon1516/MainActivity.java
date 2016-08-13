@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = "Audio record";
     private static String audio_path = null;
+    private static String main_path = null;
     private static String audio_name = null;
     private static String audio_filename = null;
     private static String new_audio_filename = null;
@@ -150,6 +151,16 @@ public class MainActivity extends AppCompatActivity {
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         audioCounter = sharedpreferences.getInt("counter", 0);
 
+        main_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + getString(R.string.directory_main) + "/";
+        File dir_main = new File(main_path);
+        if(dir_main.mkdir())
+            Log.d(TAG, "Created " + main_path);
+        audio_path = main_path + getString(R.string.directory_audio) + "/";
+        final File dir = new File(audio_path);
+        if(dir.mkdir())
+            Log.d(TAG, "Created " + audio_path);
+
+
         Button btn_list = (Button) findViewById(R.id.button_list);
 
         assert btn_list != null;
@@ -179,9 +190,6 @@ public class MainActivity extends AppCompatActivity {
                     assert main_layout != null;
                     main_layout.addView(timer);
 
-                    audio_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + getString(R.string.directory_audio) + "/";
-                    final File dir = new File(audio_path);
-                    dir.mkdir();
                     file = dir.listFiles();
 
                     audio_name = "Record" + audioCounter;

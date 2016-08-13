@@ -108,7 +108,7 @@ public class ListActivity extends AppCompatActivity {
     // Dialog must be closed in onPause
     private AlertDialog dialogMenu;
     private AlertDialog dialogPlay;
-    
+
     DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,DateFormat.MEDIUM);
 
     private class ArrayEntry {
@@ -325,8 +325,8 @@ public class ListActivity extends AppCompatActivity {
     }
 
     private void setAudioFiles(){
-        audio_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String)getText(R.string.directory_audio) + "/";
-        txt_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String)getText(R.string.directory_txt) + "/";
+        audio_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String)getText(R.string.directory_main) + "/" +(String)getText(R.string.directory_audio) + "/";
+        txt_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String)getText(R.string.directory_main) + "/" + (String)getText(R.string.directory_txt) + "/";
         Log.d(TAG, "Path for file: " + audio_path);
 
         File audio_dir = new File(audio_path);

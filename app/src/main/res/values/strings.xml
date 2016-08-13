@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">KaldiMobile</string>
-    <string name="directory_audio">KaldiMobile/Audio</string>
-    <string name="directory_txt">KaldiMobile/Txt</string>
+    <string name="directory_main">KaldiMobile</string>
+    <string name="directory_audio">Audio</string>
+    <string name="directory_txt">Txt</string>
 
     <!-- Main-->
     <string name="title_activity_main">KaldiMobile</string>
