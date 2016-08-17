@@ -10,7 +10,7 @@ import android.os.Environment;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
+
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -21,10 +21,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     // Create a new instance of android.media.MediaRecorder
     private MediaRecorder audio_recorder = null;
 
-    private static final String LOG_TAG = "Audio record";
+   // private static final String LOG_TAG = "Audio record";
     private static String audio_path = null;
     private static String main_path = null;
     private static String audio_name = null;
@@ -77,13 +75,13 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             audio_recorder.prepare();
+            audio_recorder.start();
         } catch (IOException e) {
-            Log.e(TAG, "prepare() failed");
+            Log.e(TAG, "prepare() failed",e);
         }
 
-        audio_recorder.start();
-    }
 
+    }
 
     private void stopRecording() {
         audio_recorder.stop();
@@ -95,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
         final Dialog dialog = new Dialog(ctx);
         dialog.setContentView(R.layout.dialog);
-        TextView tv = (TextView) dialog.findViewById(R.id.textView1);
+       // TextView tv = (TextView) dialog.findViewById(R.id.textView1);
         et = (EditText) dialog.findViewById(R.id.editText1);
         et.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -114,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                 from = new File(audio_filename);
 
                 new_audio_filename = et.getText().toString().replaceAll(" ", "");
-                new_audio_filename = new_audio_filename.toString().replaceAll("\n", "");
+                new_audio_filename = new_audio_filename.replaceAll("\n", "");
                 if (new_audio_filename.compareTo("") != 0)
                     new_audio_filename = new_audio_filename.substring(0, 1).toUpperCase() + new_audio_filename.substring(1);
                 if (new_audio_filename.compareTo("") == 0) {
@@ -133,8 +131,8 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 to = new File(audio_path + new_audio_filename + ".mp3");
-                from.renameTo(to);
-                Toast.makeText(getApplicationContext(), new_audio_filename + " " + getString(R.string.saved), Toast.LENGTH_LONG).show();
+                if(from.renameTo(to))
+                    Toast.makeText(getApplicationContext(), new_audio_filename + " " + getString(R.string.saved), Toast.LENGTH_LONG).show();
                 dialog.dismiss();
             }
         });
@@ -259,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putInt("counter", audioCounter);
         Log.d(TAG, "Saved Persistent State");
 
-        editor.commit();
+        editor.apply();
     }
 
     @Override
