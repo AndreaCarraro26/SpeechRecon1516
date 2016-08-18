@@ -318,7 +318,6 @@ public class ListActivity extends AppCompatActivity {
     }
 
     private void setBuilders(){
-        builderMenu = new AlertDialog.Builder(cx);
         builderPlay = new AlertDialog.Builder(cx);
 
         inflater = getLayoutInflater();
@@ -531,43 +530,22 @@ public class ListActivity extends AppCompatActivity {
                         final String fileName =  (String) arr_list.get(position).getName();
 
                         builderMenu.setTitle(fileName);
-                        String choices[] = {(String)getText(R.string.dialog1),(String)getText(R.string.dialog2),(String)getText(R.string.dialog3),(String)getText(R.string.dialog4)};
 
-                        if (arr_list.get(position).isTranscribed())
-                            choices[1] = (String)getText(R.string.dialogX);
 
-                        builderMenu.setItems(choices, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                switch (which){
-                                    case 0: // play record
-                                        playRecord(fileName);
-                                        break;
-                                    case 1: // transcribe
-                                        if (arr_list.get(position).isTranscribed())
-                                            viewTranscription(position);
-                                        else
-                                            new callToServer().execute(position);
-                                        break;
+                        MyAlertDialogFragment diaMenu = MyAlertDialogFragment.newInstance();
+                        Bundle args = new Bundle();
+                        args.putString("filename", fileName);
 
-                                    case 2: // rename
-                                        rename(position, fileName);
-                                        break;
-                                    case 3: // delete
-                                        String nome = arr_list.get(position).getName();
-                                        File toDelete = new File(audio_path + "/" + fileName + ".mp3");
-                                        toDelete.delete();
-                                        arr_list.remove(position);
-                                        mAdapter.notifyItemRemoved(position);
-                                        Toast.makeText(getApplicationContext(), nome + " " + getString(R.string.removed), Toast.LENGTH_LONG).show();
-                                        break;
+                        args.putInt("position", position);
+                        args.putInt("type", MyAlertDialogFragment.START);
+                        ArrayList<String> arr_strings = new ArrayList<String>();
+                        for (int i=0; i<arr_list.size();i++)
+                            arr_strings.add(arr_list.get(i).getName());
+                        args.putStringArrayList("files", arr_strings);
+                        args.putBoolean("isTranscribed", arr_list.get(position).isTranscribed());
+                        diaMenu.setArguments(args);
+                        diaMenu.show(getFragmentManager(), "tag");
 
-                                }
-
-                            }
-                        });
-
-                        dialogMenu = builderMenu.create();
-                        dialogMenu.show();
                     }
                 }));
 
@@ -602,7 +580,7 @@ public class ListActivity extends AppCompatActivity {
 
     private void setTxtFile(String filename, String text){
         txt_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String)getText(R.string.directory_main) + "/" + (String)getText(R.string.directory_txt) + "/";
-    
+
         try{
             File newfile = new File(txt_path + filename.substring(0, filename.length()-4) + ".txt");
             newfile.createNewFile();
@@ -676,8 +654,6 @@ public class ListActivity extends AppCompatActivity {
 
         if (player != null)
             player.release();
-        if (dialogMenu != null)
-            dialogMenu.dismiss();
         if (dialogPlay != null)
             dialogPlay.dismiss();
 
@@ -739,14 +715,46 @@ public class ListActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
 
             switch (getArguments().getInt("type")) {
+                case START:
+                    String choices[] = {(String)getText(R.string.dialog1),(String)getText(R.string.dialog2),(String)getText(R.string.dialog3),(String)getText(R.string.dialog4)};
+                    if (getArguments().getBoolean("isTranscribed"))
+                        choices[1] = (String)getText(R.string.dialogX);
+
+                    final AlertDialog startDiag = new AlertDialog.Builder(getActivity())
+                            .setTitle("filename")
+                            .setItems(choices, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    switch (which){
+                                        case 0: // play record
+                                            ((ListActivity)getActivity()).playRecord(getArguments().getString("filename"));
+                                            break;
+                                        case 1: // transcribe
+                                            if (getArguments().getBoolean("isTranscribed"))
+                                                ((ListActivity)getActivity()).viewTranscription(getArguments().getInt("position"));
+                                            else
+                                                ((ListActivity)getActivity()).executeCallToServer(getArguments().getInt("position"));
+
+                                            // new callToServer().execute(position);
+                                            break;
+                                        case 2: // rename
+                                            ((ListActivity)getActivity()).rename(getArguments().getInt("position"), getArguments().getString("filename"));
+                                            break;
+                                        case 3: // delete
+                                            ((ListActivity)getActivity()).deleteFile(getArguments().getInt("position"));
+
+                                            break;
+
+                                    }
+
+                                }
+                            })
+                            .create();
+                    return startDiag;
                 case TEXT:
                     Log.d(TAG, "Case Text");
                     return new AlertDialog.Builder(getActivity())
-
                             .setTitle(getArguments().getString("title"))
                             .setMessage(getArguments().getString("message"))
-
-
                             .create();
                 case RENAME:
                     Log.d(TAG, "Case Rename");
@@ -800,6 +808,20 @@ public class ListActivity extends AppCompatActivity {
 
             return null;
         }
+
+
     }
 
+    public void executeCallToServer(int pos){
+        new callToServer().execute(pos);
+    }
+
+    public void deleteFile(int pos){
+        String nome = arr_list.get(pos).getName();
+        File toDelete = new File(audio_path + "/" + nome + ".mp3");
+        toDelete.delete();
+        arr_list.remove(pos);
+        mAdapter.notifyItemRemoved(pos);
+        Toast.makeText(getApplicationContext(), nome + " " + getString(R.string.removed), Toast.LENGTH_LONG).show();
+    }
 }
