@@ -100,7 +100,6 @@ public class ListActivity extends AppCompatActivity {
     private TextView timeText;
 
     private Context cx;
-    private AlertDialog.Builder builderMenu;
     private AlertDialog.Builder builderPlay;
 
     private LayoutInflater inflater;
@@ -529,9 +528,6 @@ public class ListActivity extends AppCompatActivity {
 
                         final String fileName =  (String) arr_list.get(position).getName();
 
-                        builderMenu.setTitle(fileName);
-
-
                         MyAlertDialogFragment diaMenu = MyAlertDialogFragment.newInstance();
                         Bundle args = new Bundle();
                         args.putString("filename", fileName);
@@ -714,7 +710,7 @@ public class ListActivity extends AppCompatActivity {
                         choices[1] = (String)getText(R.string.dialogX);
 
                     final AlertDialog startDiag = new AlertDialog.Builder(getActivity())
-                            .setTitle("filename")
+                            .setTitle(getArguments().getString("filename"))
                             .setItems(choices, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     switch (which){
