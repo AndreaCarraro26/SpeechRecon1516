@@ -105,8 +105,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         et.setText(audio_name);
-        Button btn = (Button) dialog.findViewById(R.id.button1);
-        btn.setOnClickListener(new View.OnClickListener() {
+        Button btn1 = (Button) dialog.findViewById(R.id.button1);
+        Button btn2 = (Button) dialog.findViewById(R.id.button2);
+        btn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 from = new File(audio_filename);
@@ -136,6 +137,16 @@ public class MainActivity extends AppCompatActivity {
                 dialog.dismiss();
             }
         });
+
+        btn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                from = new File(audio_filename);
+                from.delete();
+                dialog.dismiss();
+            }
+        });
+
         dialog.show();
     }
 
@@ -243,8 +254,26 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        super.onPause();
-        Log.d(TAG, "onPause Method");
+
+        if (!audioStartRecording) {
+            chronometer.stop();
+
+            final Button btn_record = (Button) findViewById(R.id.button_record);
+            final TextView text_record = (TextView) findViewById(R.id.text_record);
+            final RelativeLayout main_layout = (RelativeLayout) findViewById(R.id.main_layout);
+            final RelativeLayout timer = (RelativeLayout) findViewById(R.id.time_layout);
+
+            renameFile();
+
+            assert text_record != null;
+            text_record.setText(R.string.record_button);
+            assert btn_record != null;
+            btn_record.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_mic_48dp, 0, 0);
+            assert main_layout != null;
+            main_layout.removeView(timer);
+
+            audioStartRecording = true;
+        }
 
         if (audio_recorder != null) {
             audio_recorder.release();
@@ -257,7 +286,10 @@ public class MainActivity extends AppCompatActivity {
         editor.putInt("counter", audioCounter);
         Log.d(TAG, "Saved Persistent State");
 
-        editor.apply();
+        editor.commit();
+
+        super.onPause();
+        Log.d(TAG, "onPause Method");
     }
 
     @Override
