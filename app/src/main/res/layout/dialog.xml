@@ -21,8 +21,16 @@
         android:id="@+id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/editText1"
-        android:text="@string/save_button"/>
+        android:text="@string/save_button"
+        android:layout_below="@+id/editText1"
+        android:layout_alignStart="@+id/textView1" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/delete_button"
+        android:layout_below="@+id/editText1"
+        android:layout_alignEnd="@+id/textView1" />
 
 </RelativeLayout>

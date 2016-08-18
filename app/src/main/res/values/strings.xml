@@ -12,8 +12,9 @@
     <string name="saved">record has been saved</string>
 
     <!-- Dialog-->
-    <string name="save">Save audio with name:</string>
+    <string name="save">Save audio with name or delete file:</string>
     <string name="save_button">SAVE</string>
+    <string name="delete_button">DELETE</string>
 
     <!-- List -->
     <string name="title_activity_list">File List</string>

@@ -628,13 +628,6 @@ public class ListActivity extends AppCompatActivity {
         }
     };
 
- /*   @Override
-    protected void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putSerializable("arr_list", arr_list);
-        Log.d(TAG,"State Saved");
-        super.onSaveInstanceState(savedInstanceState);
-    }*/
-
     @Override
     protected void onStart() {
         super.onStart();
