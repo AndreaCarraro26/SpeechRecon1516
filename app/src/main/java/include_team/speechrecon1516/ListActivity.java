@@ -80,8 +80,8 @@ public class ListActivity extends AppCompatActivity {
     private File audio_file[];
     private File txt_file[];
     private ToggleButton playPause;
-    private MediaPlayer player;
-    private Activity ac = this;
+    private Button play_pause;
+    public MediaPlayer player;
 
     private ListView mylist;
     private ArrayList<ArrayEntry> arr_list = new ArrayList<ArrayEntry>();
@@ -92,17 +92,9 @@ public class ListActivity extends AppCompatActivity {
     private String audio_path;
     private String txt_path;
 
-    // variables needed for playback
-    private Handler handy = new Handler();
-    private double startTime = 0;
-    private double endTime= 0;
-    private SeekBar seek;
-    private TextView timeText;
 
     private Context cx;
     private AlertDialog.Builder builderPlay;
-
-    private LayoutInflater inflater;
 
     // Dialog must be closed in onPause
     private AlertDialog dialogMenu;
@@ -318,8 +310,7 @@ public class ListActivity extends AppCompatActivity {
 
     private void setBuilders(){
         builderPlay = new AlertDialog.Builder(cx);
-
-        inflater = getLayoutInflater();
+        //inflater = getLayoutInflater();
     }
 
     private void setAudioFiles(){
@@ -364,47 +355,19 @@ public class ListActivity extends AppCompatActivity {
     }
 
     private void playRecord(String fileName){
-        builderPlay.setTitle(fileName);
-        builderPlay.setView(inflater.inflate(R.layout.dialog_play, null));
-        player = MediaPlayer.create(ac, Uri.parse(audio_path + "/" + fileName + ".mp3"));
-        player.setLooping(true);
-        player.start();
-        dialogPlay = builderPlay.create();
-        dialogPlay.show();
 
-        timeText = (TextView) dialogPlay.findViewById(R.id.time);
-        endTime = player.getDuration();
-        startTime = player.getCurrentPosition();
-        seek = (SeekBar) dialogPlay.findViewById(R.id.seekBar);
-        seek.setMax((int) endTime);
-        seek.setProgress((int)startTime);
+        MyAlertDialogFragment diaPlay = MyAlertDialogFragment.newInstance();
+        Bundle args = new Bundle();
+        args.putInt("type", MyAlertDialogFragment.PLAY);
+        args.putString("filename", fileName);
+        args.putString("path", audio_path);
+        args.putInt("new_start", 1000);
+        //args.putString("a", "a");
+        diaPlay.setArguments(args);
+        diaPlay.show(getFragmentManager(), "tag");
 
-        handy.postDelayed(UpdateSongTime,50);
-        playPause = (ToggleButton) dialogPlay.findViewById(R.id.togglePlay);
-        playPause.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                if (player.isPlaying()) {
-                    player.pause();
-                } else {
-                    player.start();
-                }
-            }
-        });
 
-        dialogPlay.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                handy.removeCallbacks(UpdateSongTime);
-                player.release();
-            }
-        });
-        dialogPlay.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                handy.removeCallbacks(UpdateSongTime);
-                player.release();
-            }
-        });
+
     }
 
     public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
@@ -610,19 +573,7 @@ public class ListActivity extends AppCompatActivity {
 
     }
 
-    private Runnable UpdateSongTime = new Runnable() {
-        public void run() {
-            startTime = player.getCurrentPosition();
-            timeText.setText(String.format("%d′%d″/%d′%d″",
-                    TimeUnit.MILLISECONDS.toMinutes((long) startTime),
-                    TimeUnit.MILLISECONDS.toSeconds((long) startTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) startTime)),
-                    TimeUnit.MILLISECONDS.toMinutes((long) endTime),
-                    TimeUnit.MILLISECONDS.toSeconds((long) endTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) endTime)))
-            );
-            seek.setProgress((int)startTime);
-            handy.postDelayed(this, 16);
-        }
-    };
+
 
     @Override
     protected void onStart() {
@@ -639,12 +590,12 @@ public class ListActivity extends AppCompatActivity {
         super.onPause();
         Log.d(TAG, "onPause Method");
 
-        handy.removeCallbacks(UpdateSongTime);
+//        handy.removeCallbacks(UpdateSongTime);
 
-        if (player != null)
-            player.release();
-        if (dialogPlay != null)
-            dialogPlay.dismiss();
+//        if (player != null)
+//            player.release();
+        //if (dialogPlay != null)
+        //    dialogPlay.dismiss();
 
 
  /*       SharedPreferences prefs = getSharedPreferences("Prefs", Context.MODE_PRIVATE);
@@ -669,18 +620,6 @@ public class ListActivity extends AppCompatActivity {
     }
 
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-    }
-
-
-
     public ArrayList<ArrayEntry> getList(){
         return arr_list;
     }
@@ -691,6 +630,29 @@ public class ListActivity extends AppCompatActivity {
         static final int PLAY = 2;
         static final int START = 3;
 
+
+        // variables needed for playback
+        private Handler handy = new Handler();
+        private int startTime;
+        private double endTime= 0;
+        private SeekBar seek;
+        private TextView timeText;
+        MediaPlayer player;
+        Button play_pause;
+
+        private Runnable UpdateSongTime = new Runnable() {
+            public void run() {
+                startTime = player.getCurrentPosition();
+                timeText.setText(String.format("%d′%d″/%d′%d″",
+                        TimeUnit.MILLISECONDS.toMinutes((long) startTime),
+                        TimeUnit.MILLISECONDS.toSeconds((long) startTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) startTime)),
+                        TimeUnit.MILLISECONDS.toMinutes((long) endTime),
+                        TimeUnit.MILLISECONDS.toSeconds((long) endTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) endTime)))
+                );
+                seek.setProgress((int)startTime);
+                handy.postDelayed(this, 16);
+            }
+        };
 
         public static MyAlertDialogFragment newInstance() {
             MyAlertDialogFragment frag = new MyAlertDialogFragment();
@@ -704,6 +666,8 @@ public class ListActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
 
             switch (getArguments().getInt("type")) {
+
+
                 case START:
                     String choices[] = {(String)getText(R.string.dialog1),(String)getText(R.string.dialog2),(String)getText(R.string.dialog3),(String)getText(R.string.dialog4)};
                     if (getArguments().getBoolean("isTranscribed"))
@@ -739,12 +703,65 @@ public class ListActivity extends AppCompatActivity {
                             })
                             .create();
                     return startDiag;
+
+
                 case TEXT:
                     Log.d(TAG, "Case Text");
                     return new AlertDialog.Builder(getActivity())
                             .setTitle(getArguments().getString("title"))
                             .setMessage(getArguments().getString("message"))
                             .create();
+
+                case PLAY:
+//                    Log.d(TAG, getArguments().getString("a"));
+                    player = new MediaPlayer().create(((ListActivity)getActivity()), Uri.parse(getArguments().getString("path") + "/" + getArguments().getString("filename") + ".mp3"));
+
+                    View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_play, null);
+
+                    AlertDialog dialog =  new AlertDialog.Builder(getActivity())
+                        .setTitle(getArguments().getString("filename"))
+                        .setView(view)
+                        .create();
+
+                        Log.d(TAG, "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP" + getArguments().getInt("new_start"));
+                        player.seekTo(getArguments().getInt("new_start"));
+
+
+                    player.start();
+                    handy.postDelayed(UpdateSongTime,50);
+
+                    timeText = (TextView) view.findViewById(R.id.time);
+                    endTime = player.getDuration();
+                    startTime = player.getCurrentPosition();
+
+                    seek = (SeekBar) view.findViewById(R.id.seekBar);
+                    seek.setMax((int) endTime);
+                    seek.setProgress((int)startTime);
+
+                    play_pause = (Button) view.findViewById(R.id.button_play);
+
+                    player.setOnCompletionListener( new MediaPlayer.OnCompletionListener() {
+                        public void onCompletion(MediaPlayer mp) {
+                            play_pause.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_play_circle_filled_black_48dp, 0, 0);
+                        }
+                    });
+
+                    play_pause.setOnClickListener(new View.OnClickListener() {
+                        public void onClick(View view) {
+                            if (player.isPlaying()) {
+                                play_pause.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_play_circle_filled_black_48dp, 0, 0);
+                                player.pause();
+
+                            } else {
+                                play_pause.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_pause_circle_filled_black_48dp , 0, 0);
+                                player.start();
+
+                            }
+                        }
+                    });
+
+                    return dialog;
+
                 case RENAME:
                     Log.d(TAG, "Case Rename");
                     final View dialogView = getActivity().getLayoutInflater().inflate(R.layout.rename, null);
@@ -796,6 +813,43 @@ public class ListActivity extends AppCompatActivity {
             }
 
             return null;
+        }
+
+
+        public void onSaveInstanceState(Bundle savedInstanceState) {
+            super.onSaveInstanceState(savedInstanceState);
+
+            if(getArguments().getInt("type")==PLAY){
+                Log.d(TAG, " onSaveInstanceState." + Boolean.toString(getArguments().getInt("type")==PLAY));
+
+                savedInstanceState.putInt("new_start", player.getCurrentPosition());
+                savedInstanceState.putString("a", "b");
+            }
+
+        }
+
+        @Override
+        public void onPause(){
+            super.onPause();
+
+            if(getArguments().getInt("type")==PLAY){
+                player.pause();
+                play_pause.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_play_circle_filled_black_48dp , 0, 0);
+            }
+
+        }
+
+        @Override
+        public void onDestroy() {
+
+
+            if(getArguments().getInt("type")==PLAY){
+                handy.removeCallbacks(UpdateSongTime);
+                player.release();
+            }
+
+            super.onDestroy();
+
         }
 
 
