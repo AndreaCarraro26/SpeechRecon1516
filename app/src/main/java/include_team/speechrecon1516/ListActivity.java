@@ -155,8 +155,8 @@ public class ListActivity extends AppCompatActivity {
                 return;
             }
 
-            file_path = audio_path + arr_list.get(pos).getName() + ".mp3";
-            filename = arr_list.get(pos).getName() + ".mp3";
+            file_path = audio_path + arr_list.get(pos).getName() + ".amr";
+            filename = arr_list.get(pos).getName() + ".amr";
 
             try {
                 fileInputStream = new FileInputStream(file_path);
@@ -507,8 +507,8 @@ public class ListActivity extends AppCompatActivity {
 
     public void finalizeCaseRename(int pos, String text, String fileName){
         arr_list.get(pos).setName(text);
-        File newFile = new File(audio_path + "/" + text + ".mp3");
-        File oldFile = new File(audio_path + "/" + fileName + ".mp3");
+        File newFile = new File(audio_path + "/" + text + ".amr");
+        File oldFile = new File(audio_path + "/" + fileName + ".amr");
         oldFile.renameTo(newFile);
         mAdapter.notifyItemChanged(pos);
 
@@ -667,7 +667,7 @@ public class ListActivity extends AppCompatActivity {
 
                 case PLAY:
 //                    Log.d(TAG, getArguments().getString("a"));
-                    player = new MediaPlayer().create(((ListActivity)getActivity()), Uri.parse(getArguments().getString("path") + "/" + getArguments().getString("filename") + ".mp3"));
+                    player = new MediaPlayer().create(((ListActivity)getActivity()), Uri.parse(getArguments().getString("path") + "/" + getArguments().getString("filename") + ".amr"));
 
                     View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_play, null);
 
@@ -825,7 +825,7 @@ public class ListActivity extends AppCompatActivity {
 
     public void deleteFile(int pos){
         String nome = arr_list.get(pos).getName();
-        File toDelete = new File(audio_path + "/" + nome + ".mp3");
+        File toDelete = new File(audio_path + "/" + nome + ".amr");
         toDelete.delete();
         arr_list.remove(pos);
         mAdapter.notifyItemRemoved(pos);

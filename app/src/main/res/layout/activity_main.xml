@@ -28,7 +28,6 @@
         android:layout_height="wrap_content"
         android:background="@drawable/button_circle"
         android:paddingTop="28dp"
-
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_below="@+id/toolbarMain"
@@ -53,8 +52,10 @@
         android:background="@drawable/list_button"
         android:layout_marginTop="129dp"
         android:layout_marginRight="48dp"
-        android:layout_below="@+id/toolbarMain"
-        android:layout_toEndOf="@+id/button_record"/>
+        android:layout_below="@id/text_record"
+        android:layout_alignParentRight="true"
+
+        />
 
 </RelativeLayout>
 
