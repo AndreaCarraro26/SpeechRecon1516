@@ -7,6 +7,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
@@ -23,29 +24,21 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import org.w3c.dom.Text;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -54,8 +47,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -63,14 +54,10 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
-import java.util.zip.Inflater;
 
 public class ListActivity extends AppCompatActivity {
 
@@ -79,11 +66,8 @@ public class ListActivity extends AppCompatActivity {
     private static final String TAG = "ListActivityDebug";
     private File audio_file[];
     private File txt_file[];
-    private ToggleButton playPause;
-    private Button play_pause;
-    public MediaPlayer player;
 
-    private ListView mylist;
+
     private ArrayList<ArrayEntry> arr_list = new ArrayList<ArrayEntry>();
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
@@ -92,13 +76,7 @@ public class ListActivity extends AppCompatActivity {
     private String audio_path;
     private String txt_path;
 
-
     private Context cx;
-    private AlertDialog.Builder builderPlay;
-
-    // Dialog must be closed in onPause
-    private AlertDialog dialogMenu;
-    private AlertDialog dialogPlay;
 
     DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,DateFormat.MEDIUM);
 
@@ -152,7 +130,7 @@ public class ListActivity extends AppCompatActivity {
         FileInputStream fileInputStream ;
         DataOutputStream dos;
 
-        ProgressDialog dialogP = new ProgressDialog(ListActivity.this);
+        MyAlertDialogFragment prog = MyAlertDialogFragment.newInstance();
 
         String lineEnd = "\r\n";
         String twoHyphens = "--";
@@ -188,10 +166,14 @@ public class ListActivity extends AppCompatActivity {
 
             Log.d(TAG, "onPreExecute - callToServer - File: " + file_path);
 
-            dialogP.setMessage(getString(R.string.connecting));
-            dialogP.show();
-            dialogP.setCancelable(false);
-            dialogP.setCanceledOnTouchOutside(false);
+
+            Bundle args = new Bundle();
+            args.putInt("type", MyAlertDialogFragment.PROGRESS);
+            args.putString("message", getString(R.string.connecting));
+            prog.setArguments(args);
+            prog.show(getFragmentManager(), "tag");
+            prog.setCancelable(false);
+
         }
 
         // Call after onPreExecute method
@@ -281,7 +263,7 @@ public class ListActivity extends AppCompatActivity {
                return;
 
             if(error!=null){
-                dialogP.dismiss();
+                prog.dismiss();
                 Log.d(TAG, error);
                 Toast.makeText(getApplicationContext(), error, Toast.LENGTH_LONG).show();
             }
@@ -290,7 +272,7 @@ public class ListActivity extends AppCompatActivity {
                 arr_list.get(pos).setTranscribed(true);
                 mAdapter.notifyItemChanged(pos);
 
-                dialogP.dismiss();
+                prog.dismiss();
 
                 Log.d(TAG, "Message from Server: " + serverResponse);
                 setTxtFile(filename, serverResponse);
@@ -306,11 +288,6 @@ public class ListActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-    }
-
-    private void setBuilders(){
-        builderPlay = new AlertDialog.Builder(cx);
-        //inflater = getLayoutInflater();
     }
 
     private void setAudioFiles(){
@@ -361,8 +338,8 @@ public class ListActivity extends AppCompatActivity {
         args.putInt("type", MyAlertDialogFragment.PLAY);
         args.putString("filename", fileName);
         args.putString("path", audio_path);
-        args.putInt("new_start", 1000);
-        //args.putString("a", "a");
+        args.putInt("new_start", 0);
+        args.putBoolean("isPlaying", true);
         diaPlay.setArguments(args);
         diaPlay.show(getFragmentManager(), "tag");
 
@@ -561,19 +538,14 @@ public class ListActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate Method");
         setContentView(R.layout.activity_list);
         cx = this;
-       // SharedPreferences prefs = getSharedPreferences("Prefs", Context.MODE_PRIVATE);
 
         setToolbar();
-
-        setBuilders();
 
         setAudioFiles();
 
         setRecyclerList();
 
     }
-
-
 
     @Override
     protected void onStart() {
@@ -590,23 +562,6 @@ public class ListActivity extends AppCompatActivity {
         super.onPause();
         Log.d(TAG, "onPause Method");
 
-//        handy.removeCallbacks(UpdateSongTime);
-
-//        if (player != null)
-//            player.release();
-        //if (dialogPlay != null)
-        //    dialogPlay.dismiss();
-
-
- /*       SharedPreferences prefs = getSharedPreferences("Prefs", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        try {
-            editor.putString("arr_list", ObjectSerializer.serialize(arr_list));
-            Log.d(TAG, "Saved Persistent State");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        editor.commit();*/
     }
     @Override
     protected void onStop() {
@@ -619,17 +574,12 @@ public class ListActivity extends AppCompatActivity {
         Log.d(TAG,"onDestroy Method");
     }
 
-
-    public ArrayList<ArrayEntry> getList(){
-        return arr_list;
-    }
-
     public static class MyAlertDialogFragment extends DialogFragment {
         static final int TEXT = 0;
         static final int RENAME = 1;
         static final int PLAY = 2;
         static final int START = 3;
-
+        static final int PROGRESS = 4;
 
         // variables needed for playback
         private Handler handy = new Handler();
@@ -667,6 +617,11 @@ public class ListActivity extends AppCompatActivity {
 
             switch (getArguments().getInt("type")) {
 
+                case PROGRESS:
+                    Log.d(TAG, "Case Progress");
+                    return new ProgressDialog.Builder(getActivity())
+                            .setMessage(getArguments().getString("message"))
+                            .create();
 
                 case START:
                     String choices[] = {(String)getText(R.string.dialog1),(String)getText(R.string.dialog2),(String)getText(R.string.dialog3),(String)getText(R.string.dialog4)};
@@ -686,8 +641,6 @@ public class ListActivity extends AppCompatActivity {
                                                 ((ListActivity)getActivity()).viewTranscription(getArguments().getInt("position"));
                                             else
                                                 ((ListActivity)getActivity()).executeCallToServer(getArguments().getInt("position"));
-
-                                            // new callToServer().execute(position);
                                             break;
                                         case 2: // rename
                                             ((ListActivity)getActivity()).rename(getArguments().getInt("position"), getArguments().getString("filename"));
@@ -723,11 +676,16 @@ public class ListActivity extends AppCompatActivity {
                         .setView(view)
                         .create();
 
-                        Log.d(TAG, "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP" + getArguments().getInt("new_start"));
-                        player.seekTo(getArguments().getInt("new_start"));
+                    player.seekTo(getArguments().getInt("new_start"));
+                    play_pause = (Button) view.findViewById(R.id.button_play);
 
+                    if(getArguments().getBoolean("isPlaying")){
+                        player.start();
+                    }
+                        else{
+                        play_pause.setBackground(getResources().getDrawable(R.drawable.ic_play_circle_filled_black_48dp, null));
+                    }
 
-                    player.start();
                     handy.postDelayed(UpdateSongTime,50);
 
                     timeText = (TextView) view.findViewById(R.id.time);
@@ -738,23 +696,27 @@ public class ListActivity extends AppCompatActivity {
                     seek.setMax((int) endTime);
                     seek.setProgress((int)startTime);
 
-                    play_pause = (Button) view.findViewById(R.id.button_play);
+
 
                     player.setOnCompletionListener( new MediaPlayer.OnCompletionListener() {
                         public void onCompletion(MediaPlayer mp) {
-                            play_pause.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_play_circle_filled_black_48dp, 0, 0);
+                            play_pause.setBackground(getResources().getDrawable(R.drawable.ic_play_circle_filled_black_48dp, null));
+                            handy.removeCallbacks(UpdateSongTime);
+                            seek.setProgress(0);
                         }
                     });
 
                     play_pause.setOnClickListener(new View.OnClickListener() {
                         public void onClick(View view) {
                             if (player.isPlaying()) {
-                                play_pause.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_play_circle_filled_black_48dp, 0, 0);
+                                play_pause.setBackground(getResources().getDrawable(R.drawable.ic_play_circle_filled_black_48dp, null));
+                                handy.removeCallbacks(UpdateSongTime);
                                 player.pause();
 
                             } else {
-                                play_pause.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_pause_circle_filled_black_48dp , 0, 0);
+                                play_pause.setBackground(getResources().getDrawable(R.drawable.ic_pause_circle_filled_black_48dp, null));
                                 player.start();
+                                handy.postDelayed(UpdateSongTime,50);
 
                             }
                         }
@@ -817,25 +779,27 @@ public class ListActivity extends AppCompatActivity {
 
 
         public void onSaveInstanceState(Bundle savedInstanceState) {
-            super.onSaveInstanceState(savedInstanceState);
-
             if(getArguments().getInt("type")==PLAY){
-                Log.d(TAG, " onSaveInstanceState." + Boolean.toString(getArguments().getInt("type")==PLAY));
+                Log.d(TAG, "Fragment - onSaveInstanceState " + Boolean.toString(getArguments().getInt("type")==PLAY));
+                getArguments().putInt("new_start", player.getCurrentPosition());
 
-                savedInstanceState.putInt("new_start", player.getCurrentPosition());
-                savedInstanceState.putString("a", "b");
+                if(player.isPlaying())
+                    getArguments().putBoolean("isPlaying", true);
+                else
+                    getArguments().putBoolean("isPlaying", false);
+
+                player.pause();
+                play_pause.setBackground(getResources().getDrawable(R.drawable.ic_play_circle_filled_black_48dp, null));
+
+
+
             }
-
+            super.onSaveInstanceState(savedInstanceState);
         }
 
         @Override
         public void onPause(){
             super.onPause();
-
-            if(getArguments().getInt("type")==PLAY){
-                player.pause();
-                play_pause.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_play_circle_filled_black_48dp , 0, 0);
-            }
 
         }
 

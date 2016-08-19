@@ -19,12 +19,13 @@
         android:background="?attr/colorPrimary"
         />
 
-   <!-- <View
-        android:id="@+id/toolbar_shadow"
+
+   <View
+        android:id="@+id/toolbar_shadow_list"
         android:layout_width="match_parent"
         android:layout_height="@dimen/toolbar_shadow"
         android:layout_below="@id/toolbarList"
-        android:background="@drawable/shadow" />-->
+        android:background="@drawable/shadow" />
 
    <!-- <ListView
         android:id="@+id/listView"
