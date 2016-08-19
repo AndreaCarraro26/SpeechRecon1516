@@ -64,15 +64,13 @@ public class MainActivity extends AppCompatActivity {
     private void startRecording() {
 
         audio_recorder = new MediaRecorder();
-        // Set the audio source using MediaRecorder.setAudioSource().
         audio_recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        // Set output file format using MediaRecorder.setOutputFormat()
-        audio_recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        // Set output file name using MediaRecorder.setOutputFile()
-        audio_recorder.setOutputFile(audio_filename);
-        // Set the audio encoder using MediaRecorder.setAudioEncoder()
-        audio_recorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+        audio_recorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_WB);
+        audio_recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_WB);
+        audio_recorder.setAudioSamplingRate(16000);
 
+        audio_recorder.setOutputFile(audio_filename);
+        audio_recorder.setAudioChannels(1);
         try {
             audio_recorder.prepare();
             audio_recorder.start();
@@ -131,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                 }
 
-                to = new File(audio_path + new_audio_filename + ".mp3");
+                to = new File(audio_path + new_audio_filename + ".amr");
                 if(from.renameTo(to))
                     Toast.makeText(getApplicationContext(), new_audio_filename + " " + getString(R.string.saved), Toast.LENGTH_LONG).show();
                 dialog.dismiss();
@@ -202,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
                     file = dir.listFiles();
 
                     audio_name = "Record" + audioCounter;
-                    audio_filename = audio_path + audio_name + ".mp3";
+                    audio_filename = audio_path + audio_name + ".amr";
                     Log.d("nome", audio_filename);
                     audioCounter++;
                     chronometer = (Chronometer) findViewById(R.id.chronometer);
