@@ -191,7 +191,7 @@ public class ListActivity extends AppCompatActivity {
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setDoOutput(true);
                 connection.setRequestProperty("Connection", "Keep-Alive");
-                connection.setRequestProperty("Content-Type", "multipart/form-data;boundary="+boundary);
+                connection.setRequestProperty("Content-Type", "multipart/form-data;boundary="+boundary+"; charset=utf-8");
                 connection.setRequestProperty("uploaded_file", file_path);
                 connection.setConnectTimeout(5000); //set timeout to 5 seconds
 
