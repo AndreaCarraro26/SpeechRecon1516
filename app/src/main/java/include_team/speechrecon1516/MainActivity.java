@@ -1,6 +1,5 @@
 package include_team.speechrecon1516;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,6 +9,7 @@ import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
     AlertDialog.Builder builder;
 
-   // private static final String LOG_TAG = "Audio record";
+    // private static final String LOG_TAG = "Audio record";
     private static String audio_path = null;
     private static String main_path = null;
     private static String audio_name = null;
@@ -68,15 +68,13 @@ public class MainActivity extends AppCompatActivity {
     private void startRecording() {
 
         audio_recorder = new MediaRecorder();
-        // Set the audio source using MediaRecorder.setAudioSource().
         audio_recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        // Set output file format using MediaRecorder.setOutputFormat()
-        audio_recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        // Set output file name using MediaRecorder.setOutputFile()
-        audio_recorder.setOutputFile(audio_filename);
-        // Set the audio encoder using MediaRecorder.setAudioEncoder()
-        audio_recorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+        audio_recorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_WB);
+        audio_recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_WB);
+        audio_recorder.setAudioSamplingRate(16000);
 
+        audio_recorder.setOutputFile(audio_filename);
+        audio_recorder.setAudioChannels(1);
         try {
             audio_recorder.prepare();
             audio_recorder.start();
@@ -98,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         //create the AlertDialog
         builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.save_title)
-               .setMessage(R.string.save);
+                .setMessage(R.string.save);
         final EditText et = new EditText(this);
         builder.setView(et);
         //add the buttons
@@ -210,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
                     file = dir.listFiles();
 
                     audio_name = "Record" + audioCounter;
-                    audio_filename = audio_path + audio_name + ".mp3";
+                    audio_filename = audio_path + audio_name + ".amr";
                     Log.d("nome", audio_filename);
                     audioCounter++;
                     chronometer = (Chronometer) findViewById(R.id.chronometer);
