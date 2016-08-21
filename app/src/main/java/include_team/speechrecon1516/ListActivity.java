@@ -64,7 +64,7 @@ public class ListActivity extends AppCompatActivity {
     private Toolbar toolbar;
 
     private static final String TAG = "ListActivityDebug";
-    private File audio_file[];
+    private File audio_files[];
     private File txt_file[];
 
 
@@ -205,6 +205,7 @@ public class ListActivity extends AppCompatActivity {
                 dos.writeBytes("Content-Disposition: form-data; name=\"uploadedfile\"; filename=\"" + filename +"\"" + lineEnd);
                 dos.writeBytes(lineEnd);
 
+                Log.d(TAG, filename);
                 // create a buffer of maximum size
                 int bytesAvailable = fileInputStream.available();
 
@@ -297,28 +298,31 @@ public class ListActivity extends AppCompatActivity {
 
         File audio_dir = new File(audio_path);
         audio_dir.mkdir();
-        audio_file = audio_dir.listFiles();
+        audio_files = audio_dir.listFiles();
 
         File txt_dir = new File(txt_path);
         txt_dir.mkdir();
         txt_file = txt_dir.listFiles();
 
-        if(audio_file!=null){
-            Log.d(TAG, "Files in directory audio : "+ audio_file.length);
+        if(audio_files!=null){
+            Log.d(TAG, "Files in directory audio : "+ audio_files.length);
             Log.d(TAG, "Files in directory text : "+ txt_file.length);
-            for (int i=0;i<audio_file.length;i++){
-                String name = audio_file[i].getName();
-                name = name.substring(0, name.length() - 4);
+            for (int i=0;i<audio_files.length;i++){
+                String name = audio_files[i].getName();
+                Log.d(TAG, name.substring(name.length() - 4, name.length()));
+                if(name.substring(name.length() - 4, name.length()).compareTo(".amr")==0) {
+                    name = name.substring(0, name.length() - 4);
 
-                boolean hasBeenTranscribed = false;
-                String txtname;
-                for(int j=0; j<txt_file.length; j++){
-                    txtname = txt_file[j].getName();
-                    if (txtname.substring(0, txtname.length() - 4).compareTo(name)==0)
-                        hasBeenTranscribed = true;
+                    boolean hasBeenTranscribed = false;
+                    String txtname;
+                    for (int j = 0; j < txt_file.length; j++) {
+                        txtname = txt_file[j].getName();
+                        if (txtname.substring(0, txtname.length() - 4).compareTo(name) == 0)
+                            hasBeenTranscribed = true;
+                    }
+
+                    arr_list.add(new ArrayEntry(name, new Date(audio_files[i].lastModified()), hasBeenTranscribed));
                 }
-
-                arr_list.add(new ArrayEntry(name, new Date(audio_file[i].lastModified()), hasBeenTranscribed));
             }
 
             Collections.sort(arr_list, new Comparator<ArrayEntry>() {
@@ -824,11 +828,13 @@ public class ListActivity extends AppCompatActivity {
     }
 
     public void deleteFile(int pos){
-        String nome = arr_list.get(pos).getName();
-        File toDelete = new File(audio_path + "/" + nome + ".amr");
+        String name = arr_list.get(pos).getName();
+        File toDelete = new File(audio_path + "/" + name + ".amr");
+        toDelete.delete();
+        toDelete = new File(txt_path + "/" + name + ".txt");
         toDelete.delete();
         arr_list.remove(pos);
         mAdapter.notifyItemRemoved(pos);
-        Toast.makeText(getApplicationContext(), nome + " " + getString(R.string.removed), Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), name + " " + getString(R.string.removed), Toast.LENGTH_LONG).show();
     }
 }

@@ -97,8 +97,13 @@ public class MainActivity extends AppCompatActivity {
         builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.save_title)
                 .setMessage(R.string.save);
-        final EditText et = new EditText(this);
-        builder.setView(et);
+
+        final View dialogView = getLayoutInflater().inflate(R.layout.rename, null);
+        final EditText et = (EditText) dialogView.findViewById(R.id.editText);
+        et.setText(audio_name);
+        et.selectAll();
+
+        builder.setView(dialogView);
         //add the buttons
         builder.setPositiveButton(R.string.save_button, new DialogInterface.OnClickListener() {
             @Override
@@ -125,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                 }
 
-                to = new File(audio_path + new_audio_filename + ".mp3");
+                to = new File(audio_path + new_audio_filename + ".amr");
                 if (from.renameTo(to))
                     Toast.makeText(getApplicationContext(), new_audio_filename + " " + getString(R.string.saved), Toast.LENGTH_LONG).show();
                 dialog.dismiss();
@@ -151,9 +156,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        et.setText(audio_name);
-
         dialog.show();
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false);
     }
 
     @Override
