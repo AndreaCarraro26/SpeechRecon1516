@@ -1,7 +1,9 @@
 package include_team.speechrecon1516;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaRecorder;
@@ -35,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
     // Create a new instance of android.media.MediaRecorder
     private MediaRecorder audio_recorder = null;
 
+    AlertDialog.Builder builder;
+
    // private static final String LOG_TAG = "Audio record";
     private static String audio_path = null;
     private static String main_path = null;
@@ -64,13 +68,15 @@ public class MainActivity extends AppCompatActivity {
     private void startRecording() {
 
         audio_recorder = new MediaRecorder();
+        // Set the audio source using MediaRecorder.setAudioSource().
         audio_recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        audio_recorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_WB);
-        audio_recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_WB);
-        audio_recorder.setAudioSamplingRate(16000);
-
+        // Set output file format using MediaRecorder.setOutputFormat()
+        audio_recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        // Set output file name using MediaRecorder.setOutputFile()
         audio_recorder.setOutputFile(audio_filename);
-        audio_recorder.setAudioChannels(1);
+        // Set the audio encoder using MediaRecorder.setAudioEncoder()
+        audio_recorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+
         try {
             audio_recorder.prepare();
             audio_recorder.start();
@@ -89,25 +95,17 @@ public class MainActivity extends AppCompatActivity {
 
     public void renameFile() {
 
-        final Dialog dialog = new Dialog(ctx);
-        dialog.setContentView(R.layout.dialog);
-       // TextView tv = (TextView) dialog.findViewById(R.id.textView1);
-        et = (EditText) dialog.findViewById(R.id.editText1);
-        et.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        //create the AlertDialog
+        builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.save_title)
+               .setMessage(R.string.save);
+        final EditText et = new EditText(this);
+        builder.setView(et);
+        //add the buttons
+        builder.setPositiveButton(R.string.save_button, new DialogInterface.OnClickListener() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                }
-            }
-        });
-
-        et.setText(audio_name);
-        Button btn1 = (Button) dialog.findViewById(R.id.button1);
-        Button btn2 = (Button) dialog.findViewById(R.id.button2);
-        btn1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            public void onClick(DialogInterface dialog, int id) {
+                //operazioni per salvare il file
                 from = new File(audio_filename);
 
                 new_audio_filename = et.getText().toString().replaceAll(" ", "");
@@ -129,21 +127,33 @@ public class MainActivity extends AppCompatActivity {
                         }
                 }
 
-                to = new File(audio_path + new_audio_filename + ".amr");
-                if(from.renameTo(to))
+                to = new File(audio_path + new_audio_filename + ".mp3");
+                if (from.renameTo(to))
                     Toast.makeText(getApplicationContext(), new_audio_filename + " " + getString(R.string.saved), Toast.LENGTH_LONG).show();
                 dialog.dismiss();
             }
         });
-
-        btn2.setOnClickListener(new View.OnClickListener() {
+        builder.setNegativeButton(R.string.delete_button, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(DialogInterface dialog, int which) {
+                //operazioni per eliminare il file
                 from = new File(audio_filename);
                 from.delete();
                 dialog.dismiss();
             }
         });
+        final AlertDialog dialog = builder.create();
+
+        et.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                }
+            }
+        });
+
+        et.setText(audio_name);
 
         dialog.show();
     }
@@ -200,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
                     file = dir.listFiles();
 
                     audio_name = "Record" + audioCounter;
-                    audio_filename = audio_path + audio_name + ".amr";
+                    audio_filename = audio_path + audio_name + ".mp3";
                     Log.d("nome", audio_filename);
                     audioCounter++;
                     chronometer = (Chronometer) findViewById(R.id.chronometer);
