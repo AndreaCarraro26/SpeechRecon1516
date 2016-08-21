@@ -8,6 +8,15 @@
     android:background="?android:attr/colorPrimary"
     android:title="@string/title_activity_main"
     android:titleTextColor="@color/title"
-    android:subtitleTextColor="@color/subtitle"
+    android:subtitleTextColor="@color/subtitle" >
 
-    />
+    <Button
+        android:id="@+id/info_button"
+        android:background="@drawable/ic_info_outline_black_36dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_gravity="right"
+        android:layout_marginRight="16dp"
+        />
+
+</Toolbar>
