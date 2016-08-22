@@ -1,30 +1,18 @@
 package include_team.speechrecon1516;
 
-
-import android.app.Dialog;
-import android.app.DialogFragment;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-
 import android.widget.Toast;
-
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -47,16 +35,11 @@ import java.util.Date;
 
 public class ListActivity extends AppCompatActivity {
 
-    private Toolbar toolbar;
-
     private static final String TAG = "ListActivityDebug";
-    private File audio_files[];
-    private File txt_file[];
 
     private ArrayList<ArrayEntry> arr_list = new ArrayList<>();
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
 
     private String audio_path;
     private String txt_path;
@@ -232,7 +215,7 @@ public class ListActivity extends AppCompatActivity {
     }
 
     private void setToolbar(){
-        toolbar = (Toolbar) findViewById(R.id.toolbarList);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarList);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -245,11 +228,11 @@ public class ListActivity extends AppCompatActivity {
 
         File audio_dir = new File(audio_path);
         audio_dir.mkdir();
-        audio_files = audio_dir.listFiles();
+        File audio_files[] = audio_dir.listFiles();
 
         File txt_dir = new File(txt_path);
         txt_dir.mkdir();
-        txt_file = txt_dir.listFiles();
+        File txt_file[] = txt_dir.listFiles();
 
         if(audio_files!=null){
             Log.d(TAG, "Files in directory audio : "+ audio_files.length);
@@ -334,7 +317,7 @@ public class ListActivity extends AppCompatActivity {
         mRecyclerView.setHasFixedSize(true);
 
         // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(this);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)

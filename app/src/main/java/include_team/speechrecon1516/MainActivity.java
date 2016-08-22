@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
                 if (audioStartRecording) {
                     assert text_record != null;
                     text_record.setText(R.string.stop_button);
-                    btn_record.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_stop_48dp, 0, 0);
+                    btn_record.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, R.drawable.ic_stop_48dp);
                     assert main_layout != null;
                     main_layout.addView(timer);
 

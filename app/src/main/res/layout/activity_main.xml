@@ -50,46 +50,10 @@
         android:layout_height="wrap_content"
         android:text="@string/list_button"
         android:background="@drawable/list_button"
-        android:layout_marginTop="129dp"
-        android:layout_marginRight="48dp"
-        android:layout_below="@id/text_record"
-        android:layout_alignParentRight="true"
+        android:layout_marginTop="103dp"
+        android:layout_marginEnd="48dp"
 
-        />
+        android:layout_below="@+id/toolbar_shadow_main"
+        android:layout_alignStart="@+id/button_record"/>
 
 </RelativeLayout>
-
-
-<!--<Button-->
-<!--android:id="@+id/button_list"-->
-<!--android:layout_width="100dp"-->
-<!--android:layout_height="wrap_content"-->
-<!--android:text="@string/list_button"-->
-<!--android:layout_marginTop="65dp"-->
-<!--android:background="@drawable/list_button"-->
-<!--android:layout_below="@+id/toolbarMain"-->
-<!--android:layout_centerHorizontal="true" />-->
-
-<!--<Button-->
-<!--android:id="@+id/button_record"-->
-<!--android:layout_width="wrap_content"-->
-<!--android:layout_height="wrap_content"-->
-<!--android:layout_alignParentBottom="true"-->
-<!--android:background="@drawable/button_circle"-->
-<!--android:paddingTop="28dp"-->
-<!--android:gravity="center"-->
-<!--android:layout_centerHorizontal="true"-->
-<!--android:drawableTop="@drawable/ic_mic_48dp"-->
-<!--android:layout_marginBottom="100dp"/>-->
-
-<!--<TextView-->
-<!--android:id="@+id/text_record"-->
-<!--android:layout_width="fill_parent"-->
-<!--android:layout_height="wrap_content"-->
-<!--android:text="@string/record_button"-->
-<!--android:gravity="center_horizontal"-->
-<!--android:layout_alignParentBottom="true"-->
-<!--android:layout_marginBottom="75dp"/>-->
-
-    <!--</RelativeLayout>-->
-

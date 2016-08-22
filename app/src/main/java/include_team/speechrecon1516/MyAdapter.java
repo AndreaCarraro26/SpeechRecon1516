@@ -44,7 +44,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
     }
 
-    // Provide a suitable constructor (depends on the kind of dataset)
     public MyAdapter(ArrayList<ArrayEntry> ls, Context c) {
         this.list = ls;
         this.mContext = c;
@@ -81,7 +80,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             holder.done.setVisibility(View.VISIBLE);
     }
 
-    // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
         return list.size();
