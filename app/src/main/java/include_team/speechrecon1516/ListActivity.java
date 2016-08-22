@@ -1,15 +1,11 @@
 package include_team.speechrecon1516;
 
-import android.app.Activity;
+
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.content.res.Resources;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -24,18 +20,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.SeekBar;
-import android.widget.TextView;
+
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 
 import java.io.BufferedReader;
@@ -52,12 +39,11 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
+
 
 public class ListActivity extends AppCompatActivity {
 
@@ -67,8 +53,7 @@ public class ListActivity extends AppCompatActivity {
     private File audio_files[];
     private File txt_file[];
 
-
-    private ArrayList<ArrayEntry> arr_list = new ArrayList<ArrayEntry>();
+    private ArrayList<ArrayEntry> arr_list = new ArrayList<>();
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -78,55 +63,19 @@ public class ListActivity extends AppCompatActivity {
 
     private Context cx;
 
-    DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,DateFormat.MEDIUM);
 
-    private class ArrayEntry {
-        private String name;
-        private boolean transcribed;
-        Date date;
-
-        public ArrayEntry(String cname, Date dd, boolean ctranscribed){
-            name = cname;
-            date = dd;
-            transcribed = ctranscribed;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public Date getDate() {
-            return date;
-        }
-
-        public boolean isTranscribed() {
-            return transcribed;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public void setTranscribed(boolean transcribed) {
-            this.transcribed = transcribed;
-        }
-
-        public void setDate(Date date) {
-            this.date = date;
-        }
-    }
-
-    private class callToServer extends AsyncTask<String, Void, Void>  {
+    public class CallToServer extends AsyncTask<String, Void, Void> {
 
         boolean noConnectivity = false;
         URL url;
         HttpURLConnection connection;
 
+        ArrayList<ArrayEntry> arr_list = new ArrayList<>();
+        String audio_path;
         String file_path;
         String filename;
         String serverResponse ;
 
-        InputStream inputStream;
         FileInputStream fileInputStream ;
         DataOutputStream dos;
 
@@ -183,8 +132,6 @@ public class ListActivity extends AppCompatActivity {
                 return null;
 
             try{
-
-
 
                 Log.d(TAG, "doInBackground - Connecting..");
                 url = new URL(getString(R.string.serverLocation));
@@ -261,7 +208,7 @@ public class ListActivity extends AppCompatActivity {
         protected void onPostExecute(Void unused) {
             Log.d(TAG, "onPostExecute - callToServer");
             if(noConnectivity)
-               return;
+                return;
 
             if(error!=null){
                 prog.dismiss();
@@ -292,8 +239,8 @@ public class ListActivity extends AppCompatActivity {
     }
 
     private void setAudioFiles(){
-        audio_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String)getText(R.string.directory_main) + "/" + (String)getText(R.string.directory_audio) + "/";
-        txt_path   = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String)getText(R.string.directory_main) + "/" + (String)getText(R.string.directory_txt) + "/";
+        audio_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + getText(R.string.directory_main) + "/" + getText(R.string.directory_audio) + "/";
+        txt_path   = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + getText(R.string.directory_main) + "/" + getText(R.string.directory_txt) + "/";
         Log.d(TAG, "Path for file: " + txt_path);
 
         File audio_dir = new File(audio_path);
@@ -335,7 +282,7 @@ public class ListActivity extends AppCompatActivity {
         }
     }
 
-    private void playRecord(String fileName){
+    protected void playRecord(String fileName){
 
         MyAlertDialogFragment diaPlay = MyAlertDialogFragment.newInstance();
         Bundle args = new Bundle();
@@ -347,82 +294,10 @@ public class ListActivity extends AppCompatActivity {
         diaPlay.setArguments(args);
         diaPlay.show(getFragmentManager(), "tag");
 
-
-
     }
 
-    public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
-        ArrayList<ArrayEntry> list ;
 
-        public class ViewHolder extends RecyclerView.ViewHolder {
-
-            public TextView textView;
-            public TextView dateView;
-            public ImageView icon;
-            public ImageView done;
-
-            public ViewHolder(View itemView) {
-                // Stores the itemView in a public final member variable that can be used
-                // to access the context from any ViewHolder instance.
-                super(itemView);
-
-                textView = (TextView) itemView.findViewById(R.id.name_file);
-                dateView = (TextView) itemView.findViewById(R.id.data_string);
-                icon = (ImageView) itemView.findViewById(R.id.equalizer);
-                done = (ImageView) itemView.findViewById(R.id.done);
-
-            }
-
-        }
-
-        // Provide a suitable constructor (depends on the kind of dataset)
-        public MyAdapter(ArrayList<ArrayEntry> ls) {
-            list = ls;
-        }
-
-        // Create new views (invoked by the layout manager)
-        @Override
-        public MyAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                       int viewType) {
-            // create a new view
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.list_entry, parent, false);
-            ViewHolder vh = new ViewHolder(v);
-            return vh;
-        }
-
-        // Replace the contents of a view (invoked by the layout manager)
-        @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
-
-            holder.textView.setText(list.get(position).getName());
-            holder.dateView.setText(df.format( list.get(position).getDate()));
-            Log.d(TAG, df.format( list.get(position).getDate()));
-            Drawable iconFile = getDrawable(R.drawable.ic_record_voice_over_black_36dp);
-            iconFile.setColorFilter(getColor(R.color.primary_dark), PorterDuff.Mode.SRC_ATOP);
-            holder.icon.setImageDrawable(iconFile);
-
-            Drawable doneFile = getDrawable(R.drawable.ic_done_black_36dp);
-            doneFile.setColorFilter(getColor(R.color.primary_dark), PorterDuff.Mode.SRC_ATOP);
-            holder.done.setImageDrawable(doneFile);
-
-            if (!(list.get(position).isTranscribed()))
-                holder.done.setVisibility(View.INVISIBLE);
-            else
-                holder.done.setVisibility(View.VISIBLE);
-
-
-
-        }
-
-        // Return the size of your dataset (invoked by the layout manager)
-        @Override
-        public int getItemCount() {
-            return list.size();
-        }
-    }
-
-    public void viewTranscription(int position){
+    protected void viewTranscription(int position){
 
         File file = new File(txt_path,arr_list.get(position).getName() +".txt");
 
@@ -463,14 +338,14 @@ public class ListActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new MyAdapter(arr_list);
+        mAdapter = new MyAdapter(arr_list, this);
         mRecyclerView.setAdapter(mAdapter);
 
         mRecyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(cx, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, final int position) {
 
-                        final String fileName =  (String) arr_list.get(position).getName();
+                        final String fileName = arr_list.get(position).getName();
 
                         MyAlertDialogFragment diaMenu = MyAlertDialogFragment.newInstance();
                         Bundle args = new Bundle();
@@ -485,13 +360,11 @@ public class ListActivity extends AppCompatActivity {
                         args.putBoolean("isTranscribed", arr_list.get(position).isTranscribed());
                         diaMenu.setArguments(args);
                         diaMenu.show(getFragmentManager(), "tag");
-
                     }
                 }));
-
     }
 
-    private void rename(final int position, final String fileName) {
+    protected void rename(final int position, final String fileName) {
 
         MyAlertDialogFragment diaRename = MyAlertDialogFragment.newInstance();
         Bundle args = new Bundle();
@@ -505,11 +378,9 @@ public class ListActivity extends AppCompatActivity {
         args.putStringArrayList("files", arr_strings);
         diaRename.setArguments(args);
         diaRename.show(getFragmentManager(), "tag");
-
-
     }
 
-    public void finalizeCaseRename(int pos, String text, String fileName){
+    protected void finalizeCaseRename(int pos, String text, String fileName){
         arr_list.get(pos).setName(text);
         File newFile = new File(audio_path + "/" + text + ".amr");
         File oldFile = new File(audio_path + "/" + fileName + ".amr");
@@ -533,7 +404,6 @@ public class ListActivity extends AppCompatActivity {
         } catch (Exception e) {
                Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_LONG).show();
         }
-
     }
 
     @Override
@@ -544,11 +414,8 @@ public class ListActivity extends AppCompatActivity {
         cx = this;
 
         setToolbar();
-
         setAudioFiles();
-
         setRecyclerList();
-
     }
 
     @Override
@@ -578,253 +445,8 @@ public class ListActivity extends AppCompatActivity {
         Log.d(TAG,"onDestroy Method");
     }
 
-    public static class MyAlertDialogFragment extends DialogFragment {
-        static final int TEXT = 0;
-        static final int RENAME = 1;
-        static final int PLAY = 2;
-        static final int START = 3;
-        static final int PROGRESS = 4;
-
-        // variables needed for playback
-        private Handler handy = new Handler();
-        private int startTime;
-        private double endTime= 0;
-        private SeekBar seek;
-        private TextView timeText;
-        MediaPlayer player;
-        Button play_pause;
-
-        private Runnable UpdateSongTime = new Runnable() {
-            public void run() {
-                startTime = player.getCurrentPosition();
-                timeText.setText(String.format("%d′%d″/%d′%d″",
-                        TimeUnit.MILLISECONDS.toMinutes((long) startTime),
-                        TimeUnit.MILLISECONDS.toSeconds((long) startTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) startTime)),
-                        TimeUnit.MILLISECONDS.toMinutes((long) endTime),
-                        TimeUnit.MILLISECONDS.toSeconds((long) endTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) endTime)))
-                );
-                seek.setProgress((int)startTime);
-                handy.postDelayed(this, 16);
-            }
-        };
-
-        public static MyAlertDialogFragment newInstance() {
-            MyAlertDialogFragment frag = new MyAlertDialogFragment();
-            Bundle args = new Bundle();
-            frag.setArguments(args);
-            return frag;
-        }
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-
-            switch (getArguments().getInt("type")) {
-
-                case PROGRESS:
-                    Log.d(TAG, "Case Progress");
-                    return new ProgressDialog.Builder(getActivity())
-                            .setMessage(getArguments().getString("message"))
-                            .create();
-
-                case START:
-                    String choices[] = {(String)getText(R.string.dialog1),(String)getText(R.string.dialog2),(String)getText(R.string.dialog3),(String)getText(R.string.dialog4)};
-                    if (getArguments().getBoolean("isTranscribed"))
-                        choices[1] = (String)getText(R.string.dialogX);
-
-                    final AlertDialog startDiag = new AlertDialog.Builder(getActivity())
-                            .setTitle(getArguments().getString("filename"))
-                            .setItems(choices, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    switch (which){
-                                        case 0: // play record
-                                            ((ListActivity)getActivity()).playRecord(getArguments().getString("filename"));
-                                            break;
-                                        case 1: // transcribe
-                                            if (getArguments().getBoolean("isTranscribed"))
-                                                ((ListActivity)getActivity()).viewTranscription(getArguments().getInt("position"));
-                                            else
-                                                ((ListActivity)getActivity()).executeCallToServer(getArguments().getInt("position"));
-                                            break;
-                                        case 2: // rename
-                                            ((ListActivity)getActivity()).rename(getArguments().getInt("position"), getArguments().getString("filename"));
-                                            break;
-                                        case 3: // delete
-                                            ((ListActivity)getActivity()).deleteFile(getArguments().getInt("position"));
-
-                                            break;
-
-                                    }
-
-                                }
-                            })
-                            .create();
-                    return startDiag;
-
-
-                case TEXT:
-                    Log.d(TAG, "Case Text");
-                    return new AlertDialog.Builder(getActivity())
-                            .setTitle(getArguments().getString("title"))
-                            .setMessage(getArguments().getString("message"))
-                            .create();
-
-                case PLAY:
-//                    Log.d(TAG, getArguments().getString("a"));
-                    player = new MediaPlayer().create(((ListActivity)getActivity()), Uri.parse(getArguments().getString("path") + "/" + getArguments().getString("filename") + ".amr"));
-
-                    View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_play, null);
-
-                    AlertDialog dialog =  new AlertDialog.Builder(getActivity())
-                        .setTitle(getArguments().getString("filename"))
-                        .setView(view)
-                        .create();
-
-                    player.seekTo(getArguments().getInt("new_start"));
-                    play_pause = (Button) view.findViewById(R.id.button_play);
-
-                    if(getArguments().getBoolean("isPlaying")){
-                        player.start();
-                    }
-                        else{
-                        play_pause.setBackground(getResources().getDrawable(R.drawable.ic_play_circle_filled_black_48dp, null));
-                    }
-
-                    handy.postDelayed(UpdateSongTime,50);
-
-                    timeText = (TextView) view.findViewById(R.id.time);
-                    endTime = player.getDuration();
-                    startTime = player.getCurrentPosition();
-
-                    seek = (SeekBar) view.findViewById(R.id.seekBar);
-                    seek.setMax((int) endTime);
-                    seek.setProgress((int)startTime);
-
-
-
-                    player.setOnCompletionListener( new MediaPlayer.OnCompletionListener() {
-                        public void onCompletion(MediaPlayer mp) {
-                            play_pause.setBackground(getResources().getDrawable(R.drawable.ic_play_circle_filled_black_48dp, null));
-                            handy.removeCallbacks(UpdateSongTime);
-                            seek.setProgress(0);
-                        }
-                    });
-
-                    play_pause.setOnClickListener(new View.OnClickListener() {
-                        public void onClick(View view) {
-                            if (player.isPlaying()) {
-                                play_pause.setBackground(getResources().getDrawable(R.drawable.ic_play_circle_filled_black_48dp, null));
-                                handy.removeCallbacks(UpdateSongTime);
-                                player.pause();
-
-                            } else {
-                                play_pause.setBackground(getResources().getDrawable(R.drawable.ic_pause_circle_filled_black_48dp, null));
-                                player.start();
-                                handy.postDelayed(UpdateSongTime,50);
-
-                            }
-                        }
-                    });
-
-                    return dialog;
-
-                case RENAME:
-                    Log.d(TAG, "Case Rename");
-                    final View dialogView = getActivity().getLayoutInflater().inflate(R.layout.rename, null);
-                    final EditText editText = (EditText) dialogView.findViewById(R.id.editText);
-                    editText.setText(getArguments().getString("filename"));
-                    editText.selectAll();
-
-                    final AlertDialog alDiag = new AlertDialog.Builder(getActivity())
-                            .setTitle("Rename")
-                            .setView(dialogView)
-                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    String text = editText.getText().toString().replaceAll(" ", "");
-                                    text = text.toString().replaceAll("\n", "");
-                                    if (text.compareTo("") != 0)
-                                        text = text.substring(0, 1).toUpperCase() + text.substring(1);
-                                    if (text.compareTo("")==0){
-                                        Toast.makeText(getActivity().getApplicationContext(), getString(R.string.noRename), Toast.LENGTH_LONG).show();
-                                        ((ListActivity)getActivity()).rename(getArguments().getInt("position"), getArguments().getString("filename"));
-                                        return;
-                                    }
-                                    else {
-                                        for(int i=0; i< getArguments().getInt("size"); i++)
-                                            if(text.compareTo(getArguments().getStringArrayList("files").get(i))==0) {
-                                                Toast.makeText(getActivity().getApplicationContext(), getString(R.string.nameInUse), Toast.LENGTH_LONG).show();
-                                                ((ListActivity)getActivity()).rename(getArguments().getInt("position"), getArguments().getString("filename"));
-                                                return;
-                                            }
-                                    }
-
-                                    ((ListActivity)getActivity()).finalizeCaseRename(getArguments().getInt("position"), text, getArguments().getString("filename"));
-
-
-                                }
-                            })
-                            .create();
-
-                    editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                        @Override
-                        public void onFocusChange(View v, boolean hasFocus) {
-                            if (hasFocus) {
-                                alDiag.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                            }
-                        }
-                    });
-
-                    return alDiag;
-
-            }
-
-            return null;
-        }
-
-
-        public void onSaveInstanceState(Bundle savedInstanceState) {
-            if(getArguments().getInt("type")==PLAY){
-                Log.d(TAG, "Fragment - onSaveInstanceState " + Boolean.toString(getArguments().getInt("type")==PLAY));
-                getArguments().putInt("new_start", player.getCurrentPosition());
-
-                if(player.isPlaying())
-                    getArguments().putBoolean("isPlaying", true);
-                else
-                    getArguments().putBoolean("isPlaying", false);
-
-                player.pause();
-                play_pause.setBackground(getResources().getDrawable(R.drawable.ic_play_circle_filled_black_48dp, null));
-
-
-
-            }
-            super.onSaveInstanceState(savedInstanceState);
-        }
-
-        @Override
-        public void onPause(){
-            super.onPause();
-
-        }
-
-        @Override
-        public void onDestroy() {
-
-
-            if(getArguments().getInt("type")==PLAY){
-                handy.removeCallbacks(UpdateSongTime);
-                player.release();
-            }
-
-            super.onDestroy();
-
-        }
-
-
-    }
-
     public void executeCallToServer(int pos){
-        new callToServer().execute(pos);
+        new CallToServer().execute(pos);
     }
 
     public void deleteFile(int pos){
