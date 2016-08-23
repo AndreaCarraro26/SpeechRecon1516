@@ -1,6 +1,5 @@
 package include_team.speechrecon1516;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -41,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
 
     // private static final String LOG_TAG = "Audio record";
     private static String audio_path = null;
-    private static String main_path = null;
     private static String audio_name = null;
     private static String audio_filename = null;
     private static String new_audio_filename = null;
@@ -51,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
     Context ctx;
     Chronometer chronometer;
     private int audioCounter;
-    EditText et = null;
 
     File from = null;
     File to = null;
@@ -91,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         audio_recorder = null;
     }
 
-    public void renameFile() {
+    public void saveFile() {
 
         //create the AlertDialog
         builder = new AlertDialog.Builder(this);
@@ -117,14 +114,14 @@ public class MainActivity extends AppCompatActivity {
                     new_audio_filename = new_audio_filename.substring(0, 1).toUpperCase() + new_audio_filename.substring(1);
                 if (new_audio_filename.compareTo("") == 0) {
                     Toast.makeText(getApplicationContext(), getString(R.string.noRename), Toast.LENGTH_LONG).show();
-                    renameFile();
+                    saveFile();
                     dialog.dismiss();
                     return;
                 } else {
                     for (int i = 0; i < file.length; i++)
                         if (new_audio_filename.compareTo(file[i].getName().substring(0, file[i].getName().length() - 4)) == 0) {
                             Toast.makeText(getApplicationContext(), getString(R.string.nameInUse), Toast.LENGTH_LONG).show();
-                            renameFile();
+                            saveFile();
                             dialog.dismiss();
                             return;
                         }
@@ -171,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         audioCounter = sharedpreferences.getInt("counter", 0);
 
-        main_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + getString(R.string.directory_main) + "/";
+        String main_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + getString(R.string.directory_main) + "/";
         File dir_main = new File(main_path);
         if(dir_main.mkdir())
             Log.d(TAG, "Created " + main_path);
@@ -236,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
                     btn_record.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_mic_48dp, 0, 0);
                     chronometer.stop();
 
-                    renameFile();
+                    saveFile();
 
                     assert main_layout != null;
                     main_layout.removeView(timer);
@@ -285,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
             final RelativeLayout main_layout = (RelativeLayout) findViewById(R.id.main_layout);
             final RelativeLayout timer = (RelativeLayout) findViewById(R.id.time_layout);
 
-            renameFile();
+            saveFile();
 
             assert text_record != null;
             text_record.setText(R.string.record_button);
@@ -308,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putInt("counter", audioCounter);
         Log.d(TAG, "Saved Persistent State");
 
-        editor.commit();
+        editor.apply();
 
         super.onPause();
         Log.d(TAG, "onPause Method");

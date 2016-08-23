@@ -24,11 +24,6 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 
 
-/**
- * Created by camillom on 23/08/16.
- */
-
-
 public class ActivityStub extends AppCompatActivity {
 
     String TAG = "CallToServerDebug";
@@ -38,17 +33,22 @@ public class ActivityStub extends AppCompatActivity {
 
 
     protected void setTxtFile(String filename, String text){
-        txt_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + (String)getText(R.string.directory_main) + "/" + (String)getText(R.string.directory_txt) + "/";
+        txt_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" +
+                getText(R.string.directory_main) + "/" + getText(R.string.directory_txt) + "/";
 
         try{
-            File newfile = new File(txt_path + filename + ".txt");
-            newfile.createNewFile();
-            FileOutputStream out = new FileOutputStream(newfile);
-            OutputStreamWriter myOutWriter = new OutputStreamWriter(out);
-            myOutWriter.append(text);
-            myOutWriter.close();
-            out.close();
-            Toast.makeText(getBaseContext(), "Transcription saved in \n" + txt_path,  Toast.LENGTH_SHORT).show();
+            File text_file = new File(txt_path + filename + ".txt");
+            if(text_file.createNewFile()) {
+                FileOutputStream out = new FileOutputStream(text_file);
+                OutputStreamWriter myOutWriter = new OutputStreamWriter(out);
+                myOutWriter.append(text);
+                myOutWriter.close();
+                out.close();
+                Toast.makeText(getBaseContext(), "Transcription saved in \n" + txt_path, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getBaseContext(), "Text file already exists!", Toast.LENGTH_LONG).show();
+            }
+
         } catch (Exception e) {
             Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_LONG).show();
         }
