@@ -28,6 +28,8 @@
     <string name="noRename">Filename not valid</string>
     <string name="nameInUse">Filename already in use</string>
 
+    <string name="info_activity">About the app</string>
+
     <!-- Server -->
     <string name="serverLocation">http://esp1516speech.hopto.org/save.php</string>
     <string name="removed"> has been removed from list</string>

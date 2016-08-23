@@ -191,6 +191,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button btn_info = (Button) findViewById(R.id.info_button);
+
+        assert btn_info != null;
+        btn_info.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent k = new Intent(v.getContext(), infoActivity.class);
+                startActivity(k);
+            }
+        });
+
+
 
         final Button btn_record = (Button) findViewById(R.id.button_record);
         final TextView text_record = (TextView) findViewById(R.id.text_record);

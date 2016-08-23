@@ -110,9 +110,20 @@ public class ListActivity extends ActivityStub implements ServerResponse {
 
     protected void finalizeCaseRename(int pos, String text, String fileName){
         arr_list.get(pos).setName(text);
+
+        // rename audio file
         File newFile = new File(audio_path + "/" + text + ".amr");
         File oldFile = new File(audio_path + "/" + fileName + ".amr");
         oldFile.renameTo(newFile);
+
+        // rename text file
+        if(arr_list.get(pos).isTranscribed()){
+            newFile = new File(txt_path + "/" + text + ".txt");
+            oldFile = new File(txt_path + "/" + fileName + ".txt");
+            oldFile.renameTo(newFile);
+
+        }
+
         mAdapter.notifyItemChanged(pos);
 
     }
