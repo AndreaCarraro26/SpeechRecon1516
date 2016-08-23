@@ -50,7 +50,7 @@ public class MyAlertDialogFragment extends DialogFragment {
                     TimeUnit.MILLISECONDS.toMinutes((long) endTime),
                     TimeUnit.MILLISECONDS.toSeconds((long) endTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) endTime)))
             );
-            seek.setProgress((int)startTime);
+            seek.setProgress(startTime);
             handy.postDelayed(this, 16);
         }
     };
