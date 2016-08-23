@@ -18,6 +18,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -205,10 +206,11 @@ public class MainActivity extends AppCompatActivity {
 
         final Button btn_record = (Button) findViewById(R.id.button_record);
         final TextView text_record = (TextView) findViewById(R.id.text_record);
+        final Chronometer chronometer = (Chronometer) findViewById(R.id.chronometer);
 
         //Inflate the Hidden Layout Information View
-        final RelativeLayout main_layout = (RelativeLayout) findViewById(R.id.main_layout);
-        final View timer = getLayoutInflater().inflate(R.layout.chrono, main_layout, false);
+//        final LinearLayout main_layout = (LinearLayout) findViewById(R.id.main_layout);
+//        final View timer = getLayoutInflater().inflate(R.layout.chrono, main_layout, false);
 
         assert btn_record != null;
         btn_record.setOnClickListener(new View.OnClickListener() {
@@ -217,9 +219,10 @@ public class MainActivity extends AppCompatActivity {
                 if (audioStartRecording) {
                     assert text_record != null;
                     text_record.setText(R.string.stop_button);
-                    btn_record.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, R.drawable.ic_stop_48dp);
-                    assert main_layout != null;
-                    main_layout.addView(timer);
+                    btn_record.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_stop_48dp, 0, 0 );
+                    chronometer.setVisibility(View.VISIBLE);
+//                    assert main_layout != null;
+//                    main_layout.addView(timer);
 
                     file = dir.listFiles();
 
@@ -227,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
                     audio_filename = audio_path + audio_name + ".amr";
                     Log.d("nome", audio_filename);
                     audioCounter++;
-                    chronometer = (Chronometer) findViewById(R.id.chronometer);
+                    // chronometer = (Chronometer) findViewById(R.id.chronometer);
                     chronometer.setBase(SystemClock.elapsedRealtime());
                     chronometer.start();
                 } else {
@@ -235,11 +238,12 @@ public class MainActivity extends AppCompatActivity {
                     text_record.setText(R.string.record_button);
                     btn_record.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_mic_48dp, 0, 0);
                     chronometer.stop();
+                    chronometer.setVisibility(View.INVISIBLE);
 
                     renameFile();
 
-                    assert main_layout != null;
-                    main_layout.removeView(timer);
+//                    assert main_layout != null;
+//                    main_layout.removeView(timer);
                 }
 
                 onRecord(audioStartRecording);
@@ -282,7 +286,7 @@ public class MainActivity extends AppCompatActivity {
 
             final Button btn_record = (Button) findViewById(R.id.button_record);
             final TextView text_record = (TextView) findViewById(R.id.text_record);
-            final RelativeLayout main_layout = (RelativeLayout) findViewById(R.id.main_layout);
+            final LinearLayout main_layout = (LinearLayout) findViewById(R.id.main_layout);
             final RelativeLayout timer = (RelativeLayout) findViewById(R.id.time_layout);
 
             renameFile();

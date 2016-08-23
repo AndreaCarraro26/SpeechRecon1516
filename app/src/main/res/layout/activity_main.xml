@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_layout"
@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="include_team.speechrecon1516.MainActivity"
-    android:weightSum="1">
+    android:weightSum="3">
 
     <include
         layout="@layout/toolbar_main"
@@ -18,42 +18,70 @@
         android:id="@+id/toolbar_shadow_main"
         android:layout_width="match_parent"
         android:layout_height="@dimen/toolbar_shadow"
-        android:layout_below="@id/toolbarMain"
         android:background="@drawable/shadow" />
 
+    <!--place for stopwatch-->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-    <Button
-        android:id="@+id/button_record"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/button_circle"
-        android:paddingTop="28dp"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_below="@+id/toolbarMain"
-        android:drawableTop="@drawable/ic_mic_48dp"
-        android:layout_marginTop="230dp"
-        android:layout_marginBottom="10dp"/>
+        <Chronometer
+            android:id="@+id/chronometer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_centerInParent="true"
+            android:format="%s"
+            android:textSize="48sp"
+            android:visibility="invisible"/>
 
-    <TextView
-        android:id="@+id/text_record"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/record_button"
-        android:gravity="center"
-        android:layout_below="@id/button_record"
-        />
+    </RelativeLayout>
 
-    <Button
-        android:id="@+id/button_list"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:text="@string/list_button"
-        android:background="@drawable/list_button"
-        android:layout_marginTop="103dp"
-        android:layout_marginEnd="48dp"
+    <!-- botton with mic-->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-        android:layout_below="@+id/toolbar_shadow_main"
-        android:layout_alignStart="@+id/button_record"/>
+        <Button
+            android:id="@+id/button_record"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_circle"
+            android:paddingTop="28dp"
+            android:layout_centerHorizontal="true"
+            android:drawableTop="@drawable/ic_mic_48dp"
+         />
 
-</RelativeLayout>
+        <TextView
+            android:id="@+id/text_record"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/record_button"
+            android:layout_below="@id/button_record"
+            android:layout_centerHorizontal="true"
+            />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <Button
+            android:id="@+id/button_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/list_button"
+            android:background="@drawable/list_button"
+            android:layout_alignParentRight="true"
+            android:layout_marginEnd="48dp" />
+
+    </RelativeLayout>
+
+
+
+
+</LinearLayout>

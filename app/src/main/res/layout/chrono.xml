@@ -5,14 +5,14 @@
     android:id="@+id/time_layout">
 
     <Chronometer
-        android:id="@+id/chronometer"
+        android:id="@+id/chronometer1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:format="%s"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="150dp"
+        android:layout_marginTop="100dp"
         android:textAlignment="center"
         android:textColor="@color/primary_dark"
         android:textSize="48sp" />

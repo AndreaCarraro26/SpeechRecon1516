@@ -38,5 +38,11 @@
     <string name="connecting">Trying to contact the server and uploading the file...</string>
     <string name="uploading">Uploading file..</string>
 
+    <!--> Info -->
+    <string name="team">#include_team</string>
+    <string name="kaldi">"è stato usato kaldi</string>
+    <string name="esp">progetto per esp</string>
+
+
 
 </resources>
