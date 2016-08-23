@@ -1,12 +1,8 @@
 package include_team.speechrecon1516;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -14,19 +10,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,12 +22,8 @@ import java.util.Date;
 public class ListActivity extends ActivityStub implements ServerResponse {
 
     private static final String TAG = "ListActivityDebug";
-
     private ArrayList<ArrayEntry> arr_list = new ArrayList<>();
-    private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
-
-    private Context cx;
 
     public void processFinish(String text, int pos){
         mAdapter.notifyItemChanged(pos);
@@ -92,7 +74,7 @@ public class ListActivity extends ActivityStub implements ServerResponse {
 
     }
 
-    protected void rename(final int position, final String fileName) {
+    protected void rename(final int position) {
 
         MyAlertDialogFragment diaRename = MyAlertDialogFragment.newInstance();
         Bundle args = new Bundle();
@@ -100,7 +82,7 @@ public class ListActivity extends ActivityStub implements ServerResponse {
         args.putInt("size", arr_list.size());
         args.putInt("position", position);
         args.putInt("type", MyAlertDialogFragment.RENAME);
-        ArrayList<String> arr_strings = new ArrayList<String>();
+        ArrayList<String> arr_strings = new ArrayList<>();
         for (int i=0; i<arr_list.size();i++)
             arr_strings.add(arr_list.get(i).getName());
         args.putStringArrayList("files", arr_strings);
@@ -108,19 +90,21 @@ public class ListActivity extends ActivityStub implements ServerResponse {
         diaRename.show(getFragmentManager(), "tag");
     }
 
-    protected void finalizeCaseRename(int pos, String text, String fileName){
-        arr_list.get(pos).setName(text);
+    protected void finalizeCaseRename(int pos, String new_name, String old_name){
+        arr_list.get(pos).setName(new_name);
 
         // rename audio file
-        File newFile = new File(audio_path + "/" + text + ".amr");
-        File oldFile = new File(audio_path + "/" + fileName + ".amr");
-        oldFile.renameTo(newFile);
+        File newFile = new File(audio_path + "/" + new_name + ".amr");
+        File oldFile = new File(audio_path + "/" + old_name + ".amr");
+        if(!oldFile.renameTo(newFile))
+            Log.e(TAG,"Failed to rename audio file" + old_name);
 
         // rename text file
         if(arr_list.get(pos).isTranscribed()){
-            newFile = new File(txt_path + "/" + text + ".txt");
-            oldFile = new File(txt_path + "/" + fileName + ".txt");
-            oldFile.renameTo(newFile);
+            newFile = new File(txt_path + "/" + new_name + ".txt");
+            oldFile = new File(txt_path + "/" + old_name + ".txt");
+            if(!oldFile.renameTo(newFile))
+                Log.e(TAG,"Failed to rename audio file " + old_name);
 
         }
 
@@ -137,9 +121,11 @@ public class ListActivity extends ActivityStub implements ServerResponse {
     public void deleteFile(int pos){
         String name = arr_list.get(pos).getName();
         File toDelete = new File(audio_path + "/" + name + ".amr");
-        toDelete.delete();
+        if(!toDelete.delete())
+            Log.e(TAG, "Error deleting audio file!");
         toDelete = new File(txt_path + "/" + name + ".txt");
-        toDelete.delete();
+        if(!toDelete.delete())
+            Log.e(TAG, "Error deleting audio file!");
         arr_list.remove(pos);
         mAdapter.notifyItemRemoved(pos);
         Toast.makeText(getApplicationContext(), name + " " + getString(R.string.removed), Toast.LENGTH_LONG).show();
@@ -150,7 +136,7 @@ public class ListActivity extends ActivityStub implements ServerResponse {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate Method");
         setContentView(R.layout.activity_list);
-        cx = this;
+        Context cx = this;
         audio_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/"
                 + this.getText(R.string.directory_main) + "/" + getText(R.string.directory_audio) + "/";
 
@@ -159,7 +145,7 @@ public class ListActivity extends ActivityStub implements ServerResponse {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarList);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true); //Sono sicuro ci sia una ActionBar
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         //////////////////////////////////////////////////
@@ -206,17 +192,13 @@ public class ListActivity extends ActivityStub implements ServerResponse {
         ////////////////////////////////////////////////
         //create and adjust setting of the recyclerView
         ////////////////////////////////////////////////
-        mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
+        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
 
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
 
-        // use a linear layout manager
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        // specify an adapter (see also next example)
         mAdapter = new MyAdapter(arr_list, this);
         mRecyclerView.setAdapter(mAdapter);
 
@@ -232,7 +214,7 @@ public class ListActivity extends ActivityStub implements ServerResponse {
 
                         args.putInt("position", position);
                         args.putInt("type", MyAlertDialogFragment.START);
-                        ArrayList<String> arr_strings = new ArrayList<String>();
+                        ArrayList<String> arr_strings = new ArrayList<>();
                         for (int i=0; i<arr_list.size();i++)
                             arr_strings.add(arr_list.get(i).getName());
                         args.putStringArrayList("files", arr_strings);

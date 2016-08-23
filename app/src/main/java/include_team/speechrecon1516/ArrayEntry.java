@@ -2,9 +2,6 @@ package include_team.speechrecon1516;
 
 import java.util.Date;
 
-/**
- * Created by camillom on 19/08/16.
- */
 public class ArrayEntry {
     private String name;
     private boolean transcribed;
