@@ -27,7 +27,7 @@ public class ListActivity extends ActivityStub implements ServerResponse {
 
     public void processFinish(String text, int pos){
         mAdapter.notifyItemChanged(pos);
-
+        arr_list.get(pos).setTranscribed(true);
         setTxtFile(arr_list.get(pos).getName(), text);
         viewTranscription(pos);
     }
@@ -116,6 +116,7 @@ public class ListActivity extends ActivityStub implements ServerResponse {
         CallToServer call = new CallToServer();
         call.delegate = this;
         call.execute(arr_list.get(pos).getName(), pos);
+
     }
 
     public void deleteFile(int pos){

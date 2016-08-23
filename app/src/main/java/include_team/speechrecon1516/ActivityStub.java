@@ -67,6 +67,8 @@ public class ActivityStub extends AppCompatActivity {
         String filename;
         String audio_text;
 
+        String error = null;
+
         FileInputStream fileInputStream ;
         DataOutputStream dos;
 
@@ -124,7 +126,7 @@ public class ActivityStub extends AppCompatActivity {
 
             if (noConnectivity)
                 return null;
-            String error = null;
+
 
             try{
 
