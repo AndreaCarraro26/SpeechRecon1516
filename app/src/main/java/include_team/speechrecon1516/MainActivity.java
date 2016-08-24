@@ -160,8 +160,11 @@ public class MainActivity extends ActivityStub {
             public void onClick(DialogInterface dialog, int which) {
                 String filename = saveFile(dialog, et);
                 Log.d(TAG, "###############" +filename);
-                executeCallToServer(filename);
-                dialog.dismiss();
+                if(filename!=null){
+                    executeCallToServer(filename);
+                    dialog.dismiss();
+                }
+
             }
         });
 
