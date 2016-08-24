@@ -189,7 +189,7 @@ public class MyAlertDialogFragment extends DialogFragment {
                                 }
                                 else {
                                     for(int i=0; i< getArguments().getInt("size"); i++)
-                                        if(text.compareTo(getArguments().getStringArrayList("files").get(i))==0) {
+                                        if(text.compareTo(getArguments().getStringArrayList("files").get(i))==0 && text.compareTo(getArguments().getString("filename"))!=0) {
                                             Toast.makeText(getActivity().getApplicationContext(), getString(R.string.nameInUse), Toast.LENGTH_LONG).show();
                                             ((ListActivity)getActivity()).rename(getArguments().getInt("position"));
                                             return;
