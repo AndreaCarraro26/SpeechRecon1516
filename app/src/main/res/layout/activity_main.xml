@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="include_team.speechrecon1516.MainActivity"
-    android:weightSum="3">
+    android:weightSum="100">
 
     <include
         layout="@layout/toolbar_main"
@@ -24,7 +24,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="40">
 
         <Chronometer
             android:id="@+id/chronometer"
@@ -42,7 +42,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="60">
 
         <Button
             android:id="@+id/button_record"
@@ -64,24 +64,6 @@
             />
 
     </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <Button
-            android:id="@+id/button_list"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/list_button"
-            android:background="@drawable/list_button"
-            android:layout_alignParentRight="true"
-            android:layout_marginEnd="48dp" />
-
-    </RelativeLayout>
-
-
 
 
 </LinearLayout>
