@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.Image;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
@@ -16,6 +17,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -192,7 +194,7 @@ public class MainActivity extends ActivityStub {
             Log.d(TAG, "Created " + audio_path);
 
 
-        Button btn_list = (Button) findViewById(R.id.button_list);
+        ImageButton btn_list = (ImageButton) findViewById(R.id.button_list);
 
         assert btn_list != null;
         btn_list.setOnClickListener(new View.OnClickListener() {
@@ -202,7 +204,7 @@ public class MainActivity extends ActivityStub {
             }
         });
 
-        Button btn_info = (Button) findViewById(R.id.info_button);
+        ImageButton btn_info = (ImageButton) findViewById(R.id.info_button);
 
         assert btn_info != null;
         btn_info.setOnClickListener(new View.OnClickListener() {

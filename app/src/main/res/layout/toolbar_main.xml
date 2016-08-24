@@ -13,22 +13,25 @@
     android:subtitleTextColor="@color/subtitle" >
 
 
-    <Button
+    <ImageButton
         android:id="@+id/info_button"
-        android:background="@drawable/ic_info_outline_black_36dp"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:src="@drawable/ic_info_outline_black_36dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="right"
-        android:layout_marginRight="16dp"
+
+        android:backgroundTint="@color/primary"
+
         />
 
-    <Button
+    <ImageButton
         android:id="@+id/button_list"
-        android:background="@drawable/ic_list_black_36dp"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:src="@drawable/ic_list_black_36dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="right"
-        android:layout_marginRight="16dp"
+ 
+        android:backgroundTint="@color/primary"
         />
 
 </android.support.v7.widget.Toolbar >
