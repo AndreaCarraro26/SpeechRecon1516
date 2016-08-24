@@ -136,7 +136,7 @@ public class MainActivity extends ActivityStub {
 
 
 
-        builder.setPositiveButton(R.string.save_button, new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.save_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
                 saveFile(dialog, et);
@@ -144,7 +144,7 @@ public class MainActivity extends ActivityStub {
             }
         });
 
-        builder.setNegativeButton(R.string.delete_button, new DialogInterface.OnClickListener() {
+        builder.setNeutralButton(R.string.delete_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //operazioni per eliminare il file
@@ -155,7 +155,8 @@ public class MainActivity extends ActivityStub {
         });
 
 
-        builder.setNeutralButton(R.string.save_trans, new DialogInterface.OnClickListener() {
+
+        builder.setPositiveButton(R.string.save_trans, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String filename = saveFile(dialog, et);
