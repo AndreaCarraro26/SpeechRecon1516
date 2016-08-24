@@ -26,7 +26,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".infoActivity"
+        <activity android:name=".InfoActivity"
             android:parentActivityName=".MainActivity">
         </activity>
 

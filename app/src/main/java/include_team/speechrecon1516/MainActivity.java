@@ -224,7 +224,7 @@ public class MainActivity extends ActivityStub {
         assert btn_info != null;
         btn_info.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent k = new Intent(v.getContext(), infoActivity.class);
+                Intent k = new Intent(v.getContext(), InfoActivity.class);
                 startActivity(k);
             }
         });
