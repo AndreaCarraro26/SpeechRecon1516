@@ -27,7 +27,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="50">
+        android:layout_weight="30">
 
         <TextView
             android:layout_width="wrap_content"
@@ -40,36 +40,42 @@
             />
     </RelativeLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="25">
+        android:layout_weight="70"
+        android:orientation="vertical"
+        android:layout_marginStart="5pt" >
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/kaldi"
-            android:layout_centerInParent="true"
+            android:text="@string/kaldi_title"
+            android:textStyle="bold"
+            android:textSize="10pt"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/kaldi_text"
+
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/esp_title"
+            android:textStyle="bold"
+            android:textSize="10pt"
             />
 
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="25">
-
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/esp"
-            android:layout_centerInParent="true"
-        />
+            android:text="@string/esp_text"
 
-    </RelativeLayout>
+            />
 
-
-
+    </LinearLayout>
 
 
 </LinearLayout>

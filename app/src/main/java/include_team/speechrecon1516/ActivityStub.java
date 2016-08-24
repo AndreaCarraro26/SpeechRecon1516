@@ -111,7 +111,6 @@ public class ActivityStub extends AppCompatActivity {
 
             Log.d(TAG, "onPreExecute - callToServer - File: " + file_path);
 
-
             Bundle args = new Bundle();
             args.putInt("type", MyAlertDialogFragment.PROGRESS);
             args.putString("message", getString(R.string.connecting));
@@ -128,8 +127,7 @@ public class ActivityStub extends AppCompatActivity {
                 return null;
 
 
-            try{
-
+            try {
                 Log.d(TAG, "doInBackground - Connecting..");
                 url = new URL(getString(R.string.serverLocation));
                 connection = (HttpURLConnection) url.openConnection();
@@ -140,9 +138,6 @@ public class ActivityStub extends AppCompatActivity {
                 connection.setConnectTimeout(5000); //set timeout to 5 seconds
 
                 dos = new DataOutputStream(connection.getOutputStream());
-
-                // Lancia eccezione se fatto partire da qua dentro
-                //dialogP.setMessage(getString(R.string.uploading));
 
                 dos.writeBytes(twoHyphens + boundary + lineEnd);
                 dos.writeBytes("Content-Disposition: form-data; name=\"uploadedfile\"; filename=\"" + filename +"\"" + lineEnd);
@@ -159,8 +154,7 @@ public class ActivityStub extends AppCompatActivity {
                 // read file and write it into form...
                 int bytesRead = fileInputStream.read(buffer, 0, bufferSize);
 
-                while (bytesRead > 0)
-                {
+                while (bytesRead > 0) {
                     dos.write(buffer, 0, bufferSize);
                     bytesAvailable = fileInputStream.available();
                     bufferSize = Math.min(bytesAvailable, maxBufferSize);
@@ -184,8 +178,7 @@ public class ActivityStub extends AppCompatActivity {
                 Log.d(TAG, "doInBackground terminated - callToServer");
 
             }
-            catch (MalformedURLException ex)
-            {
+            catch (MalformedURLException ex) {
                 Log.e(TAG, "URL error: " + ex.getMessage(), ex);
                 error = "Cannot connect to server: URL malformed.";
             }
@@ -193,8 +186,7 @@ public class ActivityStub extends AppCompatActivity {
                 Log.e(TAG, "Timeout error: " + toe.getMessage(), toe);
                 error = "Cannot connect to server: timeout expired";
             }
-            catch (IOException ioe)
-            {
+            catch (IOException ioe) {
                 Log.e(TAG, "IO error: " + ioe.getMessage(), ioe);
             }
 
@@ -205,25 +197,16 @@ public class ActivityStub extends AppCompatActivity {
             Log.d(TAG, "onPostExecute - callToServer");
             if(noConnectivity)
                 return;
-
             if(error!=null){
                 prog.dismiss();
                 Log.d(TAG, error);
                 Toast.makeText(getApplicationContext(), error, Toast.LENGTH_LONG).show();
             }
             else {
-                // MyAdapter.ViewHolder holder = (MyAdapter.ViewHolder) mRecyclerView.findViewHolderForAdapterPosition(pos);
                 prog.dismiss();
                 Log.d(TAG, "Message from Server: " + audio_text);
 
                 delegate.processFinish(audio_text, pos);
-                /*
-                mAdapter.notifyItemChanged(pos);
-
-
-                setTxtFile(filename, audio_text);
-                viewTranscription(pos);*/
-
             }
         }
     }

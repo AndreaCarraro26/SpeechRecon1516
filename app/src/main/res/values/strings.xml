@@ -40,8 +40,13 @@
 
     <!--> Info -->
     <string name="team">#include_team</string>
-    <string name="kaldi">"è stato usato kaldi</string>
-    <string name="esp">progetto per esp</string>
+    <string name="kaldi_title">About Kaldi</string>
+    <string name="kaldi_text">Kaldi (from the legendary goatherd who discovered coffee) is a toolkit for speech recognition
+        written in C++. This app allow to record a small audio file (we suggest at max 10s long if you don\'t want to wait too much),
+         send it to a server that runs Kaldi libraries and convert it to (English) text, and view the result of the transcription.</string>
+    <string name="esp_title">About #include_team</string>
+    <string name="esp_text">We are a three people team that studies Computer Engineering at University of Padua, Italy.
+        We developed this app as our final project of Embedded System Programming course. </string>
 
 
 

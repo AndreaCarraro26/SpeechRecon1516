@@ -4,7 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 
-public class infoActivity extends AppCompatActivity {
+public class InfoActivity extends AppCompatActivity {
     Toolbar toolbar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -12,6 +12,8 @@ public class infoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_info);
 
         setToolbar();
+
+
     }
 
     private void setToolbar(){
