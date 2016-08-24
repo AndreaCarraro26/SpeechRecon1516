@@ -19,18 +19,14 @@ import java.util.Comparator;
 import java.util.Date;
 
 
-public class ListActivity extends ActivityStub implements ServerResponse {
+// public class ListActivity extends ActivityStub implements ServerResponse {
+    public class ListActivity extends ActivityStub  {
 
     private static final String TAG = "ListActivityDebug";
     private ArrayList<ArrayEntry> arr_list = new ArrayList<>();
     private RecyclerView.Adapter mAdapter;
 
-    public void processFinish(String text, int pos){
-        mAdapter.notifyItemChanged(pos);
-        arr_list.get(pos).setTranscribed(true);
-        setTxtFile(arr_list.get(pos).getName(), text);
-        viewTranscription(pos);
-    }
+
     protected void playRecord(String fileName){
 
         MyAlertDialogFragment diaPlay = MyAlertDialogFragment.newInstance();
@@ -45,34 +41,6 @@ public class ListActivity extends ActivityStub implements ServerResponse {
 
     }
 
-    protected void viewTranscription(int position){
-
-        File file = new File(txt_path,arr_list.get(position).getName() +".txt");
-
-        StringBuilder text = new StringBuilder();
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String line;
-
-            while ((line = br.readLine()) != null) {
-                text.append(line);
-                text.append('\n');
-            }
-            br.close();
-        }
-        catch (IOException e) {
-            //You'll need to add proper error handling here
-        }
-
-        MyAlertDialogFragment diaText = MyAlertDialogFragment.newInstance();
-        Bundle args = new Bundle();
-        args.putInt("type", MyAlertDialogFragment.TEXT);
-        args.putString("title", arr_list.get(position).getName());
-        args.putString("message", text.toString());
-        diaText.setArguments(args);
-        diaText.show(getFragmentManager(), "tag");
-
-    }
 
     protected void rename(final int position) {
 
@@ -112,12 +80,21 @@ public class ListActivity extends ActivityStub implements ServerResponse {
 
     }
 
-    public void executeCallToServer(int pos){
-        CallToServer call = new CallToServer();
-        call.delegate = this;
-        call.execute(arr_list.get(pos).getName(), pos);
+    public void processFinish(String file, String text){
+        int pos = 0 ;
+        for (int i=0; i<arr_list.size(); i++)
+            if (arr_list.get(i).getName().compareTo(file)==0) {
+                pos = i;
+                break;
+            }
 
+        arr_list.get(pos).setTranscribed(true);
+        setTxtFile(arr_list.get(pos).getName(), text);
+        mAdapter.notifyItemChanged(pos);
+        viewTranscription(txt_path, arr_list.get(pos).getName());
     }
+
+
 
     public void deleteFile(int pos){
         String name = arr_list.get(pos).getName();

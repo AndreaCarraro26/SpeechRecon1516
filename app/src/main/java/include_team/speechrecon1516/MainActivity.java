@@ -1,5 +1,6 @@
 package include_team.speechrecon1516;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -26,7 +27,7 @@ import java.io.File;
 import java.io.IOException;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends ActivityStub {
 
     private static final String TAG = "MainActivityDebug";
     private static final String MyPREFERENCES = "MyPrefs";
@@ -62,6 +63,35 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private String saveFile(DialogInterface dialog,EditText et){
+        //operazioni per salvare il file
+        from = new File(audio_filename);
+
+        new_audio_filename = et.getText().toString().replaceAll(" ", "");
+        new_audio_filename = new_audio_filename.replaceAll("\n", "");
+        if (new_audio_filename.compareTo("") != 0)
+            new_audio_filename = new_audio_filename.substring(0, 1).toUpperCase() + new_audio_filename.substring(1);
+        if (new_audio_filename.compareTo("") == 0) {
+            Toast.makeText(getApplicationContext(), getString(R.string.noRename), Toast.LENGTH_LONG).show();
+            renameFile();
+            dialog.dismiss();
+            return null;
+        } else {
+            for (int i = 0; i < file.length; i++)
+                if (new_audio_filename.compareTo(file[i].getName().substring(0, file[i].getName().length() - 4)) == 0) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.nameInUse), Toast.LENGTH_LONG).show();
+                    renameFile();
+                    dialog.dismiss();
+                    return null;
+                }
+        }
+
+        to = new File(audio_path + new_audio_filename + ".amr");
+        if (from.renameTo(to))
+            Toast.makeText(getApplicationContext(), new_audio_filename + " " + getString(R.string.saved), Toast.LENGTH_LONG).show();
+
+        return new_audio_filename;
+    }
 
     private void startRecording() {
 
@@ -89,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         audio_recorder = null;
     }
 
-    public void saveFile() {
+    public void renameFile() {
 
         //create the AlertDialog
         builder = new AlertDialog.Builder(this);
@@ -103,37 +133,17 @@ public class MainActivity extends AppCompatActivity {
 
         builder.setView(dialogView);
         //add the buttons
+
+
+
         builder.setPositiveButton(R.string.save_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
-                //operazioni per salvare il file
-                from = new File(audio_filename);
-
-                new_audio_filename = et.getText().toString().replaceAll(" ", "");
-                new_audio_filename = new_audio_filename.replaceAll("\n", "");
-                if (new_audio_filename.compareTo("") != 0)
-                    new_audio_filename = new_audio_filename.substring(0, 1).toUpperCase() + new_audio_filename.substring(1);
-                if (new_audio_filename.compareTo("") == 0) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.noRename), Toast.LENGTH_LONG).show();
-                    saveFile();
-                    dialog.dismiss();
-                    return;
-                } else {
-                    for (int i = 0; i < file.length; i++)
-                        if (new_audio_filename.compareTo(file[i].getName().substring(0, file[i].getName().length() - 4)) == 0) {
-                            Toast.makeText(getApplicationContext(), getString(R.string.nameInUse), Toast.LENGTH_LONG).show();
-                            saveFile();
-                            dialog.dismiss();
-                            return;
-                        }
-                }
-
-                to = new File(audio_path + new_audio_filename + ".amr");
-                if (from.renameTo(to))
-                    Toast.makeText(getApplicationContext(), new_audio_filename + " " + getString(R.string.saved), Toast.LENGTH_LONG).show();
+                saveFile(dialog, et);
                 dialog.dismiss();
             }
         });
+
         builder.setNegativeButton(R.string.delete_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -143,6 +153,19 @@ public class MainActivity extends AppCompatActivity {
                 dialog.dismiss();
             }
         });
+
+
+        builder.setNeutralButton(R.string.save_trans, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String filename = saveFile(dialog, et);
+                Log.d(TAG, "###############" +filename);
+                executeCallToServer(filename);
+                dialog.dismiss();
+            }
+        });
+
+
         final AlertDialog dialog = builder.create();
 
         et.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -157,6 +180,13 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
         dialog.setCanceledOnTouchOutside(false);
         dialog.setCancelable(false);
+    }
+
+    public void processFinish(String file, String text){
+        setTxtFile(file, text);
+        viewTranscription(txt_path, file);
+
+
     }
 
     @Override
@@ -237,7 +267,7 @@ public class MainActivity extends AppCompatActivity {
                     chronometer.stop();
                     chronometer.setVisibility(View.INVISIBLE);
 
-                    saveFile();
+                    renameFile();
 
 //                    assert main_layout != null;
 //                    main_layout.removeView(timer);
@@ -286,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
             final LinearLayout main_layout = (LinearLayout) findViewById(R.id.main_layout);
             final RelativeLayout timer = (RelativeLayout) findViewById(R.id.time_layout);
 
-            saveFile();
+            renameFile();
 
             assert text_record != null;
             text_record.setText(R.string.record_button);

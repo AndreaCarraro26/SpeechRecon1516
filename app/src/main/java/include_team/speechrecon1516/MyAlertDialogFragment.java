@@ -88,9 +88,9 @@ public class MyAlertDialogFragment extends DialogFragment {
                                         break;
                                     case 1: // transcribe
                                         if (getArguments().getBoolean("isTranscribed"))
-                                            ((ListActivity)getActivity()).viewTranscription(getArguments().getInt("position"));
+                                            ((ListActivity)getActivity()).viewTranscription(((ListActivity)getActivity()).txt_path, getArguments().getString("filename"));
                                         else
-                                            ((ListActivity)getActivity()).executeCallToServer(getArguments().getInt("position"));
+                                            ((ListActivity)getActivity()).executeCallToServer(getArguments().getString("filename"));
                                         break;
                                     case 2: // rename
                                         ((ListActivity)getActivity()).rename(getArguments().getInt("position"));

@@ -16,6 +16,7 @@
     <string name="save">Save audio with name or discard file</string>
     <string name="save_button">SAVE</string>
     <string name="delete_button">DISCARD</string>
+    <string name="save_trans">SAVE AND TRANSCRIBE</string>
 
     <!-- List -->
     <string name="title_activity_list">File List</string>

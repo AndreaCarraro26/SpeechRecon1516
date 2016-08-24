@@ -10,11 +10,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -24,13 +26,17 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 
 
-public class ActivityStub extends AppCompatActivity {
+public abstract class ActivityStub extends AppCompatActivity {
 
     String TAG = "CallToServerDebug";
 
     protected String  audio_path;
     protected String txt_path;
 
+    public void executeCallToServer(String filename){
+        CallToServer call = new CallToServer();
+        call.execute(filename);
+    }
 
     protected void setTxtFile(String filename, String text){
         txt_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" +
@@ -54,9 +60,40 @@ public class ActivityStub extends AppCompatActivity {
         }
     }
 
+    public abstract void processFinish(String file, String text );
+
+    public void viewTranscription(String path, String filename){
+
+        File file = new File(path,filename +".txt");
+
+        StringBuilder text = new StringBuilder();
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                text.append(line);
+                text.append('\n');
+            }
+            br.close();
+        }
+        catch (IOException e) {
+            //You'll need to add proper error handling here
+        }
+
+        MyAlertDialogFragment diaText = MyAlertDialogFragment.newInstance();
+        Bundle args = new Bundle();
+        args.putInt("type", MyAlertDialogFragment.TEXT);
+        args.putString("title", filename);
+        args.putString("message", text.toString());
+        diaText.setArguments(args);
+        diaText.show(getFragmentManager(), "tag");
+
+    }
+
     public class CallToServer extends AsyncTask<Void, Void, String> {
 
-        public ServerResponse delegate = null;
+        //public ServerResponse delegate = null;
 
         boolean noConnectivity = false;
         URL url;
@@ -78,14 +115,13 @@ public class ActivityStub extends AppCompatActivity {
         String twoHyphens = "--";
         String boundary = "*****";
 
-        String rec_name ; // position on the list
-        int pos;
+        String rec_name ;
 
-        public void execute(String record_name, int position){
+        public void execute(String record_name){
             rec_name = record_name;
-            pos = position;
             execute();
         }
+
 
         protected void onPreExecute() {
 
@@ -216,13 +252,8 @@ public class ActivityStub extends AppCompatActivity {
                 prog.dismiss();
                 Log.d(TAG, "Message from Server: " + audio_text);
 
-                delegate.processFinish(audio_text, pos);
-                /*
-                mAdapter.notifyItemChanged(pos);
+                processFinish(rec_name, audio_text);
 
-
-                setTxtFile(filename, audio_text);
-                viewTranscription(pos);*/
 
             }
         }
