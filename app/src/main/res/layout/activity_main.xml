@@ -24,7 +24,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="40">
+        android:layout_weight="35">
 
         <Chronometer
             android:id="@+id/chronometer"
@@ -42,7 +42,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="60">
+        android:layout_weight="65">
 
         <Button
             android:id="@+id/button_record"
@@ -63,6 +63,14 @@
             android:layout_centerHorizontal="true"
             />
 
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/kaldi_text_and_logo"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
+            android:layout_alignParentBottom="true"
+            />
     </RelativeLayout>
 
 
