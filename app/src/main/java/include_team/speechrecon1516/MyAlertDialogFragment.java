@@ -78,7 +78,7 @@ public class MyAlertDialogFragment extends DialogFragment {
                 if (getArguments().getBoolean("isTranscribed"))
                     choices[1] = (String)getText(R.string.dialogX);
 
-                final AlertDialog startDiag = new AlertDialog.Builder(getActivity())
+                return new AlertDialog.Builder(getActivity())
                         .setTitle(getArguments().getString("filename"))
                         .setItems(choices, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
@@ -102,7 +102,6 @@ public class MyAlertDialogFragment extends DialogFragment {
                             }
                         })
                         .create();
-                return startDiag;
 
             case TEXT:
                 Log.d(TAG, "Case Text");
@@ -114,7 +113,7 @@ public class MyAlertDialogFragment extends DialogFragment {
             case PLAY:
 
                 player = new MediaPlayer().create(getActivity(), Uri.parse(getArguments().getString("path") +
-                        "/" + getArguments().getString("filename") + ".amr"));
+                        getArguments().getString("filename") + ".amr"));
 
                 View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_play, null);
 
@@ -141,7 +140,7 @@ public class MyAlertDialogFragment extends DialogFragment {
 
                 seek = (SeekBar) view.findViewById(R.id.seekBar);
                 seek.setMax((int) endTime);
-                seek.setProgress((int)startTime);
+                seek.setProgress(startTime);
 
                 player.setOnCompletionListener( new MediaPlayer.OnCompletionListener() {
                     public void onCompletion(MediaPlayer mp) {
@@ -178,26 +177,25 @@ public class MyAlertDialogFragment extends DialogFragment {
                         .setView(dialogView)
                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                String text = editText.getText().toString().replaceAll(" ", "");
-                                text = text.replaceAll("\n", "");
-                                if (text.compareTo("") != 0)
-                                    text = text.substring(0, 1).toUpperCase() + text.substring(1);
-                                if (text.compareTo("")==0){
+                                String new_name = editText.getText().toString().replaceAll(" ", "");
+                                new_name = new_name.replaceAll("\n", "");
+                                if (new_name.compareTo("") != 0)
+                                    new_name = new_name.substring(0, 1).toUpperCase() + new_name.substring(1);
+                                if (new_name.compareTo("")==0){
                                     Toast.makeText(getActivity().getApplicationContext(), getString(R.string.noRename), Toast.LENGTH_LONG).show();
                                     ((ListActivity)getActivity()).rename(getArguments().getInt("position"));
                                     return;
                                 }
                                 else {
                                     for(int i=0; i< getArguments().getInt("size"); i++)
-                                        if(text.compareTo(getArguments().getStringArrayList("files").get(i))==0 && text.compareTo(getArguments().getString("filename"))!=0) {
+                                        if(new_name.compareTo(getArguments().getStringArrayList("files").get(i))==0 && new_name.compareTo(getArguments().getString("filename"))!=0) {
                                             Toast.makeText(getActivity().getApplicationContext(), getString(R.string.nameInUse), Toast.LENGTH_LONG).show();
                                             ((ListActivity)getActivity()).rename(getArguments().getInt("position"));
                                             return;
                                         }
                                 }
 
-                                ((ListActivity)getActivity()).finalizeCaseRename(getArguments().getInt("position"), text, getArguments().getString("filename"));
-
+                                ((ListActivity)getActivity()).finalizeCaseRename(getArguments().getInt("position"), new_name);
 
                             }
                         })

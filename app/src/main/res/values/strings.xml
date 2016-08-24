@@ -43,13 +43,12 @@
     <string name="team">#include_team</string>
     <string name="how_title">How to use our App</string>
     <string name="how_text">This app allow to record a small audio file (we suggest at max 10s long
-        if you don\'t want to wait too much) and
-         send it to a server where Kaldi script will transcribe it to text.\nEvery file can be
-        located in the KaldiMobile directory on the root of your device external storage. </string>
+        if you don\'t want to wait too much) and send it to a server where a script will transcribe it to text.\n
+        Every file can be located in the KaldiMobile directory on the root of your device external storage. </string>
     <string name="kaldi_title">About Kaldi</string>
     <string name="kaldi_text">Kaldi (from the legendary goatherd who discovered coffee) is a toolkit
-        for speech recognition written in C++ and licensed under the Apache License v2.0.\nKaldi is
-        intended for use by speech recognition researchers. For more details visit http://kaldi-asr.org/.
+        for speech recognition written in C++ and licensed under the Apache License v2.0.\n<!--Kaldi is
+        intended for use by speech recognition researchers.--> For more details visit http://kaldi-asr.org/.
     </string>
     <string name="esp_title">About us</string>
     <string name="esp_text">We are three Computer Engineering students from University of Padua, Italy.

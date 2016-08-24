@@ -12,8 +12,6 @@ public class InfoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_info);
 
         setToolbar();
-
-
     }
 
     private void setToolbar(){
