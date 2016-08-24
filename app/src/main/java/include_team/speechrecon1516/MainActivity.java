@@ -1,6 +1,5 @@
 package include_team.speechrecon1516;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,7 +9,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import android.view.View;
@@ -31,43 +29,29 @@ public class MainActivity extends ActivityStub {
 
     private static final String TAG = "MainActivityDebug";
     private static final String MyPREFERENCES = "MyPrefs";
-    SharedPreferences sharedpreferences;
+    private SharedPreferences sharedpreferences;
 
-    File file[] ;
-
-    // Create a new instance of android.media.MediaRecorder
+    private File[] file ;
     private MediaRecorder audio_recorder = null;
 
-    AlertDialog.Builder builder;
-
-    // private static final String LOG_TAG = "Audio record";
     private static String audio_path = null;
     private static String audio_name = null;
     private static String audio_filename = null;
-    private static String new_audio_filename = null;
 
     private boolean audioStartRecording = true;
-
-    Context ctx;
-    Chronometer chronometer;
+    private Chronometer chronometer;
     private int audioCounter;
 
-    File from = null;
-    File to = null;
+    private File from = null;
 
-    private void onRecord(boolean start) {
-        if (start) {
-            startRecording();
-        } else {
-            stopRecording();
-        }
-    }
-
+    /**
+     * Saves newly recorded file
+     */
     private String saveFile(DialogInterface dialog,EditText et){
         //operazioni per salvare il file
         from = new File(audio_filename);
 
-        new_audio_filename = et.getText().toString().replaceAll(" ", "");
+        String new_audio_filename = et.getText().toString().replaceAll(" ", "");
         new_audio_filename = new_audio_filename.replaceAll("\n", "");
         if (new_audio_filename.compareTo("") != 0)
             new_audio_filename = new_audio_filename.substring(0, 1).toUpperCase() + new_audio_filename.substring(1);
@@ -85,8 +69,7 @@ public class MainActivity extends ActivityStub {
                     return null;
                 }
         }
-
-        to = new File(audio_path + new_audio_filename + ".amr");
+        File to = new File(audio_path + new_audio_filename + ".amr");
         if (from.renameTo(to))
             Toast.makeText(getApplicationContext(), new_audio_filename + " " + getString(R.string.saved), Toast.LENGTH_LONG).show();
 
@@ -109,8 +92,6 @@ public class MainActivity extends ActivityStub {
         } catch (IOException e) {
             Log.e(TAG, "prepare() failed",e);
         }
-
-
     }
 
     private void stopRecording() {
@@ -119,10 +100,13 @@ public class MainActivity extends ActivityStub {
         audio_recorder = null;
     }
 
-    public void renameFile() {
+    /**
+     * Creates an AlertDialog that lets decide what to do with the just recorded audio
+     */
+    private void renameFile() {
 
         //create the AlertDialog
-        builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.save_title)
                 .setMessage(R.string.save);
 
@@ -133,8 +117,6 @@ public class MainActivity extends ActivityStub {
 
         builder.setView(dialogView);
         //add the buttons
-
-
 
         builder.setNegativeButton(R.string.save_button, new DialogInterface.OnClickListener() {
             @Override
@@ -154,8 +136,6 @@ public class MainActivity extends ActivityStub {
             }
         });
 
-
-
         builder.setPositiveButton(R.string.save_trans, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -165,11 +145,8 @@ public class MainActivity extends ActivityStub {
                     executeCallToServer(filename);
                     dialog.dismiss();
                 }
-
             }
         });
-
-
         final AlertDialog dialog = builder.create();
 
         et.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -186,11 +163,14 @@ public class MainActivity extends ActivityStub {
         dialog.setCancelable(false);
     }
 
-    public void processFinish(String file, String text){
+    /**
+     * Shows and saves last audio transcription (see @link ActivityStub.processFinish)
+     * @param file Name chosen for the recording
+     * @param text Text retrieved from server
+     */
+    protected void processFinish(String file, String text){
         setTxtFile(file, text);
         viewTranscription(txt_path, file);
-
-
     }
 
     @Override
@@ -199,7 +179,6 @@ public class MainActivity extends ActivityStub {
         Log.d(TAG, "onCreate Method");
         setContentView(R.layout.activity_main);
 
-        ctx = this;
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         audioCounter = sharedpreferences.getInt("counter", 0);
 
@@ -233,15 +212,9 @@ public class MainActivity extends ActivityStub {
             }
         });
 
-
-
         final Button btn_record = (Button) findViewById(R.id.button_record);
         final TextView text_record = (TextView) findViewById(R.id.text_record);
-        final Chronometer chronometer = (Chronometer) findViewById(R.id.chronometer);
-
-        //Inflate the Hidden Layout Information View
-//        final LinearLayout main_layout = (LinearLayout) findViewById(R.id.main_layout);
-//        final View timer = getLayoutInflater().inflate(R.layout.chrono, main_layout, false);
+        chronometer = (Chronometer) findViewById(R.id.chronometer);
 
         assert btn_record != null;
         btn_record.setOnClickListener(new View.OnClickListener() {
@@ -252,16 +225,12 @@ public class MainActivity extends ActivityStub {
                     text_record.setText(R.string.stop_button);
                     btn_record.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_stop_48dp, 0, 0 );
                     chronometer.setVisibility(View.VISIBLE);
-//                    assert main_layout != null;
-//                    main_layout.addView(timer);
-
                     file = dir.listFiles();
 
                     audio_name = "Record" + audioCounter;
                     audio_filename = audio_path + audio_name + ".amr";
                     Log.d("nome", audio_filename);
                     audioCounter++;
-                    // chronometer = (Chronometer) findViewById(R.id.chronometer);
                     chronometer.setBase(SystemClock.elapsedRealtime());
                     chronometer.start();
                 } else {
@@ -272,17 +241,17 @@ public class MainActivity extends ActivityStub {
                     chronometer.setVisibility(View.INVISIBLE);
 
                     renameFile();
-
-//                    assert main_layout != null;
-//                    main_layout.removeView(timer);
                 }
 
-                onRecord(audioStartRecording);
+                if (audioStartRecording) {
+                    startRecording();
+                } else {
+                    stopRecording();
+                }
 
                 audioStartRecording = !audioStartRecording;
             }
         });
-
     }
 
     @Override

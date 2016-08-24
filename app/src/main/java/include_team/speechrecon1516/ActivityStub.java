@@ -33,11 +33,20 @@ public abstract class ActivityStub extends AppCompatActivity {
     protected String  audio_path;
     protected String txt_path;
 
+    /**
+     * Sends recording to the server
+     * @param filename Name of chosen recording
+     */
     public void executeCallToServer(String filename){
         CallToServer call = new CallToServer();
         call.execute(filename);
     }
 
+    /**
+     * creates text file
+     * @param filename Name of chosen recording
+     * @param text Text transcribed from audio
+     */
     protected void setTxtFile(String filename, String text){
         txt_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" +
                 getText(R.string.directory_main) + "/" + getText(R.string.directory_txt) + "/";
@@ -60,8 +69,18 @@ public abstract class ActivityStub extends AppCompatActivity {
         }
     }
 
-    public abstract void processFinish(String file, String text );
+    /**
+     * Abstract method for managing server response
+     * @param file Record passed to server
+     * @param text Server response
+     */
+    protected abstract void processFinish(String file, String text );
 
+    /**
+     * Shows the transcription of the chosen recording
+     * @param path Path of the texts folder
+     * @param filename Name of the chosen recording
+     */
     public void viewTranscription(String path, String filename){
 
         File file = new File(path,filename +".txt");
@@ -78,7 +97,9 @@ public abstract class ActivityStub extends AppCompatActivity {
             br.close();
         }
         catch (IOException e) {
-            //You'll need to add proper error handling here
+
+            //TODO something useful
+
         }
 
         MyAlertDialogFragment diaText = MyAlertDialogFragment.newInstance();
@@ -91,9 +112,10 @@ public abstract class ActivityStub extends AppCompatActivity {
 
     }
 
+    /**
+     * Subclass interfacing with server
+     */
     public class CallToServer extends AsyncTask<Void, Void, String> {
-
-        //public ServerResponse delegate = null;
 
         boolean noConnectivity = false;
         URL url;
@@ -135,7 +157,7 @@ public abstract class ActivityStub extends AppCompatActivity {
             }
             audio_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/"
                     + getText(R.string.directory_main) + "/" + getText(R.string.directory_audio) + "/";
-            Log.d(TAG, "onPreExecute - callToServer - audio_path = " + audio_path);
+
             file_path = audio_path + rec_name + ".amr";
             filename = rec_name + ".amr";
 
@@ -146,7 +168,6 @@ public abstract class ActivityStub extends AppCompatActivity {
             }
 
             Log.d(TAG, "onPreExecute - callToServer - File: " + file_path);
-
 
             Bundle args = new Bundle();
             args.putInt("type", MyAlertDialogFragment.PROGRESS);
@@ -162,10 +183,7 @@ public abstract class ActivityStub extends AppCompatActivity {
 
             if (noConnectivity)
                 return null;
-
-
             try{
-
                 Log.d(TAG, "doInBackground - Connecting..");
                 url = new URL(getString(R.string.serverLocation));
                 connection = (HttpURLConnection) url.openConnection();
@@ -176,9 +194,6 @@ public abstract class ActivityStub extends AppCompatActivity {
                 connection.setConnectTimeout(5000); //set timeout to 5 seconds
 
                 dos = new DataOutputStream(connection.getOutputStream());
-
-                // Lancia eccezione se fatto partire da qua dentro
-                //dialogP.setMessage(getString(R.string.uploading));
 
                 dos.writeBytes(twoHyphens + boundary + lineEnd);
                 dos.writeBytes("Content-Disposition: form-data; name=\"uploadedfile\"; filename=\"" + filename +"\"" + lineEnd);
@@ -210,7 +225,7 @@ public abstract class ActivityStub extends AppCompatActivity {
 
                 InputStream is = connection.getInputStream();
 
-                // retrieve the response from server
+                // retrieve response from server
                 int ch;
 
                 StringBuffer b =new StringBuffer();
@@ -248,13 +263,10 @@ public abstract class ActivityStub extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), error, Toast.LENGTH_LONG).show();
             }
             else {
-                // MyAdapter.ViewHolder holder = (MyAdapter.ViewHolder) mRecyclerView.findViewHolderForAdapterPosition(pos);
                 prog.dismiss();
                 Log.d(TAG, "Message from Server: " + audio_text);
 
                 processFinish(rec_name, audio_text);
-
-
             }
         }
     }

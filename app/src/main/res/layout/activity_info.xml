@@ -42,56 +42,60 @@
 
 
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:orientation="vertical"
         android:padding="16dp"
         android:layout_weight="65"
         >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-        <TextView
+            <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/how_title"
             android:textStyle="bold"
             android:textSize="10pt"
             />
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/how_text"
-            />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/how_text"
+                />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/kaldi_title"
-            android:textStyle="bold"
-            android:textSize="10pt"
-            />
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/kaldi_text"
-            android:autoLink="web"
-            android:linksClickable="true"
-            />
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/esp_title"
-            android:textStyle="bold"
-            android:textSize="10pt"
-            />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/kaldi_title"
+                android:textStyle="bold"
+                android:textSize="10pt"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/kaldi_text"
+                android:autoLink="web"
+                android:linksClickable="true"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/esp_title"
+                android:textStyle="bold"
+                android:textSize="10pt"
+                />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/esp_text"
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/esp_text"
 
-            />
-
-    </LinearLayout>
+                />
+        </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>

@@ -9,24 +9,21 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
-
-// public class ListActivity extends ActivityStub implements ServerResponse {
     public class ListActivity extends ActivityStub  {
 
     private static final String TAG = "ListActivityDebug";
     private ArrayList<ArrayEntry> arr_list = new ArrayList<>();
     private RecyclerView.Adapter mAdapter;
-
-
+        /**
+         * Creates DialogFragment for audio reproduction
+         * @param fileName File to be played
+         */
     protected void playRecord(String fileName){
 
         MyAlertDialogFragment diaPlay = MyAlertDialogFragment.newInstance();
@@ -41,8 +38,11 @@ import java.util.Date;
 
     }
 
-
-    protected void rename(final int position) {
+        /**
+         * Creates DialogFragment for renaming record and corresponding text
+         * @param position position of file in the array
+         */
+    protected void rename(int position) {
 
         MyAlertDialogFragment diaRename = MyAlertDialogFragment.newInstance();
         Bundle args = new Bundle();
@@ -58,7 +58,13 @@ import java.util.Date;
         diaRename.show(getFragmentManager(), "tag");
     }
 
-    protected void finalizeCaseRename(int pos, String new_name, String old_name){
+        /**
+         * Actually renames files and update the list
+         * @param pos Position of the file in the list
+         * @param new_name Old name of file
+         */
+    protected void finalizeCaseRename(int pos, String new_name){
+        String old_name = arr_list.get(pos).getName();
         arr_list.get(pos).setName(new_name);
 
         // rename audio file
@@ -73,14 +79,18 @@ import java.util.Date;
             oldFile = new File(txt_path + "/" + old_name + ".txt");
             if(!oldFile.renameTo(newFile))
                 Log.e(TAG,"Failed to rename audio file " + old_name);
-
         }
 
         mAdapter.notifyItemChanged(pos);
 
     }
 
-    public void processFinish(String file, String text){
+        /**
+         * Create and shows text file from server response (see @link ActivityStub.processFinish)
+         * @param file Chosen recording
+         * @param text Server response
+         */
+    protected void processFinish(String file, String text){
         int pos = 0 ;
         for (int i=0; i<arr_list.size(); i++)
             if (arr_list.get(i).getName().compareTo(file)==0) {
@@ -89,9 +99,9 @@ import java.util.Date;
             }
 
         arr_list.get(pos).setTranscribed(true);
-        setTxtFile(arr_list.get(pos).getName(), text);
+        setTxtFile(file, text);
         mAdapter.notifyItemChanged(pos);
-        viewTranscription(txt_path, arr_list.get(pos).getName());
+        viewTranscription(txt_path, file);
     }
 
 
