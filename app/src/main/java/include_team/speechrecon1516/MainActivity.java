@@ -188,7 +188,7 @@ public class MainActivity extends ActivityStub {
             Log.d(TAG, "Created " + audio_path);
 
 
-        ImageButton btn_list = (ImageButton) findViewById(R.id.button_list);
+        final ImageButton btn_list = (ImageButton) findViewById(R.id.button_list);
 
         assert btn_list != null;
         btn_list.setOnClickListener(new View.OnClickListener() {
@@ -198,7 +198,7 @@ public class MainActivity extends ActivityStub {
             }
         });
 
-        ImageButton btn_info = (ImageButton) findViewById(R.id.info_button);
+        final ImageButton btn_info = (ImageButton) findViewById(R.id.info_button);
 
         assert btn_info != null;
         btn_info.setOnClickListener(new View.OnClickListener() {
@@ -220,7 +220,7 @@ public class MainActivity extends ActivityStub {
                     MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
                     assert text_record != null;
                     text_record.setText(R.string.stop_button);
-                    btn_record.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_stop_48dp, 0, 0 );
+                    btn_record.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_stop_48dp, 0, 0);
                     chronometer.setVisibility(View.VISIBLE);
                     file = dir.listFiles();
 
@@ -230,6 +230,8 @@ public class MainActivity extends ActivityStub {
                     audioCounter++;
                     chronometer.setBase(SystemClock.elapsedRealtime());
                     chronometer.start();
+                    btn_list.setClickable(false);
+                    btn_info.setClickable(false);
 
                     startRecording();
                 } else {
@@ -238,6 +240,8 @@ public class MainActivity extends ActivityStub {
                     btn_record.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_mic_48dp, 0, 0);
                     chronometer.stop();
                     chronometer.setVisibility(View.INVISIBLE);
+                    btn_list.setClickable(true);
+                    btn_info.setClickable(true);
 
                     audio_recorder.stop();
                     audio_recorder.release();
