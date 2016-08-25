@@ -5,13 +5,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
-
+import android.Manifest;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -25,6 +28,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+
 
 
 public class MainActivity extends ActivityStub {
@@ -50,23 +54,26 @@ public class MainActivity extends ActivityStub {
      * Saves newly recorded file
      */
     private String saveFile(DialogInterface dialog,EditText et){
-        //operazioni per salvare il file
+        //Link to audio file with temporary name
         from = new File(audio_filename);
 
+        //Standardize file names
         String new_audio_filename = et.getText().toString().replaceAll(" ", "");
         new_audio_filename = new_audio_filename.replaceAll("\n", "");
+
         if (new_audio_filename.compareTo("") != 0)
             new_audio_filename = new_audio_filename.substring(0, 1).toUpperCase() + new_audio_filename.substring(1);
         if (new_audio_filename.compareTo("") == 0) {
             Toast.makeText(getApplicationContext(), getString(R.string.noRename), Toast.LENGTH_LONG).show();
-            onRecordEnd();
+            finalizeRecording();
             dialog.dismiss();
             return null;
         } else {
+            //Check if file name is already in use
             for (int i = 0; i < file.length; i++)
                 if (new_audio_filename.compareTo(file[i].getName().substring(0, file[i].getName().length() - 4)) == 0) {
                     Toast.makeText(getApplicationContext(), getString(R.string.nameInUse), Toast.LENGTH_LONG).show();
-                    onRecordEnd();
+                    finalizeRecording();
                     dialog.dismiss();
                     return null;
                 }
@@ -79,6 +86,9 @@ public class MainActivity extends ActivityStub {
         return new_audio_filename;
     }
 
+    /**
+     * Prepares audio recorder and starts it
+     */
     private void startRecording() {
 
         audio_recorder = new MediaRecorder();
@@ -100,9 +110,9 @@ public class MainActivity extends ActivityStub {
     /**
      * Creates an AlertDialog that lets decide what to do with the just recorded audio
      */
-    private void onRecordEnd() {
+    private void finalizeRecording() {
 
-        //create the AlertDialog
+        //Create AlertDialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.save_title)
                 .setMessage(R.string.save);
@@ -113,8 +123,8 @@ public class MainActivity extends ActivityStub {
         et.selectAll();
 
         builder.setView(dialogView);
-        //add the buttons
 
+        //Add the buttons
         builder.setNegativeButton(R.string.save_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
@@ -126,9 +136,9 @@ public class MainActivity extends ActivityStub {
         builder.setNeutralButton(R.string.delete_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //operazioni per eliminare il file
+
                 from = new File(audio_filename);
-                    from.delete();
+                from.delete();
                 dialog.dismiss();
             }
         });
@@ -179,16 +189,30 @@ public class MainActivity extends ActivityStub {
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         audioCounter = sharedpreferences.getInt("counter", 0);
 
-        String main_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + getString(R.string.directory_main) + "/";
+        //Create all needed folders
+        if (Build.VERSION.SDK_INT >=23) {
+            int perm = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (perm != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(getApplicationContext(), "Check app permissions!! This app won't work", Toast.LENGTH_LONG).show();
+            }
+        }
+        String main_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" +
+                getString(R.string.directory_main) + "/";
         File dir_main = new File(main_path);
         if(dir_main.mkdir())
             Log.d(TAG, "Created " + main_path);
+
         audio_path = main_path + getString(R.string.directory_audio) + "/";
         final File dir = new File(audio_path);
         if(dir.mkdir())
             Log.d(TAG, "Created " + audio_path);
 
+        String text_path = main_path + getString(R.string.directory_txt)+ "/";
+        File dir_text = new File(text_path);
+        if(dir_text.mkdir())
+            Log.d(TAG, "Created " + text_path);
 
+        //Set buttons
         final ImageButton btn_list = (ImageButton) findViewById(R.id.button_list);
 
         assert btn_list != null;
@@ -227,7 +251,6 @@ public class MainActivity extends ActivityStub {
 
                     audio_name = "Record" + audioCounter;
                     audio_filename = audio_path + audio_name + ".amr";
-                    Log.d("nome", audio_filename);
 
                     chronometer.setBase(SystemClock.elapsedRealtime());
                     chronometer.start();
@@ -244,11 +267,12 @@ public class MainActivity extends ActivityStub {
                     btn_list.setClickable(true);
                     btn_info.setClickable(true);
 
+                    //stop recording
                     audio_recorder.stop();
                     audio_recorder.release();
                     audio_recorder = null;
 
-                    onRecordEnd();
+                    finalizeRecording();
 
                     MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                 }
@@ -284,9 +308,10 @@ public class MainActivity extends ActivityStub {
 
     @Override
     protected void onPause() {
-
+        //Stop recording and discard audio
         if (!isNotRecording) {
             chronometer.stop();
+            chronometer.setVisibility(View.INVISIBLE);
             final Button btn_record = (Button) findViewById(R.id.button_record);
             final TextView text_record = (TextView) findViewById(R.id.text_record);
             final LinearLayout main_layout = (LinearLayout) findViewById(R.id.main_layout);
@@ -300,7 +325,8 @@ public class MainActivity extends ActivityStub {
             main_layout.removeView(timer);
 
             from = new File(audio_filename);
-            from.delete();
+            if(!from.delete())
+                Toast.makeText(getApplicationContext(),"File already doesn't exist",Toast.LENGTH_SHORT).show();
 
             isNotRecording = true;
         }

@@ -1,8 +1,11 @@
 package include_team.speechrecon1516;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -35,7 +38,6 @@ import java.util.Date;
         args.putBoolean("isPlaying", true);
         diaPlay.setArguments(args);
         diaPlay.show(getFragmentManager(), "tag");
-
     }
 
         /**
@@ -105,15 +107,18 @@ import java.util.Date;
     }
 
 
-
+        /**
+         * Deletes audio and text file from the device
+         * @param pos
+         */
     public void deleteFile(int pos){
         String name = arr_list.get(pos).getName();
         File toDelete = new File(audio_path + "/" + name + ".amr");
         if(!toDelete.delete())
-            Log.e(TAG, "Error deleting audio file!");
+            Toast.makeText(getApplicationContext(),"Error deleting audio file!",Toast.LENGTH_SHORT).show();
         toDelete = new File(txt_path + "/" + name + ".txt");
         if(!toDelete.delete())
-            Log.e(TAG, "Error deleting text file!");
+            Toast.makeText(getApplicationContext(),"Error deleting text file!",Toast.LENGTH_SHORT).show();
         arr_list.remove(pos);
         mAdapter.notifyItemRemoved(pos);
         Toast.makeText(getApplicationContext(), name + " " + getString(R.string.removed), Toast.LENGTH_LONG).show();
@@ -133,19 +138,21 @@ import java.util.Date;
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarList);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true); //Sono sicuro ci sia una ActionBar
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         //////////////////////////////////////////////////
         //Read audio files in directory and populate ArrayList
         //////////////////////////////////////////////////
 
+        int perm = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (perm != PackageManager.PERMISSION_GRANTED)
+            Toast.makeText(getApplicationContext(), "Check app permissions!! This app won't work", Toast.LENGTH_LONG).show();
+
         File audio_dir = new File(audio_path);
-        audio_dir.mkdir();
         File audio_files[] = audio_dir.listFiles();
 
         File txt_dir = new File(txt_path);
-        txt_dir.mkdir();
         File txt_file[] = txt_dir.listFiles();
 
         if(audio_files!=null){
@@ -178,7 +185,7 @@ import java.util.Date;
         }
 
         ////////////////////////////////////////////////
-        //create and adjust setting of the recyclerView
+        //Create and adjust setting of the recyclerView
         ////////////////////////////////////////////////
         RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
 
