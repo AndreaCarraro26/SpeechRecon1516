@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.Manifest;
@@ -189,12 +190,26 @@ public class MainActivity extends ActivityStub {
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         audioCounter = sharedpreferences.getInt("counter", 0);
 
-        //Create all needed folders
         if (Build.VERSION.SDK_INT >=23) {
-            int perm = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+            //check WRITE_EXTERNAL_STORAGE
+            int perm = PermissionChecker.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            Log.d(TAG, Integer.toString(perm));
             if (perm != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(getApplicationContext(), "Check app permissions!! This app won't work", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.noPermission), Toast.LENGTH_LONG).show();
+                this.finish();
             }
+
+            //check RECORD_AUDIO
+            perm = PermissionChecker.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
+            Log.d(TAG, Integer.toString(perm));
+            if (perm != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(getApplicationContext(), getString(R.string.noPermission), Toast.LENGTH_LONG).show();
+                this.finish();
+
+            }
+
+
         }
         String main_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" +
                 getString(R.string.directory_main) + "/";

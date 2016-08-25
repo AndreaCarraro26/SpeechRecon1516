@@ -17,7 +17,7 @@
         android:id="@+id/info_button"
         android:src="@drawable/ic_info_outline_black_36dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="right"
         android:backgroundTint="@color/primary"
 
@@ -27,7 +27,7 @@
         android:id="@+id/button_list"
         android:src="@drawable/ic_list_black_36dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="right"
         android:backgroundTint="@color/primary"
 

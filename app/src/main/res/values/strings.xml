@@ -1,45 +1,47 @@
 <resources>
-    <string name="app_name">KaldiMobile</string>
+    <string name="app_name">Kaldi Mobile</string>
     <string name="directory_main">KaldiMobile</string>
     <string name="directory_audio">Audio</string>
     <string name="directory_txt">Txt</string>
 
     <!-- Main-->
-    <string name="title_activity_main">KaldiMobile</string>
+    <string name="title_activity_main">Mobile ASR</string>
     <string name="record_button">START NEW RECORD</string>
     <string name="stop_button">STOP RECORD</string>
     <string name="list_button">List of records</string>
     <string name="saved">record has been saved</string>
+    <string name="noPermission">The app cannot work!\nPlease check permissions under settings.  </string>
 
     <!-- AlertDialog-->
-    <string name="save_title">Saving file</string>
-    <string name="save">Choose a name for the recording or discard file</string>
+    <string name="save_title">Save</string>
+    <string name="save">Choose a name for your file</string>
     <string name="save_button">SAVE</string>
     <string name="delete_button">DISCARD</string>
     <string name="save_trans">SAVE AND TRANSCRIBE</string>
 
     <!-- List -->
     <string name="title_activity_list">File List</string>
-    <string name="subtitle_activity_list">Tap the name to begin transcription</string>
+    <string name="subtitle_activity_list">Tap any entry to interact with it</string>
     <string name="dialog1">Play the record</string>
-    <string name="dialog2">Transcribe</string>
+    <string name="dialog2">Transcribe (via server)</string>
     <string name="dialog3">Rename file</string>
-    <string name="dialog4">Delete file</string>
+    <string name="dialog4">Delete file (cannot be undone)</string>
     <string name="dialogX">View Transcription</string>
     <string name="noRename">Filename not valid</string>
     <string name="nameInUse">Filename already in use</string>
+    <string name="removed"> has been removed from list</string>
 
-    <string name="info_activity">About the app</string>
+
 
     <!-- Server -->
     <string name="serverLocation">http://esp1516speech.hopto.org/save.php</string>
-    <string name="removed"> has been removed from list</string>
     <string name="textServer">Please wait the process to be completed...</string>
-    <string name="noNetwork">No internet access. Please check your connection</string>
-    <string name="connecting">Trying to contact the server and uploading the file...</string>
+    <string name="noNetwork">No internet access. Please check your connection.</string>
+    <string name="connecting">Connecting to server and waiting for transcription...</string>
     <string name="uploading">Uploading file..</string>
 
     <!--> Info -->
+    <string name="info_activity">About the app</string>
     <string name="team">#include_team</string>
     <string name="how_title">How to use our App</string>
     <string name="how_text">This app allow to record a small audio file (we suggest at max 10s long
@@ -47,7 +49,7 @@
         file can be located in the KaldiMobile directory on the root of your device external storage. </string>
     <string name="kaldi_title">About Kaldi</string>
     <string name="kaldi_text">Kaldi (from the legendary goatherd who discovered coffee) is a toolkit
-        for speech recognition written in C++ and licensed under the Apache License v2.0.\n<!--Kaldi is
+        for automatic speech recognition (ASR) written in C++ and licensed under the Apache License v2.0.\n<!--Kaldi is
         intended for use by speech recognition researchers.-->For more details visit http://kaldi-asr.org/.
     </string>
     <string name="esp_title">About us</string>
