@@ -1,43 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_centerHorizontal="true"
     android:background="?android:attr/selectableItemBackground"
+    android:orientation="horizontal"
     android:focusable="true"
     android:clickable="true"
     android:id="@+id/list_entry"
-    android:paddingLeft="14dp"
+
    >
 
     <ImageView
         android:id="@+id/equalizer"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"/>
-
-    <ImageView
-        android:id="@+id/done"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingRight="16dp"
+        android:layout_height="match_parent"
         android:layout_centerVertical="true"
-        android:layout_alignParentEnd="true"
-
-        />
+        android:layout_marginLeft="12dp"
+       />
 
     <LinearLayout
         android:id="@+id/texts_layout"
         android:orientation="vertical"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="60dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:layout_toRightOf="@id/equalizer">
+        android:layout_marginLeft="16dp"
+        android:layout_weight="50"
+
+      >
 
         <TextView
             android:id="@+id/name_file"
@@ -57,6 +51,12 @@
             />
     </LinearLayout>
 
+    <ImageView
+        android:id="@+id/done"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:paddingRight="16dp"
+        android:layout_centerVertical="true"
+        />
 
-
-</RelativeLayout>
+</LinearLayout>

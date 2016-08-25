@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.text.DateFormat;
@@ -54,7 +55,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     public MyAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                    int viewType) {
         // create a new view
-        View v = LayoutInflater.from(parent.getContext())
+        View v = (LinearLayout) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_entry, parent, false);
       return new ViewHolder(v);
     }

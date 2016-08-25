@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         app:title="@string/title_activity_list"
         app:subtitle="@string/subtitle_activity_list"
-        app:titleMarginStart="18dp"
+        app:titleMarginStart="16dp"
         android:background="?attr/colorPrimary"
         />
 
