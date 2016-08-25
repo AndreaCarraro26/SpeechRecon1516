@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,7 +38,7 @@ public class MyAlertDialogFragment extends DialogFragment {
     private SeekBar seek;
     private TextView timeText;
     MediaPlayer player;
-    Button play_pause;
+    ImageButton play_pause;
 
     private Runnable UpdateSongTime = new Runnable() {
         public void run() {
@@ -123,13 +124,13 @@ public class MyAlertDialogFragment extends DialogFragment {
                         .create();
 
                 player.seekTo(getArguments().getInt("new_start"));
-                play_pause = (Button) view.findViewById(R.id.button_play);
+                play_pause = (ImageButton) view.findViewById(R.id.button_play);
 
                 if(getArguments().getBoolean("isPlaying")){
                     player.start();
                 }
                 else{
-                    play_pause.setBackground(getResources().getDrawable(R.drawable.ic_play_circle_filled_black_48dp, null));
+                    play_pause.setImageResource(R.drawable.ic_play_circle_filled_black_48dp);
                 }
 
                 handy.postDelayed(UpdateSongTime,50);
@@ -144,7 +145,7 @@ public class MyAlertDialogFragment extends DialogFragment {
 
                 player.setOnCompletionListener( new MediaPlayer.OnCompletionListener() {
                     public void onCompletion(MediaPlayer mp) {
-                        play_pause.setBackground(getResources().getDrawable(R.drawable.ic_play_circle_filled_black_48dp, null));
+                        play_pause.setImageResource(R.drawable.ic_play_circle_filled_black_48dp);
                         handy.removeCallbacks(UpdateSongTime);
                         seek.setProgress(0);
                     }
@@ -152,12 +153,12 @@ public class MyAlertDialogFragment extends DialogFragment {
                 play_pause.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view) {
                         if (player.isPlaying()) {
-                            play_pause.setBackground(getResources().getDrawable(R.drawable.ic_play_circle_filled_black_48dp, null));
+                            play_pause.setImageResource(R.drawable.ic_play_circle_filled_black_48dp);
                             handy.removeCallbacks(UpdateSongTime);
                             player.pause();
 
                         } else {
-                            play_pause.setBackground(getResources().getDrawable(R.drawable.ic_pause_circle_filled_black_48dp, null));
+                            play_pause.setImageResource(R.drawable.ic_pause_circle_filled_black_48dp);
                             player.start();
                             handy.postDelayed(UpdateSongTime,50);
                         }
