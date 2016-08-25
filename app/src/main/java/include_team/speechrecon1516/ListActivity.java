@@ -113,7 +113,7 @@ import java.util.Date;
             Log.e(TAG, "Error deleting audio file!");
         toDelete = new File(txt_path + "/" + name + ".txt");
         if(!toDelete.delete())
-            Log.e(TAG, "Error deleting audio file!");
+            Log.e(TAG, "Error deleting text file!");
         arr_list.remove(pos);
         mAdapter.notifyItemRemoved(pos);
         Toast.makeText(getApplicationContext(), name + " " + getString(R.string.removed), Toast.LENGTH_LONG).show();
