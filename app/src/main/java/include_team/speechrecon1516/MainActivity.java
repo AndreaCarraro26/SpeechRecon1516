@@ -248,7 +248,7 @@ public class MainActivity extends ActivityStub {
             }
         });
 
-        final Button btn_record = (Button) findViewById(R.id.button_record);
+        final ImageButton btn_record = (ImageButton) findViewById(R.id.button_record);
         final TextView text_record = (TextView) findViewById(R.id.text_record);
         chronometer = (Chronometer) findViewById(R.id.chronometer);
 
@@ -260,7 +260,7 @@ public class MainActivity extends ActivityStub {
                     MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
                     assert text_record != null;
                     text_record.setText(R.string.stop_button);
-                    btn_record.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_stop_48dp, 0, 0);
+                    btn_record.setImageResource(R.drawable.ic_stop_48dp);
                     chronometer.setVisibility(View.VISIBLE);
                     file = dir.listFiles();
 
@@ -276,7 +276,7 @@ public class MainActivity extends ActivityStub {
                 } else {
                     assert text_record != null;
                     text_record.setText(R.string.record_button);
-                    btn_record.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_mic_48dp, 0, 0);
+                    btn_record.setImageResource(R.drawable.ic_mic_48dp);
                     chronometer.stop();
                     chronometer.setVisibility(View.INVISIBLE);
                     btn_list.setClickable(true);
@@ -327,17 +327,17 @@ public class MainActivity extends ActivityStub {
         if (!isNotRecording) {
             chronometer.stop();
             chronometer.setVisibility(View.INVISIBLE);
-            final Button btn_record = (Button) findViewById(R.id.button_record);
+            final ImageButton btn_record = (ImageButton) findViewById(R.id.button_record);
             final TextView text_record = (TextView) findViewById(R.id.text_record);
             final LinearLayout main_layout = (LinearLayout) findViewById(R.id.main_layout);
-            final RelativeLayout timer = (RelativeLayout) findViewById(R.id.time_layout);
+
 
             assert text_record != null;
             text_record.setText(R.string.record_button);
             assert btn_record != null;
-            btn_record.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_mic_48dp, 0, 0);
+            btn_record.setImageResource(R.drawable.ic_mic_48dp);
             assert main_layout != null;
-            main_layout.removeView(timer);
+            
 
             from = new File(audio_filename);
             if(!from.delete())
