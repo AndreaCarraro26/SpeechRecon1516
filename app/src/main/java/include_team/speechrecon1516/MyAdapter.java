@@ -40,9 +40,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             dateView = (TextView) itemView.findViewById(R.id.data_string);
             icon = (ImageView) itemView.findViewById(R.id.equalizer);
             done = (ImageView) itemView.findViewById(R.id.done);
-
         }
-
     }
 
     public MyAdapter(ArrayList<ArrayEntry> ls, Context c) {

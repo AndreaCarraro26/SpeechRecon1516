@@ -75,6 +75,7 @@ public class MainActivity extends ActivityStub {
         if (from.renameTo(to))
             Toast.makeText(getApplicationContext(), new_audio_filename + " " + getString(R.string.saved), Toast.LENGTH_LONG).show();
 
+        audioCounter++;
         return new_audio_filename;
     }
 
@@ -227,7 +228,7 @@ public class MainActivity extends ActivityStub {
                     audio_name = "Record" + audioCounter;
                     audio_filename = audio_path + audio_name + ".amr";
                     Log.d("nome", audio_filename);
-                    audioCounter++;
+
                     chronometer.setBase(SystemClock.elapsedRealtime());
                     chronometer.start();
 
@@ -282,13 +283,10 @@ public class MainActivity extends ActivityStub {
 
         if (!isNotRecording) {
             chronometer.stop();
-
             final Button btn_record = (Button) findViewById(R.id.button_record);
             final TextView text_record = (TextView) findViewById(R.id.text_record);
             final LinearLayout main_layout = (LinearLayout) findViewById(R.id.main_layout);
             final RelativeLayout timer = (RelativeLayout) findViewById(R.id.time_layout);
-
-            onRecordEnd();
 
             assert text_record != null;
             text_record.setText(R.string.record_button);
@@ -296,6 +294,9 @@ public class MainActivity extends ActivityStub {
             btn_record.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_mic_48dp, 0, 0);
             assert main_layout != null;
             main_layout.removeView(timer);
+
+            from = new File(audio_filename);
+            from.delete();
 
             isNotRecording = true;
         }
