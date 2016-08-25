@@ -218,7 +218,7 @@ public class MainActivity extends ActivityStub {
             public void onClick(View v) {
 
                 if (isNotRecording) {
-                    MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+                    MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
                     assert text_record != null;
                     text_record.setText(R.string.stop_button);
                     btn_record.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_stop_48dp, 0, 0);

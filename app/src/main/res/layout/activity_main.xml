@@ -38,7 +38,7 @@
 
     </RelativeLayout>
 
-    <!-- botton with mic-->
+    <!-- button with mic-->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -61,6 +61,7 @@
             android:text="@string/record_button"
             android:layout_below="@id/button_record"
             android:layout_centerHorizontal="true"
+            android:layout_marginTop="5dp"
             />
 
         <ImageView
