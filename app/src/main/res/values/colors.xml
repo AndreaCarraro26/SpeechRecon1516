@@ -7,4 +7,5 @@
     <color name="title">#000000</color>
     <color name="subtitle">#555555</color>
     <color name="black">#000000</color>
+    <color name="list_background">#E0E0E0</color>
 </resources>
