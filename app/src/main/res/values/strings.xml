@@ -29,7 +29,9 @@
     <string name="noRename">Filename not valid</string>
     <string name="nameInUse">Filename already in use</string>
     <string name="removed"> has been removed from list</string>
-    <string name="noDelete">Error deleting audio file!</string>
+    <string name="noDeleteAudio">Error deleting audio file!</string>
+    <string name="noDeleteText">Error deleting text file!</string>
+    <string name="listEmpty">Your list is empty, begin recording!</string>
 
 
     <!-- Server -->

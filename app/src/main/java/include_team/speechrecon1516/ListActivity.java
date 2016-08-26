@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -23,6 +24,7 @@ import java.util.Date;
     private static final String TAG = "ListActivityDebug";
     private ArrayList<ArrayEntry> arr_list = new ArrayList<>();
     private RecyclerView.Adapter mAdapter;
+
 
         /**
          * Creates DialogFragment for audio reproduction
@@ -115,20 +117,25 @@ import java.util.Date;
 
 
         /**
-         * Deletes audio and text file from the device
+         * Deletes audio and text files from the device
          * @param pos Position of the recording in the list
          */
     public void deleteFile(int pos){
         String name = arr_list.get(pos).getName();
         File toDelete = new File(audio_path + "/" + name + ".amr");
         if(!toDelete.delete())
-            Toast.makeText(getApplicationContext(),getString(R.string.noDelete), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(),getString(R.string.noDeleteAudio), Toast.LENGTH_SHORT).show();
         toDelete = new File(txt_path + "/" + name + ".txt");
-        if(!toDelete.delete())
-            Toast.makeText(getApplicationContext(),getString(R.string.noDelete),Toast.LENGTH_SHORT).show();
+        if(toDelete.exists())
+            if(!toDelete.delete())
+                Toast.makeText(getApplicationContext(),getString(R.string.noDeleteText),Toast.LENGTH_SHORT).show();
         arr_list.remove(pos);
         mAdapter.notifyItemRemoved(pos);
         Toast.makeText(getApplicationContext(), name + " " + getString(R.string.removed), Toast.LENGTH_LONG).show();
+
+        if(arr_list.size()==0)
+            ((AppCompatActivity) this).getSupportActionBar().setSubtitle(R.string.listEmpty);
+
     }
 
     @Override
@@ -184,6 +191,11 @@ import java.util.Date;
                 }
             });
             Log.d(TAG, "arr_list size: "+ arr_list.size());
+        }
+
+        // Change subtitle on the toolbar if there isn't any audio file
+        if(audio_files.length==0){
+            toolbar.setSubtitle(R.string.listEmpty);
         }
 
         ////////////////////////////////////////////////
