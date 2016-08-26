@@ -36,7 +36,6 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_below="@id/toolbarList"
-        android:background="@color/list_background"
 
 
         />

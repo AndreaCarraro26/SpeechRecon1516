@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="#FFFFFF"
-    android:layout_marginBottom="1px">
-
+    android:orientation="vertical"
+    >
 
     <LinearLayout
 
@@ -16,8 +15,6 @@
         android:focusable="true"
         android:clickable="true"
         android:id="@+id/list_entry"
-
-
 
         >
         <ImageView
@@ -34,25 +31,29 @@
             android:layout_height="60dp"
             android:layout_marginStart="16dp"
             android:layout_weight="50"
+            android:weightSum="100"
 
             >
 
             <TextView
                 android:id="@+id/name_file"
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
+                android:layout_height="0dp"
                 android:textSize="16sp"
                 android:gravity="bottom|start"
                 android:textColor="@color/title"
+                android:layout_weight="50"
                 />
             <TextView
                 android:id="@+id/data_string"
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
+                android:layout_height="0dp"
                 android:textSize="16sp"
                 android:gravity="top|start"
                 android:textColor="@color/subtitle"
+                android:layout_weight="50"
                 />
+
         </LinearLayout>
 
         <ImageView
@@ -63,5 +64,10 @@
             />
 
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/list_background"/>
 
 </LinearLayout>
