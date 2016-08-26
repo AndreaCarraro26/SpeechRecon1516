@@ -180,7 +180,7 @@ public class MainActivity extends ActivityStub {
     protected void processFinish(String file, String text){
         if(text.compareTo("***ERROR***")==0) {
             Log.i(TAG, "Server send Error message");
-            Toast.makeText(getApplicationContext(), getString(R.string.errorResponse), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), getString(R.string.errorResponse), Toast.LENGTH_LONG).show();
         }else{
             setTxtFile(file, text);
             viewTranscription(txt_path, file);
