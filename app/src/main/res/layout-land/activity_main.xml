@@ -25,6 +25,7 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:baselineAligned="false"
         tools:context="include_team.speechrecon1516.MainActivity"
         android:weightSum="100">
 

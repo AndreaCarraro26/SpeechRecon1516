@@ -11,19 +11,16 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.Manifest;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -263,12 +260,14 @@ public class MainActivity extends ActivityStub {
         chronometer = (Chronometer) findViewById(R.id.chronometer);
 
         assert btn_record != null;
+        btn_record.setImageResource(R.drawable.ic_mic_48dp);
+
         btn_record.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-
+                assert text_record != null;
                 if (isNotRecording) {
                     MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
-                    assert text_record != null;
+
                     text_record.setText(R.string.stop_button);
                     btn_record.setImageResource(R.drawable.ic_stop_48dp);
                     chronometer.setVisibility(View.VISIBLE);
@@ -284,7 +283,7 @@ public class MainActivity extends ActivityStub {
 
                     startRecording();
                 } else {
-                    assert text_record != null;
+
                     text_record.setText(R.string.record_button);
                     btn_record.setImageResource(R.drawable.ic_mic_48dp);
                     chronometer.stop();

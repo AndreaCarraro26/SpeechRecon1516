@@ -28,7 +28,7 @@ import java.net.URL;
 
 public abstract class ActivityStub extends AppCompatActivity {
 
-    String TAG = "CallToServerDebug";
+    private String TAG = "CallToServerDebug";
 
     protected String  audio_path;
     protected String txt_path;
@@ -98,8 +98,8 @@ public abstract class ActivityStub extends AppCompatActivity {
         }
         catch (IOException e) {
 
-            //TODO something useful
-
+            Toast.makeText(getApplicationContext(), "Error reading text file!", Toast.LENGTH_LONG).show();
+            return;
         }
 
         MyAlertDialogFragment diaText = MyAlertDialogFragment.newInstance();

@@ -12,13 +12,13 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 
@@ -37,13 +37,13 @@ public class MyAlertDialogFragment extends DialogFragment {
     private double endTime= 0;
     private SeekBar seek;
     private TextView timeText;
-    MediaPlayer player;
-    ImageButton play_pause;
+    private MediaPlayer player;
+    private ImageButton play_pause;
 
     private Runnable UpdateSongTime = new Runnable() {
         public void run() {
             startTime = player.getCurrentPosition();
-            timeText.setText(String.format("%d′%d″/%d′%d″",
+            timeText.setText(String.format(Locale.ENGLISH, "%d′%d″/%d′%d″",
                     TimeUnit.MILLISECONDS.toMinutes((long) startTime),
                     TimeUnit.MILLISECONDS.toSeconds((long) startTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) startTime)),
                     TimeUnit.MILLISECONDS.toMinutes((long) endTime),
@@ -113,8 +113,8 @@ public class MyAlertDialogFragment extends DialogFragment {
 
             case PLAY:
 
-                player = new MediaPlayer().create(getActivity(), Uri.parse(getArguments().getString("path") +
-                        getArguments().getString("filename") + ".amr"));
+                player = MediaPlayer.create(getActivity(), Uri.parse(getArguments().getString("path") +
+                                                                            getArguments().getString("filename") + ".amr"));
 
                 View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_play, null);
 
@@ -189,7 +189,8 @@ public class MyAlertDialogFragment extends DialogFragment {
                                 }
                                 else {
                                     for(int i=0; i< getArguments().getInt("size"); i++)
-                                        if(new_name.compareTo(getArguments().getStringArrayList("files").get(i))==0 && new_name.compareTo(getArguments().getString("filename"))!=0) {
+                                        if(new_name.compareTo(getArguments().getStringArrayList("files").get(i))==0 &&
+                                            new_name.compareTo(getArguments().getString("filename"))!=0) {
                                             Toast.makeText(getActivity().getApplicationContext(), getString(R.string.nameInUse), Toast.LENGTH_LONG).show();
                                             ((ListActivity)getActivity()).rename(getArguments().getInt("position"));
                                             return;
