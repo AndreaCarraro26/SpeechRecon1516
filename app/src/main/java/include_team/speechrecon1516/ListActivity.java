@@ -109,7 +109,7 @@ import java.util.Date;
 
         /**
          * Deletes audio and text file from the device
-         * @param pos
+         * @param pos Position of the recording in the list
          */
     public void deleteFile(int pos){
         String name = arr_list.get(pos).getName();
