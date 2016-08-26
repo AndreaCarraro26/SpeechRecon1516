@@ -124,6 +124,7 @@ public abstract class ActivityStub extends AppCompatActivity {
         String audio_path;
         String file_path;
         String filename;
+        byte[] filenameByte;
         String audio_text;
 
         String error = null;
@@ -160,6 +161,13 @@ public abstract class ActivityStub extends AppCompatActivity {
 
             file_path = audio_path + rec_name + ".amr";
             filename = rec_name + ".amr";
+//            try {
+//                filenameByte = filename.getBytes("UTF-8");
+//            }
+//            catch (Exception e) {
+//                Log.e(TAG, "Cannot get bytes from filename");
+//            }
+
 
             try {
                 fileInputStream = new FileInputStream(file_path);
@@ -189,7 +197,9 @@ public abstract class ActivityStub extends AppCompatActivity {
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setDoOutput(true);
                 connection.setRequestProperty("Connection", "Keep-Alive");
-                connection.setRequestProperty("Content-Type", "multipart/form-data;boundary="+boundary+"; charset=utf-8");
+                connection.setRequestProperty("charset","UTF-8");
+                connection.setRequestProperty("Accept-Charset", "UTF-8");
+                connection.setRequestProperty("Content-Type", "multipart/form-data;boundary="+boundary+";");
                 connection.setRequestProperty("uploaded_file", file_path);
                 connection.setConnectTimeout(5000); //set timeout to 5 seconds
 
