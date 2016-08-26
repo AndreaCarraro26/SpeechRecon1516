@@ -17,7 +17,6 @@ import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -231,11 +230,6 @@ public class MyAlertDialogFragment extends DialogFragment {
             play_pause.setBackground(getResources().getDrawable(R.drawable.ic_play_circle_filled_black_48dp, null));
         }
         super.onSaveInstanceState(savedInstanceState);
-    }
-
-    @Override
-    public void onPause(){
-        super.onPause();
     }
 
     @Override

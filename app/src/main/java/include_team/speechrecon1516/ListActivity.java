@@ -1,12 +1,8 @@
 package include_team.speechrecon1516;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -106,7 +102,7 @@ import java.util.Date;
             Log.i(TAG, "Server send Error message");
             Toast.makeText(getApplicationContext(),getString(R.string.errorResponse), Toast.LENGTH_SHORT).show();
         }else{
-            arr_list.get(pos).setTranscribed(true);
+            arr_list.get(pos).setTranscribed();
             setTxtFile(file, text);
             mAdapter.notifyItemChanged(pos);
             viewTranscription(txt_path, file);
@@ -134,7 +130,7 @@ import java.util.Date;
         Toast.makeText(getApplicationContext(), name + " " + getString(R.string.removed), Toast.LENGTH_LONG).show();
 
         if(arr_list.size()==0)
-            ((AppCompatActivity) this).getSupportActionBar().setSubtitle(R.string.listEmpty);
+            this.getSupportActionBar().setSubtitle(R.string.listEmpty);
 
     }
 

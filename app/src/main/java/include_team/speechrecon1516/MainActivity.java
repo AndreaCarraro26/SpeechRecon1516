@@ -38,7 +38,7 @@ public class MainActivity extends ActivityStub {
     private File[] file ;
     private MediaRecorder audio_recorder = null;
 
-    private static String audio_path = null;
+    //private static String audio_path = null;
     private static String audio_name = null;
     private static String audio_filename = null;
 

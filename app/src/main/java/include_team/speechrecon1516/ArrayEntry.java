@@ -5,7 +5,7 @@ import java.util.Date;
 public class ArrayEntry {
     private String name;
     private boolean transcribed;
-    Date date;
+    private Date date;
 
     public ArrayEntry(String cname, Date dd, boolean ctranscribed){
         name = cname;
@@ -29,11 +29,8 @@ public class ArrayEntry {
         this.name = name;
     }
 
-    public void setTranscribed(boolean transcribed) {
-        this.transcribed = transcribed;
+    public void setTranscribed() {
+        this.transcribed = true;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
-    }
 }

@@ -30,7 +30,7 @@ public abstract class ActivityStub extends AppCompatActivity {
 
     private String TAG = "CallToServerDebug";
 
-    protected String  audio_path;
+    protected String audio_path;
     protected String txt_path;
 
     /**
