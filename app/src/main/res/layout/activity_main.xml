@@ -20,7 +20,7 @@
         android:layout_height="@dimen/toolbar_shadow"
         android:background="@drawable/shadow" />
 
-    <!--place for stopwatch-->
+    <!--stopwatch-->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -44,14 +44,13 @@
         android:layout_height="0dp"
         android:layout_weight="65">
 
-        <Button
+        <ImageButton
             android:id="@+id/button_record"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/button_circle"
-            android:paddingTop="28dp"
             android:layout_centerHorizontal="true"
-            android:drawableTop="@drawable/ic_mic_48dp"
+            android:src="@drawable/ic_mic_48dp"
          />
 
         <TextView
