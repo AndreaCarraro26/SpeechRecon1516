@@ -138,8 +138,8 @@ import java.util.Date;
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarList);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         //////////////////////////////////////////////////
         //Read audio files in directory and populate ArrayList

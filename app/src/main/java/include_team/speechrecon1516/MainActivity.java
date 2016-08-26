@@ -337,7 +337,7 @@ public class MainActivity extends ActivityStub {
             assert btn_record != null;
             btn_record.setImageResource(R.drawable.ic_mic_48dp);
             assert main_layout != null;
-            
+
 
             from = new File(audio_filename);
             if(!from.delete())

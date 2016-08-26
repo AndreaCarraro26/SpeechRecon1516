@@ -9,8 +9,8 @@
     android:minHeight="?android:attr/actionBarSize"
     android:background="?android:attr/colorPrimary"
     app:title="@string/title_activity_main"
-    android:titleTextColor="@color/title"
-    android:subtitleTextColor="@color/subtitle" >
+
+   >
 
 
     <ImageButton

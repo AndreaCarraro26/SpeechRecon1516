@@ -17,6 +17,7 @@
         app:subtitle="@string/subtitle_activity_list"
         app:titleMarginStart="16dp"
         android:background="?attr/colorPrimary"
+        app:navigationIcon="?attr/homeAsUpIndicator"
         />
 
 
@@ -36,6 +37,8 @@
         android:layout_centerVertical="true"
         android:layout_below="@id/toolbarList"
         android:background="@color/list_background"
+
+
         />
 
 </RelativeLayout>
