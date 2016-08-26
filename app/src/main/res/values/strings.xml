@@ -29,13 +29,15 @@
     <string name="noRename">Filename not valid</string>
     <string name="nameInUse">Filename already in use</string>
     <string name="removed"> has been removed from list</string>
-
+    <string name="noDelete">Error deleting audio file!</string>
 
 
     <!-- Server -->
     <string name="serverLocation">http://esp1516speech.hopto.org/save.php</string>
     <string name="noNetwork">No internet access. Please check your connection.</string>
     <string name="connecting">Connecting to server and waiting for transcription...</string>
+    <string name="errorResponse">There was a problem with server and no transcription has been received.\nPlease try later.</string>
+
 
     <!--> Info -->
     <string name="info_activity">About the app</string>

@@ -23,6 +23,7 @@ import java.util.Date;
     private static final String TAG = "ListActivityDebug";
     private ArrayList<ArrayEntry> arr_list = new ArrayList<>();
     private RecyclerView.Adapter mAdapter;
+
         /**
          * Creates DialogFragment for audio reproduction
          * @param fileName File to be played
@@ -99,11 +100,17 @@ import java.util.Date;
                 pos = i;
                 break;
             }
+        if(text.compareTo("***ERROR***")==0){
+            Log.i(TAG, "Server send Error message");
+            Toast.makeText(getApplicationContext(),getString(R.string.errorResponse), Toast.LENGTH_SHORT).show();
+        }else{
+            arr_list.get(pos).setTranscribed(true);
+            setTxtFile(file, text);
+            mAdapter.notifyItemChanged(pos);
+            viewTranscription(txt_path, file);
+        }
 
-        arr_list.get(pos).setTranscribed(true);
-        setTxtFile(file, text);
-        mAdapter.notifyItemChanged(pos);
-        viewTranscription(txt_path, file);
+
     }
 
 
@@ -115,10 +122,10 @@ import java.util.Date;
         String name = arr_list.get(pos).getName();
         File toDelete = new File(audio_path + "/" + name + ".amr");
         if(!toDelete.delete())
-            Toast.makeText(getApplicationContext(),"Error deleting audio file!",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(),getString(R.string.noDelete), Toast.LENGTH_SHORT).show();
         toDelete = new File(txt_path + "/" + name + ".txt");
         if(!toDelete.delete())
-            Toast.makeText(getApplicationContext(),"Error deleting text file!",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(),getString(R.string.noDelete),Toast.LENGTH_SHORT).show();
         arr_list.remove(pos);
         mAdapter.notifyItemRemoved(pos);
         Toast.makeText(getApplicationContext(), name + " " + getString(R.string.removed), Toast.LENGTH_LONG).show();
@@ -138,16 +145,11 @@ import java.util.Date;
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarList);
         setSupportActionBar(toolbar);
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-//        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         //////////////////////////////////////////////////
         //Read audio files in directory and populate ArrayList
         //////////////////////////////////////////////////
 
-        int perm = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (perm != PackageManager.PERMISSION_GRANTED)
-            Toast.makeText(getApplicationContext(), "Check app permissions!! This app won't work", Toast.LENGTH_LONG).show();
 
         File audio_dir = new File(audio_path);
         File audio_files[] = audio_dir.listFiles();

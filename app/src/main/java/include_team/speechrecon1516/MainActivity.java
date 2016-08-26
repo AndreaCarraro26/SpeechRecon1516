@@ -53,8 +53,9 @@ public class MainActivity extends ActivityStub {
 
     /**
      * Saves newly recorded file
+     * @param toastYES Set if you want to display a toast after saving file
      */
-    private String saveFile(DialogInterface dialog,EditText et){
+    private String saveFile(DialogInterface dialog,EditText et, boolean toastYES){
         //Link to audio file with temporary name
         from = new File(audio_filename);
 
@@ -80,8 +81,8 @@ public class MainActivity extends ActivityStub {
                 }
         }
         File to = new File(audio_path + new_audio_filename + ".amr");
-        if (from.renameTo(to))
-            Toast.makeText(getApplicationContext(), new_audio_filename + " " + getString(R.string.saved), Toast.LENGTH_LONG).show();
+        if (from.renameTo(to) && toastYES)
+            Toast.makeText(getApplicationContext(), new_audio_filename + " " + getString(R.string.saved), Toast.LENGTH_SHORT).show();
 
         audioCounter++;
         return new_audio_filename;
@@ -113,6 +114,7 @@ public class MainActivity extends ActivityStub {
      */
     private void finalizeRecording() {
 
+
         //Create AlertDialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.save_title)
@@ -125,15 +127,16 @@ public class MainActivity extends ActivityStub {
 
         builder.setView(dialogView);
 
-        //Add the buttons
+        // Save file
         builder.setNegativeButton(R.string.save_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
-                saveFile(dialog, et);
+                saveFile(dialog, et, true);
                 dialog.dismiss();
             }
         });
 
+        // Discard file
         builder.setNeutralButton(R.string.delete_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -144,11 +147,12 @@ public class MainActivity extends ActivityStub {
             }
         });
 
+        // Save and transcribe
         builder.setPositiveButton(R.string.save_trans, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String filename = saveFile(dialog, et);
-                Log.d(TAG, "###############" +filename);
+                String filename = saveFile(dialog, et, false);
+                Log.d(TAG, "file saved " +filename);
                 if(filename!=null){
                     executeCallToServer(filename);
                     dialog.dismiss();
@@ -177,8 +181,14 @@ public class MainActivity extends ActivityStub {
      * @param text Text retrieved from server
      */
     protected void processFinish(String file, String text){
-        setTxtFile(file, text);
-        viewTranscription(txt_path, file);
+        if(text.compareTo("***ERROR***")==0) {
+            Log.i(TAG, "Server send Error message");
+            Toast.makeText(getApplicationContext(), getString(R.string.errorResponse), Toast.LENGTH_SHORT).show();
+        }else{
+            setTxtFile(file, text);
+            viewTranscription(txt_path, file);
+        }
+
     }
 
     @Override
