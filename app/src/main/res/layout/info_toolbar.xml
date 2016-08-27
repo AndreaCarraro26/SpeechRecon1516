@@ -14,11 +14,6 @@
         app:titleMarginStart="16dp"
         android:background="?attr/colorPrimary"
         app:navigationIcon="?attr/homeAsUpIndicator"
-        android:elevation="4dp" />
+       />
 
-    <View
-        android:id="@+id/toolbar_shadow_info"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/toolbar_shadow"
-        android:background="@drawable/shadow" />
 </LinearLayout>

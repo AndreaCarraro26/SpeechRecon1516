@@ -14,12 +14,6 @@
         android:id="@+id/toolbarMain">
     </include>
 
-    <View
-        android:id="@+id/toolbar_shadow_main"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/toolbar_shadow"
-        android:background="@drawable/shadow" />
-
     <!--stopwatch-->
     <RelativeLayout
         android:layout_width="match_parent"

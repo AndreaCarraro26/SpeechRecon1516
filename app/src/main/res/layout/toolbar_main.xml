@@ -1,36 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.Toolbar
+
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/toolbar_main"
-    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_alignParentTop="true"
-    android:minHeight="?android:attr/actionBarSize"
-    android:background="?android:attr/colorPrimary"
-    app:title="@string/title_activity_main"
+    android:layout_width="wrap_content"
+    android:orientation="vertical"
+    >
 
-   >
+    <android.support.v7.widget.Toolbar
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/toolbar_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:minHeight="?android:attr/actionBarSize"
+        android:background="?android:attr/colorPrimary"
+        app:title="@string/title_activity_main"
+        >
 
 
-    <ImageButton
-        android:id="@+id/info_button"
-        android:src="@drawable/ic_info_outline_black_36dp"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="right"
-        android:backgroundTint="@color/primary"
+        <ImageButton
+            android:id="@+id/info_button"
+            android:src="@drawable/ic_info_outline_black_36dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="right"
+            android:backgroundTint="@color/primary"
 
-        />
+            />
 
-    <ImageButton
-        android:id="@+id/button_list"
-        android:src="@drawable/ic_list_black_36dp"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="right"
-        android:backgroundTint="@color/primary"
+        <ImageButton
+            android:id="@+id/button_list"
+            android:src="@drawable/ic_list_black_36dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="right"
+            android:backgroundTint="@color/primary"
 
-        />
+            />
 
-</android.support.v7.widget.Toolbar >
+    </android.support.v7.widget.Toolbar >
+
+    <View
+        android:id="@+id/toolbar_shadow_main"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/toolbar_shadow"
+        android:background="@drawable/shadow" />
+
+
+</LinearLayout>
