@@ -20,6 +20,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
@@ -247,18 +248,18 @@ public abstract class ActivityStub extends AppCompatActivity {
             }
             catch (MalformedURLException ex)
             {
-                Log.e(TAG, "URL error: " + ex.getMessage(), ex);
+                Log.e(TAG, "URL error: " + ex.getMessage());
                 error = "Cannot connect to server: URL malformed.";
             }
             catch (SocketTimeoutException toe) {
-                Log.e(TAG, "Timeout error: " + toe.getMessage(), toe);
+                Log.e(TAG, "Timeout error: " + toe.getMessage());
                 error = "Cannot connect to server: timeout expired";
             }
             catch (IOException ioe)
             {
-                Log.e(TAG, "IO error: " + ioe.getMessage(), ioe);
+                Log.e(TAG, "IO error: " + ioe.getMessage());
+                error = "Cannot connect to server: timeout expired";
             }
-
             return error;
         }
 
