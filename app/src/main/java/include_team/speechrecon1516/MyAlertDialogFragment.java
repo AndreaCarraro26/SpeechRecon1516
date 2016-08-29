@@ -68,11 +68,15 @@ public class MyAlertDialogFragment extends DialogFragment {
 
             case PROGRESS:
                 Log.d(TAG, "Case Progress");
-                return new ProgressDialog.Builder(getActivity())
-                        .setMessage(getArguments().getString("message"))
+                View progressView = getActivity().getLayoutInflater().inflate(R.layout.progress, null);
+
+                return  new ProgressDialog.Builder(getActivity())
+                        //.setMessage(getArguments().getString("message"))
+                        .setView(progressView)
                         .setPositiveButton("CANCEL", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int button) {
-                                ((ActivityStub)getActivity()).setTranscribeCanceled(true);
+                                ((ActivityStub)getActivity()).getCallToServer().setTranscribeCanceled(true);
+                                Toast.makeText(getActivity().getApplicationContext(), getString(R.string.trans_cancel), Toast.LENGTH_LONG).show();
                 }
             })
                         .create();

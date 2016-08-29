@@ -33,13 +33,19 @@ public abstract class ActivityStub extends AppCompatActivity {
     protected String txt_path;
     protected boolean cancel_call = false;
 
+    public CallToServer call;
+
     /**
      * Sends recording to the server
      * @param filename Name of chosen recording
      */
     public void executeCallToServer(String filename){
-        CallToServer call = new CallToServer();
+        call = new CallToServer();
         call.execute(filename);
+    }
+
+    public CallToServer getCallToServer(){
+        return call;
     }
 
     /**
@@ -112,15 +118,18 @@ public abstract class ActivityStub extends AppCompatActivity {
 
     }
 
-    public void setTranscribeCanceled(boolean canceled) {
-        cancel_call = canceled;
-        Log.d(TAG,"Cancel pressed");
-    }
+
 
     /**
      * Subclass interfacing with server
      */
     public class CallToServer extends AsyncTask<Void, Void, String> {
+
+        public void setTranscribeCanceled(boolean canceled) {
+            cancel_call = canceled;
+            Log.d(TAG,"Cancel pressed");
+        }
+
 
         boolean noConnectivity = false;
 
@@ -271,10 +280,14 @@ public abstract class ActivityStub extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), error, Toast.LENGTH_LONG).show();
             }
             else {
-                prog.dismiss();
-                Log.d(TAG, "Message from Server: " + audio_text);
+                Log.d(TAG, "ARRIvato");
+                if(!cancel_call){
+                    prog.dismiss();
+                    Log.d(TAG, "Message from Server: " + audio_text);
 
-                processFinish(rec_name, audio_text);
+                    processFinish(rec_name, audio_text);
+                }
+
             }
         }
     }

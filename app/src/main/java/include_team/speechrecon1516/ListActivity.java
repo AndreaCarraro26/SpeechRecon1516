@@ -89,6 +89,11 @@ public class ListActivity extends ActivityStub  {
          * @param text Server response
          */
     protected void processFinish(String file, String text){
+        if(text==null) {
+            Log.d(TAG, "null string received");
+            return;
+        }
+
         int pos = 0 ;
         for (int i=0; i<arr_list.size(); i++)
             if (arr_list.get(i).getName().compareTo(file)==0) {
@@ -99,17 +104,15 @@ public class ListActivity extends ActivityStub  {
             Log.i(TAG, "Server send Error message");
             Toast.makeText(getApplicationContext(),getString(R.string.errorResponse), Toast.LENGTH_SHORT).show();
             return;
-        }
-        if(!cancel_call) {
+        }else {
             arr_list.get(pos).setTranscribed();
             setTxtFile(file, text);
             mAdapter.notifyItemChanged(pos);
             viewTranscription(txt_path, file);
         }
-        else {
-            Log.d(TAG, "Task Canceled");
-            Toast.makeText(getApplicationContext(), R.string.trans_cancel, Toast.LENGTH_LONG).show();
-        }
+
+
+
 
     }
 

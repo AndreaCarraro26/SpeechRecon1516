@@ -175,16 +175,23 @@ public class MainActivity extends ActivityStub {
      * @param text Text retrieved from server
      */
     protected void processFinish(String file, String text){
+
+        if(text==null) {
+            Log.d(TAG, "null string received");
+            return;
+        }
+
         if(text.compareTo("***ERROR***")==0) {
             Log.i(TAG, "Server send Error message");
             Toast.makeText(getApplicationContext(), getString(R.string.errorResponse), Toast.LENGTH_LONG).show();
             return;
-        }
-        if(!cancel_call) {
+        }else{
             setTxtFile(file, text);
             viewTranscription(txt_path, file);
-        } else
-            Toast.makeText(getApplicationContext(), R.string.trans_cancel, Toast.LENGTH_LONG).show();
+        }
+
+
+
     }
 
     @Override
