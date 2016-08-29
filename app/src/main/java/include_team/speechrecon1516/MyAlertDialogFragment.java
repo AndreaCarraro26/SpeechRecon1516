@@ -148,8 +148,25 @@ public class MyAlertDialogFragment extends DialogFragment {
                 startTime = player.getCurrentPosition();
 
                 seek = (SeekBar) view.findViewById(R.id.seekBar);
+
                 seek.setMax((int) endTime);
                 seek.setProgress(startTime);
+                seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {}
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {}
+
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
+                        if(player != null && fromUser) {
+                            player.seekTo(progress);
+                        }
+
+                    }
+                });
 
                 player.setOnCompletionListener( new MediaPlayer.OnCompletionListener() {
                     public void onCompletion(MediaPlayer mp) {

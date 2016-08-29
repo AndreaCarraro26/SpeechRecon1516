@@ -1,5 +1,5 @@
 <resources>
-    <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="toolbar_shadow">4dp</dimen>
-    toolbar_shadow
+    <dimen name="iconPadLeft">20dp</dimen>16dp
+    <dimen name="textPadLeft">16dp</dimen>
 </resources>
