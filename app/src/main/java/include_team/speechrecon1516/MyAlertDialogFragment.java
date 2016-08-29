@@ -33,7 +33,7 @@ public class MyAlertDialogFragment extends DialogFragment {
     // variables needed for playback
     private Handler handy = new Handler();
     private int startTime;
-    private double endTime= 0;
+    private double endTime = 0;
     private SeekBar seek;
     private TextView timeText;
     private MediaPlayer player;
@@ -70,6 +70,11 @@ public class MyAlertDialogFragment extends DialogFragment {
                 Log.d(TAG, "Case Progress");
                 return new ProgressDialog.Builder(getActivity())
                         .setMessage(getArguments().getString("message"))
+                        .setPositiveButton("CANCEL", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int button) {
+                                ((ActivityStub)getActivity()).setTranscribeCanceled(true);
+                }
+            })
                         .create();
 
             case START:
@@ -215,7 +220,6 @@ public class MyAlertDialogFragment extends DialogFragment {
         return null;
     }
 
-
     public void onSaveInstanceState(Bundle savedInstanceState) {
         if(getArguments().getInt("type")==PLAY){
             Log.d(TAG, "Fragment - onSaveInstanceState " + Boolean.toString(getArguments().getInt("type")==PLAY));
@@ -239,6 +243,5 @@ public class MyAlertDialogFragment extends DialogFragment {
             player.release();
         }
         super.onDestroy();
-
     }
 }

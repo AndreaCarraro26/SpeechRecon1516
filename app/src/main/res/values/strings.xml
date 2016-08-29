@@ -39,7 +39,7 @@
     <string name="noNetwork">No internet access. Please check your connection.</string>
     <string name="connecting">Connecting to server and waiting for transcription...</string>
     <string name="errorResponse">There was a problem with server and no transcription has been received.\nPlease try later.</string>
-
+    <string name="trans_cancel">"Transcription was canceled"</string>
 
     <!--> Info -->
     <string name="info_activity">About the app</string>

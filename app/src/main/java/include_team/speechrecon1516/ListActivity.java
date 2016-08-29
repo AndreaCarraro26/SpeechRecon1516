@@ -15,12 +15,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
-    public class ListActivity extends ActivityStub  {
+public class ListActivity extends ActivityStub  {
 
     private static final String TAG = "ListActivityDebug";
     private ArrayList<ArrayEntry> arr_list = new ArrayList<>();
     private RecyclerView.Adapter mAdapter;
-
 
         /**
          * Creates DialogFragment for audio reproduction
@@ -81,9 +80,7 @@ import java.util.Date;
             if(!oldFile.renameTo(newFile))
                 Log.e(TAG,"Failed to rename audio file " + old_name);
         }
-
         mAdapter.notifyItemChanged(pos);
-
     }
 
         /**
@@ -101,16 +98,20 @@ import java.util.Date;
         if(text.compareTo("***ERROR***")==0){
             Log.i(TAG, "Server send Error message");
             Toast.makeText(getApplicationContext(),getString(R.string.errorResponse), Toast.LENGTH_SHORT).show();
-        }else{
+            return;
+        }
+        if(!cancel_call) {
             arr_list.get(pos).setTranscribed();
             setTxtFile(file, text);
             mAdapter.notifyItemChanged(pos);
             viewTranscription(txt_path, file);
         }
-
+        else {
+            Log.d(TAG, "Task Canceled");
+            Toast.makeText(getApplicationContext(), R.string.trans_cancel, Toast.LENGTH_LONG).show();
+        }
 
     }
-
 
         /**
          * Deletes audio and text files from the device
@@ -131,7 +132,6 @@ import java.util.Date;
 
         if(arr_list.size()==0)
             this.getSupportActionBar().setSubtitle(R.string.listEmpty);
-
     }
 
     @Override
@@ -152,7 +152,6 @@ import java.util.Date;
         //////////////////////////////////////////////////
         //Read audio files in directory and populate ArrayList
         //////////////////////////////////////////////////
-
 
         File audio_dir = new File(audio_path);
         File audio_files[] = audio_dir.listFiles();
@@ -175,11 +174,9 @@ import java.util.Date;
                         if (txtname.substring(0, txtname.length() - 4).compareTo(name) == 0)
                             hasBeenTranscribed = true;
                     }
-
                     arr_list.add(new ArrayEntry(name, new Date(audio_files[i].lastModified()), hasBeenTranscribed));
                 }
             }
-
             Collections.sort(arr_list, new Comparator<ArrayEntry>() {
                 @Override
                 public int compare(ArrayEntry a1, ArrayEntry a2) {
@@ -197,6 +194,7 @@ import java.util.Date;
         ////////////////////////////////////////////////
         //Create and adjust setting of the recyclerView
         ////////////////////////////////////////////////
+
         RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
 
         mRecyclerView.setHasFixedSize(true);

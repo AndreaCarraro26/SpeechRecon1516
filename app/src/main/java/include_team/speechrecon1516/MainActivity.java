@@ -23,10 +23,8 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.io.File;
 import java.io.IOException;
-
 
 
 public class MainActivity extends ActivityStub {
@@ -38,7 +36,6 @@ public class MainActivity extends ActivityStub {
     private File[] file ;
     private MediaRecorder audio_recorder = null;
 
-    //private static String audio_path = null;
     private static String audio_name = null;
     private static String audio_filename = null;
 
@@ -181,11 +178,13 @@ public class MainActivity extends ActivityStub {
         if(text.compareTo("***ERROR***")==0) {
             Log.i(TAG, "Server send Error message");
             Toast.makeText(getApplicationContext(), getString(R.string.errorResponse), Toast.LENGTH_LONG).show();
-        }else{
+            return;
+        }
+        if(!cancel_call) {
             setTxtFile(file, text);
             viewTranscription(txt_path, file);
-        }
-
+        } else
+            Toast.makeText(getApplicationContext(), R.string.trans_cancel, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -213,10 +212,7 @@ public class MainActivity extends ActivityStub {
             if (perm != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(getApplicationContext(), getString(R.string.noPermission), Toast.LENGTH_LONG).show();
                 this.finish();
-
             }
-
-
         }
         String main_path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" +
                 getString(R.string.directory_main) + "/";
@@ -300,7 +296,6 @@ public class MainActivity extends ActivityStub {
 
                     MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                 }
-
                 isNotRecording = !isNotRecording;
             }
         });
@@ -340,13 +335,11 @@ public class MainActivity extends ActivityStub {
             final TextView text_record = (TextView) findViewById(R.id.text_record);
             final LinearLayout main_layout = (LinearLayout) findViewById(R.id.main_layout);
 
-
             assert text_record != null;
             text_record.setText(R.string.record_button);
             assert btn_record != null;
             btn_record.setImageResource(R.drawable.ic_mic_48dp);
             assert main_layout != null;
-
 
             from = new File(audio_filename);
             if(!from.delete())

@@ -31,6 +31,7 @@ public abstract class ActivityStub extends AppCompatActivity {
 
     protected String audio_path;
     protected String txt_path;
+    protected boolean cancel_call = false;
 
     /**
      * Sends recording to the server
@@ -111,24 +112,24 @@ public abstract class ActivityStub extends AppCompatActivity {
 
     }
 
+    public void setTranscribeCanceled(boolean canceled) {
+        cancel_call = canceled;
+        Log.d(TAG,"Cancel pressed");
+    }
+
     /**
      * Subclass interfacing with server
      */
     public class CallToServer extends AsyncTask<Void, Void, String> {
 
         boolean noConnectivity = false;
-        URL url;
-        HttpURLConnection connection;
 
         String audio_path;
         String file_path;
         String filename;
         String audio_text;
 
-        String error = null;
-
         FileInputStream fileInputStream ;
-        DataOutputStream dos;
 
         MyAlertDialogFragment prog = MyAlertDialogFragment.newInstance();
 
@@ -142,7 +143,6 @@ public abstract class ActivityStub extends AppCompatActivity {
             rec_name = record_name;
             execute();
         }
-
 
         protected void onPreExecute() {
 
@@ -159,13 +159,6 @@ public abstract class ActivityStub extends AppCompatActivity {
 
             file_path = audio_path + rec_name + ".amr";
             filename = rec_name + ".amr";
-//            try {
-//                filenameByte = filename.getBytes("UTF-8");
-//            }
-//            catch (Exception e) {
-//                Log.e(TAG, "Cannot get bytes from filename");
-//            }
-
 
             try {
                 fileInputStream = new FileInputStream(file_path);
@@ -189,10 +182,12 @@ public abstract class ActivityStub extends AppCompatActivity {
 
             if (noConnectivity)
                 return null;
+            String error = null;
             try{
                 Log.d(TAG, "doInBackground - Connecting..");
-                url = new URL(getString(R.string.serverLocation));
-                connection = (HttpURLConnection) url.openConnection();
+                URL url = new URL(getString(R.string.serverLocation));
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
                 connection.setDoOutput(true);
                 connection.setRequestProperty("Connection", "Keep-Alive");
                 connection.setRequestProperty("charset","UTF-8");
@@ -201,11 +196,12 @@ public abstract class ActivityStub extends AppCompatActivity {
                 connection.setRequestProperty("uploaded_file", file_path);
                 connection.setConnectTimeout(5000); //set timeout to 5 seconds
 
-                dos = new DataOutputStream(connection.getOutputStream());
+                DataOutputStream dos = new DataOutputStream(connection.getOutputStream());
 
                 dos.writeBytes(twoHyphens + boundary + lineEnd);
                 dos.writeBytes("Content-Disposition: form-data; name=\"uploadedfile\"; filename=\"" + filename +"\"" + lineEnd);
                 dos.writeBytes(lineEnd);
+                Log.d(TAG,"Connesso");
 
                 Log.d(TAG, filename);
                 // create a buffer of maximum size
@@ -218,8 +214,12 @@ public abstract class ActivityStub extends AppCompatActivity {
                 // read file and write it into form...
                 int bytesRead = fileInputStream.read(buffer, 0, bufferSize);
 
-                while (bytesRead > 0)
-                {
+                while (bytesRead > 0) {
+                    if(cancel_call) {
+                        Log.d(TAG, "Task Canceled");
+                        return null;
+                    }
+
                     dos.write(buffer, 0, bufferSize);
                     bytesAvailable = fileInputStream.available();
                     bufferSize = Math.min(bytesAvailable, maxBufferSize);
