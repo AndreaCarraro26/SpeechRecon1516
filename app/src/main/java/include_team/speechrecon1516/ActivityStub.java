@@ -278,9 +278,9 @@ public abstract class ActivityStub extends AppCompatActivity {
                 prog.dismiss();
                 Log.d(TAG, error);
                 Toast.makeText(getApplicationContext(), error, Toast.LENGTH_LONG).show();
+
             }
             else {
-                Log.d(TAG, "ARRIvato");
                 if(!cancel_call){
                     prog.dismiss();
                     Log.d(TAG, "Message from Server: " + audio_text);
