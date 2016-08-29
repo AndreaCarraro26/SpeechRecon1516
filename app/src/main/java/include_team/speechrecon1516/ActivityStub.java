@@ -9,7 +9,6 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -20,7 +19,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
@@ -125,7 +123,6 @@ public abstract class ActivityStub extends AppCompatActivity {
         String audio_path;
         String file_path;
         String filename;
-        byte[] filenameByte;
         String audio_text;
 
         String error = null;
