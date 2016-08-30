@@ -44,7 +44,7 @@ public class AlertDialogProgress extends DialogFragment {
                         .setView(progressView)
                         .setPositiveButton("CANCEL", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int button) {
-                                ((ListActivity) getActivity()).getCallToServer().cancel(true);
+                                ((ActivityStub) getActivity()).getCallToServer().cancel(true);
                                 Toast.makeText(getActivity().getApplicationContext(), getString(R.string.trans_cancel),
                                         Toast.LENGTH_SHORT).show();
                             }
