@@ -50,7 +50,7 @@ public class MainActivity extends ActivityStub {
      * @param toastYES Set if you want to display a toast after saving file
      */
     private String saveFile(DialogInterface dialog,EditText et, boolean toastYES){
-
+        Log.d(TAG, "saveFile");
         //Link to audio file with temporary name
         from = new File(audio_filename);
 
@@ -92,7 +92,7 @@ public class MainActivity extends ActivityStub {
      * Prepares audio recorder and starts it
      */
     private void startRecording() {
-
+        Log.d(TAG, "startRecording");
         audio_recorder = new MediaRecorder();
         audio_recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         audio_recorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_WB);
@@ -113,7 +113,7 @@ public class MainActivity extends ActivityStub {
      * Creates an AlertDialog that lets decide what to do with the recorded audio
      */
     private void finalizeRecording() {
-
+        Log.d(TAG, "finalizeRecording");
         //Create AlertDialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.save_title)
@@ -212,7 +212,7 @@ public class MainActivity extends ActivityStub {
 
             //check WRITE_EXTERNAL_STORAGE
             int perm = PermissionChecker.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            Log.d(TAG, Integer.toString(perm));
+            Log.d(TAG, "Permission " + "WRITE_EXTERNAL_STORAGE: " + Integer.toString(perm));
             if (perm != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(getApplicationContext(), getString(R.string.noPermission), Toast.LENGTH_LONG).show();
                 this.finish();
@@ -220,7 +220,7 @@ public class MainActivity extends ActivityStub {
 
             //check RECORD_AUDIO
             perm = PermissionChecker.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
-            Log.d(TAG, Integer.toString(perm));
+            Log.d(TAG, "Permission " + "RECORD_AUDIO: " + Integer.toString(perm));
             if (perm != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(getApplicationContext(), getString(R.string.noPermission), Toast.LENGTH_LONG).show();
                 this.finish();

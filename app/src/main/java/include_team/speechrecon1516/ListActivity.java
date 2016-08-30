@@ -20,7 +20,7 @@ public class ListActivity extends ActivityStub  {
     private static final String TAG = "ListActivityDebug";
 
     private ArrayList<ArrayEntry> arr_list = new ArrayList<>();
-    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.Adapter adapter;
 
     /**
      * Creates DialogFragment for audio reproduction
@@ -81,7 +81,7 @@ public class ListActivity extends ActivityStub  {
             if(!oldFile.renameTo(newFile))
                 Log.e(TAG,"Failed to rename audio file " + old_name);
         }
-        mAdapter.notifyItemChanged(pos);
+        adapter.notifyItemChanged(pos);
     }
 
         /**
@@ -108,13 +108,9 @@ public class ListActivity extends ActivityStub  {
         }else {
             arr_list.get(pos).setTranscribed();
             setTxtFile(file, text);
-            mAdapter.notifyItemChanged(pos);
+            adapter.notifyItemChanged(pos);
             viewTranscription(txt_path, file);
         }
-
-
-
-
     }
 
         /**
@@ -131,7 +127,7 @@ public class ListActivity extends ActivityStub  {
             if(!toDelete.delete())
                 Toast.makeText(getApplicationContext(),getString(R.string.noDeleteText),Toast.LENGTH_SHORT).show();
         arr_list.remove(pos);
-        mAdapter.notifyItemRemoved(pos);
+        adapter.notifyItemRemoved(pos);
         Toast.makeText(getApplicationContext(), name + " " + getString(R.string.removed), Toast.LENGTH_LONG).show();
 
         if(arr_list.size()==0)
@@ -203,11 +199,11 @@ public class ListActivity extends ActivityStub  {
 
         recyclerView.setHasFixedSize(true);
 
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(mLayoutManager);
+        RecyclerView.LayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(linearLayoutManager);
 
-        mAdapter = new MyAdapter(arr_list, this);
-        recyclerView.setAdapter(mAdapter);
+        adapter = new MyAdapter(arr_list, this);
+        recyclerView.setAdapter(adapter);
 
         recyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(cx, new RecyclerItemClickListener.OnItemClickListener() {
