@@ -293,13 +293,13 @@ public abstract class ActivityStub extends AppCompatActivity {
                 return;
 
             if(error!=null){
-                prog.dismiss();
+                prog.dismissAllowingStateLoss();
                 Log.d(TAG, error);
                 Toast.makeText(getApplicationContext(), error, Toast.LENGTH_LONG).show();
 
             }
             else {
-                prog.dismiss();
+                prog.dismissAllowingStateLoss();
                 Log.d(TAG, "Message from Server: " + audio_text);
 
                 serverCallFinish(rec_name, audio_text);
