@@ -62,7 +62,7 @@ public class MainActivity extends ActivityStub {
 
         // First letter must be Capitol letter
         if (new_audio_name.compareTo("") != 0)
-            new_audio_name = new_audio_name.substring(0, 1).toUpperCase() + new_audio_name.substring(1);
+            new_audio_name = new_audio_name.substring(0, 1).toUpperCase() + new_audio_name.substring(1).toLowerCase();
 
         // User set null name, call finalizeRecording()
         if (new_audio_name.compareTo("") == 0) {
@@ -73,10 +73,12 @@ public class MainActivity extends ActivityStub {
 
         } else {    // Name could be valid
             //Check if file name is already in use
+            File dir = new File(audio_path);
+            file = dir.listFiles();
             for (int i = 0; i < file.length; i++) {
-                Log.d(TAG, file[i].getName().substring(0, file[i].getName().length() - 4) + " " + new_audio_name + " " + audio_name);
-                if ((new_audio_name.compareTo(file[i].getName().substring(0, file[i].getName().length() - 4)) == 0 )&&
-                        !(new_audio_name.compareTo(audio_name)==0)) {
+                Log.d(TAG, file[i].getName().substring(0, file[i].getName().length() - 4) + " " + new_audio_name + " " + audio_name );
+                if ((new_audio_name.compareTo(file[i].getName().substring(0, file[i].getName().length() - 4)) == 0 )
+                        && new_audio_name.compareTo(audio_name)!=0) {
                     Toast.makeText(getApplicationContext(), getString(R.string.nameInUse), Toast.LENGTH_LONG).show();
                     finalizeRecording();
                     dialog.dismiss();
@@ -235,8 +237,6 @@ public class MainActivity extends ActivityStub {
             public void onClick(View v) {
                 assert text_record != null;
                 if (isNotRecording) {
-                    MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
-
                     audio_name = "Record" + audioCounter;
                     audio_filename = audio_path + audio_name + ".amr";
 
@@ -266,7 +266,6 @@ public class MainActivity extends ActivityStub {
 
                     finalizeRecording();
 
-                    MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
                 }
                 isNotRecording = !isNotRecording;
             }
