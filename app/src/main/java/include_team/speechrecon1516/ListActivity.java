@@ -28,9 +28,8 @@ public class ListActivity extends ActivityStub  {
      */
     protected void playRecord(String fileName){
 
-        MyAlertDialogFragment diaPlay = MyAlertDialogFragment.newInstance();
+        AlertDialogPlay diaPlay = AlertDialogPlay.newInstance();
         Bundle args = new Bundle();
-        args.putInt("type", MyAlertDialogFragment.PLAY);
         args.putString("filename", fileName);
         args.putString("path", audio_path);
         args.putInt("new_start", 0);
@@ -45,12 +44,11 @@ public class ListActivity extends ActivityStub  {
          */
     protected void rename(int position) {
 
-        MyAlertDialogFragment diaRename = MyAlertDialogFragment.newInstance();
+        AlertDialogRename diaRename = AlertDialogRename.newInstance();
         Bundle args = new Bundle();
         args.putString("filename", arr_list.get(position).getName());
         args.putInt("size", arr_list.size());
         args.putInt("position", position);
-        args.putInt("type", MyAlertDialogFragment.RENAME);
         ArrayList<String> arr_strings = new ArrayList<>();
         for (int i=0; i<arr_list.size();i++)
             arr_strings.add(arr_list.get(i).getName());
@@ -90,6 +88,9 @@ public class ListActivity extends ActivityStub  {
          * @param text Server response
          */
     protected void serverCallFinish(String file, String text){
+
+        ((AlertDialogProgress) getFragmentManager().findFragmentByTag("progress")).dismiss();
+
         if(text==null) {
             Log.d(TAG, "null string received");
             return;
@@ -208,12 +209,10 @@ public class ListActivity extends ActivityStub  {
 
                         final String fileName = arr_list.get(position).getName();
 
-                        MyAlertDialogFragment diaMenu = MyAlertDialogFragment.newInstance();
+                        AlertDialogMenu diaMenu = AlertDialogMenu.newInstance();
                         Bundle args = new Bundle();
                         args.putString("filename", fileName);
-
                         args.putInt("position", position);
-                        args.putInt("type", MyAlertDialogFragment.START);
                         ArrayList<String> arr_strings = new ArrayList<>();
                         for (int i=0; i<arr_list.size();i++)
                             arr_strings.add(arr_list.get(i).getName());

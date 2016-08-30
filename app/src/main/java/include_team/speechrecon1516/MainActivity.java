@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 
 public class MainActivity extends ActivityStub {
@@ -49,21 +50,22 @@ public class MainActivity extends ActivityStub {
      * Saves newly recorded file
      * @param toastYES Set if you want to display a toast after saving file
      */
-    private String saveFile(DialogInterface dialog,EditText et, boolean toastYES){
+    protected String saveFile(DialogInterface dialog, String str, boolean toastYES){
         Log.d(TAG, "saveFile");
+
         //Link to audio file with temporary name
         from = new File(audio_filename);
 
         //Standardize file names
-        String new_audio_filename = et.getText().toString().replaceAll(" ", "");
-        new_audio_filename = new_audio_filename.replaceAll("\n", "");
+        String new_audio_name = str.replaceAll(" ", "");
+        new_audio_name = new_audio_name.replaceAll("\n", "");
 
         // First letter must be Capitol letter
-        if (new_audio_filename.compareTo("") != 0)
-            new_audio_filename = new_audio_filename.substring(0, 1).toUpperCase() + new_audio_filename.substring(1);
+        if (new_audio_name.compareTo("") != 0)
+            new_audio_name = new_audio_name.substring(0, 1).toUpperCase() + new_audio_name.substring(1);
 
         // User set null name, call finalizeRecording()
-        if (new_audio_filename.compareTo("") == 0) {
+        if (new_audio_name.compareTo("") == 0) {
             Toast.makeText(getApplicationContext(), getString(R.string.noRename), Toast.LENGTH_LONG).show();
             finalizeRecording();
             dialog.dismiss();
@@ -71,21 +73,26 @@ public class MainActivity extends ActivityStub {
 
         } else {    // Name could be valid
             //Check if file name is already in use
-            for (int i = 0; i < file.length; i++)
-                if (new_audio_filename.compareTo(file[i].getName().substring(0, file[i].getName().length() - 4)) == 0) {
+            for (int i = 0; i < file.length; i++) {
+                Log.d(TAG, file[i].getName().substring(0, file[i].getName().length() - 4) + " " + new_audio_name + " " + audio_name);
+                if ((new_audio_name.compareTo(file[i].getName().substring(0, file[i].getName().length() - 4)) == 0 )&&
+                        !(new_audio_name.compareTo(audio_name)==0)) {
                     Toast.makeText(getApplicationContext(), getString(R.string.nameInUse), Toast.LENGTH_LONG).show();
                     finalizeRecording();
                     dialog.dismiss();
+                    Log.d(TAG, "eccolo");
                     return null;
                 }
+            }
         }
 
-        File to = new File(audio_path + new_audio_filename + ".amr");
+        File to = new File(audio_path + new_audio_name + ".amr");
         if (from.renameTo(to) && toastYES)
-            Toast.makeText(getApplicationContext(), new_audio_filename + " " + getString(R.string.saved), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), new_audio_name + " " + getString(R.string.saved), Toast.LENGTH_SHORT).show();
 
         audioCounter++;
-        return new_audio_filename;
+        Log.d(TAG, Integer.toString(audioCounter));
+        return new_audio_name;
     }
 
     /**
@@ -115,63 +122,17 @@ public class MainActivity extends ActivityStub {
     private void finalizeRecording() {
         Log.d(TAG, "finalizeRecording");
         //Create AlertDialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.save_title)
-                .setMessage(R.string.save);
 
-        final View dialogView = getLayoutInflater().inflate(R.layout.rename, null);
-        final EditText et = (EditText) dialogView.findViewById(R.id.editText);
-        et.setText(audio_name);
-        et.selectAll();
-
-        builder.setView(dialogView);
-
-        // Save file
-        builder.setNegativeButton(R.string.save_button, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                saveFile(dialog, et, true);
-                dialog.dismiss();
-            }
-        });
-
-        // Discard file
-        builder.setNeutralButton(R.string.delete_button, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-                from = new File(audio_filename);
-                from.delete();
-                dialog.dismiss();
-            }
-        });
-
-        // Save and transcribe
-        builder.setPositiveButton(R.string.save_trans, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String filename = saveFile(dialog, et, false);
-                Log.d(TAG, "file saved " +filename);
-                if(filename!=null){
-                    executeCallToServer(filename);
-                    dialog.dismiss();
-                }
-            }
-        });
-        final AlertDialog dialog = builder.create();
-
-        et.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                }
-            }
-        });
-        dialog.show();
-        dialog.setCanceledOnTouchOutside(false);
+        AlertDialogSaveFileMain dialog = AlertDialogSaveFileMain.newInstance();
+        Bundle args = new Bundle();
+        args.putString("audio_name", audio_name);
+        args.putString("audio_filename", audio_filename);
+        dialog.show(getFragmentManager(), "SaveFileMain");
+        dialog.setArguments(args);
         dialog.setCancelable(false);
     }
+
+
 
     /**
      * Shows and saves last audio transcription (see @link ActivityStub.serverCallFinish)
@@ -179,6 +140,8 @@ public class MainActivity extends ActivityStub {
      * @param text Text retrieved from server
      */
     protected void serverCallFinish(String file, String text){
+
+        ((AlertDialogProgress) getFragmentManager().findFragmentByTag("progress")).dismiss();
 
         if(text==null) {
             Log.d(TAG, "Null string received");
@@ -237,6 +200,9 @@ public class MainActivity extends ActivityStub {
         if(dir_text.mkdir())
             Log.d(TAG, "Created " + text_path);
 
+        // populate "file" array with all the audio files
+        file = dir.listFiles();
+
         //Set buttons
         final ImageButton btn_list = (ImageButton) findViewById(R.id.button_list);
 
@@ -271,13 +237,12 @@ public class MainActivity extends ActivityStub {
                 if (isNotRecording) {
                     MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
 
+                    audio_name = "Record" + audioCounter;
+                    audio_filename = audio_path + audio_name + ".amr";
+
                     text_record.setText(R.string.stop_button);
                     btn_record.setImageResource(R.drawable.ic_stop_48dp);
                     chronometer.setVisibility(View.VISIBLE);
-                    file = dir.listFiles();
-
-                    audio_name = "Record" + audioCounter;
-                    audio_filename = audio_path + audio_name + ".amr";
 
                     chronometer.setBase(SystemClock.elapsedRealtime());
                     chronometer.start();

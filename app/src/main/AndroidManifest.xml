@@ -15,7 +15,6 @@
         android:theme="@style/Theme.MyTheme">
 
         <activity android:name=".ListActivity"
-            android:configChanges="orientation|screenSize"
             android:parentActivityName=".MainActivity">
         </activity>
 

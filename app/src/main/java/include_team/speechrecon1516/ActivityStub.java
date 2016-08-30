@@ -34,11 +34,23 @@ public abstract class ActivityStub extends AppCompatActivity {
 
     protected CallToServer call;
 
+    AlertDialogProgress prog;
+
     /**
      * Sends recording to the server
      * @param filename Name of chosen recording
      */
     public void executeCallToServer(String filename){
+
+        // set AlertDialogFragment
+        prog = AlertDialogProgress.newInstance();
+        Bundle args = new Bundle();
+        args.putString("message", getString(R.string.connecting));
+        prog.setArguments(args);
+        prog.show(getFragmentManager(), "progress");
+        prog.setCancelable(false);
+
+
         call = new CallToServer();
         call.execute(filename);
     }
@@ -112,9 +124,8 @@ public abstract class ActivityStub extends AppCompatActivity {
             return;
         }
 
-        MyAlertDialogFragment diaText = MyAlertDialogFragment.newInstance();
+        AlertDialogText diaText = AlertDialogText.newInstance();
         Bundle args = new Bundle();
-        args.putInt("type", MyAlertDialogFragment.TEXT);
         args.putString("title", filename);
         args.putString("message", text.toString());
         diaText.setArguments(args);
@@ -139,7 +150,8 @@ public abstract class ActivityStub extends AppCompatActivity {
         private String audio_text;  // output from server
 
         private FileInputStream fileInputStream ;
-        private MyAlertDialogFragment prog;
+
+
 
         private String lineEnd = "\r\n";
         private String twoHyphens = "--";
@@ -177,16 +189,6 @@ public abstract class ActivityStub extends AppCompatActivity {
             }
 
             Log.d(TAG, "onPreExecute   - Filename: " + file_path);
-
-            // set AlertDialogFragment
-            prog = MyAlertDialogFragment.newInstance();
-            Bundle args = new Bundle();
-            args.putInt("type", MyAlertDialogFragment.PROGRESS);
-            args.putString("message", getString(R.string.connecting));
-            prog.setArguments(args);
-            prog.show(getFragmentManager(), "tag");
-            prog.setCancelable(false);
-
         }
 
         // Call after onPreExecute method
@@ -293,15 +295,13 @@ public abstract class ActivityStub extends AppCompatActivity {
                 return;
 
             if(error!=null){
-                prog.dismissAllowingStateLoss();
                 Log.d(TAG, error);
                 Toast.makeText(getApplicationContext(), error, Toast.LENGTH_LONG).show();
+                serverCallFinish(rec_name, "***ERROR***");
 
             }
             else {
-                prog.dismissAllowingStateLoss();
                 Log.d(TAG, "Message from Server: " + audio_text);
-
                 serverCallFinish(rec_name, audio_text);
 
             }
