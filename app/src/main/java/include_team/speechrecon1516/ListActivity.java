@@ -104,7 +104,6 @@ public class ListActivity extends ActivityStub  {
         if(text.compareTo("***ERROR***")==0){
             Log.i(TAG, "Server send Error message");
             Toast.makeText(getApplicationContext(),getString(R.string.errorResponse), Toast.LENGTH_SHORT).show();
-            return;
         }else {
             arr_list.get(pos).setTranscribed();
             setTxtFile(file, text);
@@ -112,7 +111,6 @@ public class ListActivity extends ActivityStub  {
             viewTranscription(txt_path, file);
         }
     }
-
         /**
          * Deletes audio and text files from the device
          * @param pos Position of the recording in the list
@@ -198,7 +196,6 @@ public class ListActivity extends ActivityStub  {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
 
         recyclerView.setHasFixedSize(true);
-
         RecyclerView.LayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
 

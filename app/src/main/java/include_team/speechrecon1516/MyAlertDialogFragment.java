@@ -104,7 +104,7 @@ public class MyAlertDialogFragment extends DialogFragment {
                         })
                         .create();
 
-            // mediaplayer
+            //Mediaplayer
             case PLAY:
 
                 player = MediaPlayer.create(getActivity(), Uri.parse(getArguments().getString("path") +
@@ -176,23 +176,20 @@ public class MyAlertDialogFragment extends DialogFragment {
                     }
                 });
                 return dialog;
-
             // Server call
             case PROGRESS:
                 Log.d(TAG, "Case Progress");
                 View progressView = getActivity().getLayoutInflater().inflate(R.layout.progress, null);
-
                 return  new ProgressDialog.Builder(getActivity())
-                        //.setMessage(getArguments().getString("message"))
                         .setView(progressView)
                         .setPositiveButton("CANCEL", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int button) {
                                 ((ActivityStub)getActivity()).getCallToServer().cancel(true);
-                                Toast.makeText(getActivity().getApplicationContext(), getString(R.string.trans_cancel), Toast.LENGTH_LONG).show();
+                                Toast.makeText(getActivity().getApplicationContext(), getString(R.string.trans_cancel),
+                                        Toast.LENGTH_SHORT).show();
                             }
                         })
                         .create();
-
             // view transcription
             case TEXT:
                 Log.d(TAG, "Case Text");
@@ -232,9 +229,7 @@ public class MyAlertDialogFragment extends DialogFragment {
                                             return;
                                         }
                                 }
-
                                 ((ListActivity)getActivity()).finalizeCaseRename(getArguments().getInt("position"), new_name);
-
                             }
                         })
                         .create();
@@ -248,7 +243,6 @@ public class MyAlertDialogFragment extends DialogFragment {
                     }
                 });
                 return alDiag;
-
         }
         return null;
     }

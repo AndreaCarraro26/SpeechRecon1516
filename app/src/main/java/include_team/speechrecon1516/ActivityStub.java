@@ -223,7 +223,7 @@ public abstract class ActivityStub extends AppCompatActivity {
 
                 int maxBufferSize = 1024;
                 int bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                byte[ ] buffer = new byte[bufferSize];
+                byte[] buffer = new byte[bufferSize];
 
                 if(isCancelled()) return null;
 
@@ -252,7 +252,9 @@ public abstract class ActivityStub extends AppCompatActivity {
                 if(isCancelled()) return null;
 
                 StringBuffer b =new StringBuffer();
-                while( ( ch = is.read() ) != -1 ){ b.append( (char)ch ); }
+                while( (ch = is.read()) != -1 ) {
+                    b.append((char) ch);
+                }
                 audio_text = b.toString();
                 dos.close();
                 Log.d(TAG, "doInBackground - terminated");
@@ -309,7 +311,7 @@ public abstract class ActivityStub extends AppCompatActivity {
          * Method called during execute() if cancel() has been called
          */
         protected void onCancelled() {
-            Log.d(TAG, "onCancelled    - AsyncTask has been interupted");
+            Log.d(TAG, "onCancelled    - AsyncTask has been interrupted");
         }
     }
 }

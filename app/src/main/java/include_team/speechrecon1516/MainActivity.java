@@ -168,7 +168,6 @@ public class MainActivity extends ActivityStub {
                 }
             }
         });
-
         dialog.show();
         dialog.setCanceledOnTouchOutside(false);
         dialog.setCancelable(false);
@@ -189,14 +188,10 @@ public class MainActivity extends ActivityStub {
         if(text.compareTo("***ERROR***")==0) {
             Log.i(TAG, "Server send Error message");
             Toast.makeText(getApplicationContext(), getString(R.string.errorResponse), Toast.LENGTH_LONG).show();
-            return;
         }else{
             setTxtFile(file, text);
             viewTranscription(txt_path, file);
         }
-
-
-
     }
 
     @Override
