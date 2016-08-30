@@ -44,6 +44,7 @@ public class AlertDialogRename extends DialogFragment {
             editText.setText(getArguments().getString("filename"));
             editText.selectAll();
 
+            //Create a Dialog which allow to rename records
             final AlertDialog alDiag = new AlertDialog.Builder(getActivity())
                     .setTitle("Rename")
                     .setView(dialogView)

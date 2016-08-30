@@ -35,23 +35,23 @@ public class AlertDialogProgress extends DialogFragment {
         return frag;
     }
 
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-                Log.d(TAG, "Case Progress");
-                View progressView = getActivity().getLayoutInflater().inflate(R.layout.progress, null);
-                return new ProgressDialog.Builder(getActivity())
-                        .setView(progressView)
-                        .setPositiveButton("CANCEL", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int button) {
-                                ((ActivityStub) getActivity()).getCallToServer().cancel(true);
-                                Toast.makeText(getActivity().getApplicationContext(), getString(R.string.trans_cancel),
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .create();
-
-
+        Log.d(TAG, "Case Progress");
+        View progressView = getActivity().getLayoutInflater().inflate(R.layout.progress, null);
+        //Create a Dialog which shows that transcription is running and allow to cancel it
+        return new ProgressDialog.Builder(getActivity())
+                .setView(progressView)
+                .setPositiveButton("CANCEL", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int button) {
+                        ((ActivityStub) getActivity()).getCallToServer().cancel(true);
+                        Toast.makeText(getActivity().getApplicationContext(), getString(R.string.trans_cancel),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .create();
     }
 
     @Override

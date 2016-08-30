@@ -65,75 +65,75 @@ public class AlertDialogPlay extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-                player = MediaPlayer.create(getActivity(), Uri.parse(getArguments().getString("path") +
-                        getArguments().getString("filename") + ".amr"));
+        //Allow to reproduce the record and navigate into it with a seekbar
+        player = MediaPlayer.create(getActivity(), Uri.parse(getArguments().getString("path") +
+                getArguments().getString("filename") + ".amr"));
 
-                View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_play, null);
+        View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_play, null);
 
-                AlertDialog dialog =  new AlertDialog.Builder(getActivity())
-                        .setTitle(getArguments().getString("filename"))
-                        .setView(view)
-                        .create();
+        AlertDialog dialog =  new AlertDialog.Builder(getActivity())
+                .setTitle(getArguments().getString("filename"))
+                .setView(view)
+                .create();
 
-                player.seekTo(getArguments().getInt("new_start"));
-                play_pause = (ImageButton) view.findViewById(R.id.button_play);
+        player.seekTo(getArguments().getInt("new_start"));
+        play_pause = (ImageButton) view.findViewById(R.id.button_play);
 
-                if(getArguments().getBoolean("isPlaying")){
-                    player.start();
+        if(getArguments().getBoolean("isPlaying")){
+            player.start();
+        }
+        else{
+            play_pause.setImageResource(R.drawable.ic_play_circle_filled_black_48dp);
+        }
+
+        handy.postDelayed(UpdateSongTime,50);
+
+        timeText = (TextView) view.findViewById(R.id.time);
+        endTime = player.getDuration();
+        startTime = player.getCurrentPosition();
+
+        seek = (SeekBar) view.findViewById(R.id.seekBar);
+
+        seek.setMax((int) endTime);
+        seek.setProgress(startTime);
+        seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
+                if(player != null && fromUser) {
+                    player.seekTo(progress);
                 }
-                else{
+            }
+        });
+
+        player.setOnCompletionListener( new MediaPlayer.OnCompletionListener() {
+            public void onCompletion(MediaPlayer mp) {
+                play_pause.setImageResource(R.drawable.ic_play_circle_filled_black_48dp);
+                handy.removeCallbacks(UpdateSongTime);
+                seek.setProgress(0);
+            }
+        });
+        play_pause.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                if (player.isPlaying()) {
                     play_pause.setImageResource(R.drawable.ic_play_circle_filled_black_48dp);
+                    handy.removeCallbacks(UpdateSongTime);
+                    player.pause();
+
+                } else {
+                    play_pause.setImageResource(R.drawable.ic_pause_circle_filled_black_48dp);
+                    player.start();
+                    handy.postDelayed(UpdateSongTime,50);
                 }
-
-                handy.postDelayed(UpdateSongTime,50);
-
-                timeText = (TextView) view.findViewById(R.id.time);
-                endTime = player.getDuration();
-                startTime = player.getCurrentPosition();
-
-                seek = (SeekBar) view.findViewById(R.id.seekBar);
-
-                seek.setMax((int) endTime);
-                seek.setProgress(startTime);
-                seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
-                    @Override
-                    public void onStopTrackingTouch(SeekBar seekBar) {}
-
-                    @Override
-                    public void onStartTrackingTouch(SeekBar seekBar) {}
-
-                    @Override
-                    public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
-                        if(player != null && fromUser) {
-                            player.seekTo(progress);
-                        }
-
-                    }
-                });
-
-                player.setOnCompletionListener( new MediaPlayer.OnCompletionListener() {
-                    public void onCompletion(MediaPlayer mp) {
-                        play_pause.setImageResource(R.drawable.ic_play_circle_filled_black_48dp);
-                        handy.removeCallbacks(UpdateSongTime);
-                        seek.setProgress(0);
-                    }
-                });
-                play_pause.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View view) {
-                        if (player.isPlaying()) {
-                            play_pause.setImageResource(R.drawable.ic_play_circle_filled_black_48dp);
-                            handy.removeCallbacks(UpdateSongTime);
-                            player.pause();
-
-                        } else {
-                            play_pause.setImageResource(R.drawable.ic_pause_circle_filled_black_48dp);
-                            player.start();
-                            handy.postDelayed(UpdateSongTime,50);
-                        }
-                    }
-                });
-                return dialog;
+            }
+        });
+        return dialog;
 
     }
 

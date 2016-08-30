@@ -9,8 +9,6 @@ import android.support.v7.app.AlertDialog;
 
 public class AlertDialogMenu extends DialogFragment {
 
-    private static final String TAG = "ListActivityDebug";
-
     /**
      * Create new instance of AlertDialogMenu and set his bundle
      */

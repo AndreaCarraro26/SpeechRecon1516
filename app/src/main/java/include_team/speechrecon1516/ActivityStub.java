@@ -50,7 +50,6 @@ public abstract class ActivityStub extends AppCompatActivity {
         prog.show(getFragmentManager(), "progress");
         prog.setCancelable(false);
 
-
         call = new CallToServer();
         call.execute(filename);
     }
@@ -298,12 +297,10 @@ public abstract class ActivityStub extends AppCompatActivity {
                 Log.d(TAG, error);
                 Toast.makeText(getApplicationContext(), error, Toast.LENGTH_LONG).show();
                 serverCallFinish(rec_name, "***ERROR***");
-
             }
             else {
                 Log.d(TAG, "Message from Server: " + audio_text);
                 serverCallFinish(rec_name, audio_text);
-
             }
         }
 

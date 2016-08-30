@@ -41,6 +41,7 @@ public class AlertDialogSaveFileMain extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //Create a menù that allow to choose what to do with a record
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         builder.setTitle(R.string.save_title)

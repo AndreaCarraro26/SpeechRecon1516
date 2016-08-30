@@ -39,10 +39,11 @@ public class AlertDialogText extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-                Log.d(TAG, "Case Text");
-                return new AlertDialog.Builder(getActivity())
-                        .setTitle(getArguments().getString("title"))
-                        .setMessage(getArguments().getString("message"))
-                        .create();
+        Log.d(TAG, "Case Text");
+        //Shows transcription result
+        return new AlertDialog.Builder(getActivity())
+                .setTitle(getArguments().getString("title"))
+                .setMessage(getArguments().getString("message"))
+                .create();
     }
 }
