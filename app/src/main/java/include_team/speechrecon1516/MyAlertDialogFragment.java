@@ -22,10 +22,11 @@ import java.util.concurrent.TimeUnit;
 
 
 public class MyAlertDialogFragment extends DialogFragment {
-    static final int TEXT = 0;
-    static final int RENAME = 1;
-    static final int PLAY = 2;
-    static final int START = 3;
+
+    static final int START = 0;
+    static final int PLAY = 1;
+    static final int TEXT = 2;
+    static final int RENAME = 3;
     static final int PROGRESS = 4;
 
     private static final String TAG = "ListActivityDebug";
@@ -39,6 +40,9 @@ public class MyAlertDialogFragment extends DialogFragment {
     private MediaPlayer player;
     private ImageButton play_pause;
 
+    /**
+     * Update time during playback
+     */
     private Runnable UpdateSongTime = new Runnable() {
         public void run() {
             startTime = player.getCurrentPosition();
@@ -53,6 +57,9 @@ public class MyAlertDialogFragment extends DialogFragment {
         }
     };
 
+    /**
+     * Create new instance of MyAlertDialogFragment and set his bundle
+     */
     public static MyAlertDialogFragment newInstance() {
         MyAlertDialogFragment frag = new MyAlertDialogFragment();
         Bundle args = new Bundle();
@@ -65,25 +72,10 @@ public class MyAlertDialogFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
 
         switch (getArguments().getInt("type")) {
-
-            case PROGRESS:
-                Log.d(TAG, "Case Progress");
-                View progressView = getActivity().getLayoutInflater().inflate(R.layout.progress, null);
-
-                return  new ProgressDialog.Builder(getActivity())
-                        //.setMessage(getArguments().getString("message"))
-                        .setView(progressView)
-                        .setPositiveButton("CANCEL", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int button) {
-                                ((ActivityStub)getActivity()).getCallToServer().setTranscribeCanceled(true);
-                                Toast.makeText(getActivity().getApplicationContext(), getString(R.string.trans_cancel), Toast.LENGTH_LONG).show();
-                }
-            })
-                        .create();
-
+            // first dialog met in ListActivity
             case START:
                 String choices[] = {(String)getText(R.string.dialog1),(String)getText(R.string.dialog2),
-                                    (String)getText(R.string.dialog3),(String)getText(R.string.dialog4)};
+                        (String)getText(R.string.dialog3),(String)getText(R.string.dialog4)};
                 if (getArguments().getBoolean("isTranscribed"))
                     choices[1] = (String)getText(R.string.dialogX);
 
@@ -112,17 +104,11 @@ public class MyAlertDialogFragment extends DialogFragment {
                         })
                         .create();
 
-            case TEXT:
-                Log.d(TAG, "Case Text");
-                return new AlertDialog.Builder(getActivity())
-                        .setTitle(getArguments().getString("title"))
-                        .setMessage(getArguments().getString("message"))
-                        .create();
-
+            // mediaplayer
             case PLAY:
 
                 player = MediaPlayer.create(getActivity(), Uri.parse(getArguments().getString("path") +
-                                                                            getArguments().getString("filename") + ".amr"));
+                        getArguments().getString("filename") + ".amr"));
 
                 View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_play, null);
 
@@ -191,6 +177,31 @@ public class MyAlertDialogFragment extends DialogFragment {
                 });
                 return dialog;
 
+            // Server call
+            case PROGRESS:
+                Log.d(TAG, "Case Progress");
+                View progressView = getActivity().getLayoutInflater().inflate(R.layout.progress, null);
+
+                return  new ProgressDialog.Builder(getActivity())
+                        //.setMessage(getArguments().getString("message"))
+                        .setView(progressView)
+                        .setPositiveButton("CANCEL", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int button) {
+                                ((ActivityStub)getActivity()).getCallToServer().cancel(true);
+                                Toast.makeText(getActivity().getApplicationContext(), getString(R.string.trans_cancel), Toast.LENGTH_LONG).show();
+                            }
+                        })
+                        .create();
+
+            // view transcription
+            case TEXT:
+                Log.d(TAG, "Case Text");
+                return new AlertDialog.Builder(getActivity())
+                        .setTitle(getArguments().getString("title"))
+                        .setMessage(getArguments().getString("message"))
+                        .create();
+
+            // rename file
             case RENAME:
                 Log.d(TAG, "Case Rename");
                 final View dialogView = getActivity().getLayoutInflater().inflate(R.layout.rename, null);
@@ -237,6 +248,7 @@ public class MyAlertDialogFragment extends DialogFragment {
                     }
                 });
                 return alDiag;
+
         }
         return null;
     }

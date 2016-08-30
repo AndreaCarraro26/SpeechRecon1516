@@ -31,9 +31,8 @@ public abstract class ActivityStub extends AppCompatActivity {
 
     protected String audio_path;
     protected String txt_path;
-    protected boolean cancel_call = false;
 
-    public CallToServer call;
+    protected CallToServer call;
 
     /**
      * Sends recording to the server
@@ -44,6 +43,10 @@ public abstract class ActivityStub extends AppCompatActivity {
         call.execute(filename);
     }
 
+
+    /**
+     * Return callToServer object
+     */
     public CallToServer getCallToServer(){
         return call;
     }
@@ -80,7 +83,8 @@ public abstract class ActivityStub extends AppCompatActivity {
      * @param file Record passed to server
      * @param text Server response
      */
-    protected abstract void processFinish(String file, String text );
+    protected abstract void serverCallFinish(String file, String text );
+
 
     /**
      * Shows the transcription of the chosen recording
@@ -121,33 +125,30 @@ public abstract class ActivityStub extends AppCompatActivity {
 
 
     /**
-     * Subclass interfacing with server
+     * Subclass interfacing with server.
+     * Calling execute() will trigger to activate sequentially onPreExecute and doInBackground.
+     * Eventually, whether cancel() is called or not, onPostExecute() or onCancelled() are executed.
      */
     public class CallToServer extends AsyncTask<Void, Void, String> {
 
-        public void setTranscribeCanceled(boolean canceled) {
-            cancel_call = canceled;
-            Log.d(TAG,"Cancel pressed");
-        }
-
-
         boolean noConnectivity = false;
 
-        String audio_path;
-        String file_path;
-        String filename;
-        String audio_text;
+        private String rec_name ;   // record name as seen on the list (without extension)
+        private String filename;    // filename with extension
+        private String file_path;   // location of audio file on external storage
+        private String audio_text;  // output from server
 
-        FileInputStream fileInputStream ;
+        private FileInputStream fileInputStream ;
+        private MyAlertDialogFragment prog;
 
-        MyAlertDialogFragment prog = MyAlertDialogFragment.newInstance();
+        private String lineEnd = "\r\n";
+        private String twoHyphens = "--";
+        private String boundary = "*****";
 
-        String lineEnd = "\r\n";
-        String twoHyphens = "--";
-        String boundary = "*****";
-
-        String rec_name ;
-
+        /**
+         * Method used to begin dialog with server. Method is built to transmit only .amr file.
+         * @param record_name file to transmit (without extension).
+         */
         public void execute(String record_name){
             rec_name = record_name;
             execute();
@@ -172,11 +173,13 @@ public abstract class ActivityStub extends AppCompatActivity {
             try {
                 fileInputStream = new FileInputStream(file_path);
             } catch (FileNotFoundException e) {
-                Log.d(TAG, "onPreExecute - callToServer - " + e.getMessage());
+                Log.d(TAG, "onPreExecute - " + e.getMessage());
             }
 
-            Log.d(TAG, "onPreExecute - callToServer - File: " + file_path);
+            Log.d(TAG, "onPreExecute   - Filename: " + file_path);
 
+            // set AlertDialogFragment
+            prog = MyAlertDialogFragment.newInstance();
             Bundle args = new Bundle();
             args.putInt("type", MyAlertDialogFragment.PROGRESS);
             args.putString("message", getString(R.string.connecting));
@@ -205,14 +208,16 @@ public abstract class ActivityStub extends AppCompatActivity {
                 connection.setRequestProperty("uploaded_file", file_path);
                 connection.setConnectTimeout(5000); //set timeout to 5 seconds
 
+                if(isCancelled()) return null;
+
                 DataOutputStream dos = new DataOutputStream(connection.getOutputStream());
 
                 dos.writeBytes(twoHyphens + boundary + lineEnd);
                 dos.writeBytes("Content-Disposition: form-data; name=\"uploadedfile\"; filename=\"" + filename +"\"" + lineEnd);
                 dos.writeBytes(lineEnd);
-                Log.d(TAG,"Connesso");
 
-                Log.d(TAG, filename);
+                Log.d(TAG,"Connected      - filename: " + filename);
+
                 // create a buffer of maximum size
                 int bytesAvailable = fileInputStream.available();
 
@@ -220,15 +225,12 @@ public abstract class ActivityStub extends AppCompatActivity {
                 int bufferSize = Math.min(bytesAvailable, maxBufferSize);
                 byte[ ] buffer = new byte[bufferSize];
 
+                if(isCancelled()) return null;
+
                 // read file and write it into form...
                 int bytesRead = fileInputStream.read(buffer, 0, bufferSize);
 
                 while (bytesRead > 0) {
-                    if(cancel_call) {
-                        Log.d(TAG, "Task Canceled");
-                        return null;
-                    }
-
                     dos.write(buffer, 0, bufferSize);
                     bytesAvailable = fileInputStream.available();
                     bufferSize = Math.min(bytesAvailable, maxBufferSize);
@@ -240,16 +242,20 @@ public abstract class ActivityStub extends AppCompatActivity {
                 fileInputStream.close();
                 dos.flush();
 
+                if(isCancelled()) return null;
+
                 InputStream is = connection.getInputStream();
 
                 // retrieve response from server
                 int ch;
 
+                if(isCancelled()) return null;
+
                 StringBuffer b =new StringBuffer();
                 while( ( ch = is.read() ) != -1 ){ b.append( (char)ch ); }
                 audio_text = b.toString();
                 dos.close();
-                Log.d(TAG, "doInBackground terminated - callToServer");
+                Log.d(TAG, "doInBackground - terminated");
 
             }
             catch (MalformedURLException ex)
@@ -258,17 +264,27 @@ public abstract class ActivityStub extends AppCompatActivity {
                 error = "Cannot connect to server: URL malformed.";
             }
             catch (SocketTimeoutException toe) {
-                Log.e(TAG, "Timeout error: " + toe.getMessage());
-                error = "Cannot connect to server: timeout expired";
+                if(!isCancelled()){
+                    Log.e(TAG, "Timeout error: " + toe.getMessage());
+                    error = "Cannot connect to server: timeout expired";
+                }
+
             }
-            catch (IOException ioe)
-            {
-                Log.e(TAG, "IO error: " + ioe.getMessage());
-                error = "Cannot connect to server: timeout expired";
+            catch (IOException ioe) {
+                if(!isCancelled()){
+                    Log.e(TAG, "Timeout error: " + ioe.getMessage());
+                    error = "Cannot connect to server: timeout expired";
+                }
+
             }
             return error;
         }
 
+        //
+        /**
+         * Method called during execute() if cancel() has not been called;
+         * @param error String returned by doInBackground whenever an exception occurred
+         */
         protected void onPostExecute(String error) {
             Log.d(TAG, "onPostExecute - callToServer");
             if(noConnectivity)
@@ -281,14 +297,19 @@ public abstract class ActivityStub extends AppCompatActivity {
 
             }
             else {
-                if(!cancel_call){
-                    prog.dismiss();
-                    Log.d(TAG, "Message from Server: " + audio_text);
+                prog.dismiss();
+                Log.d(TAG, "Message from Server: " + audio_text);
 
-                    processFinish(rec_name, audio_text);
-                }
+                serverCallFinish(rec_name, audio_text);
 
             }
+        }
+
+        /**
+         * Method called during execute() if cancel() has been called
+         */
+        protected void onCancelled() {
+            Log.d(TAG, "onCancelled    - AsyncTask has been interupted");
         }
     }
 }

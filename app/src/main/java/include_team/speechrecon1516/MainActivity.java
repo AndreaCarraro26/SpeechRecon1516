@@ -50,6 +50,7 @@ public class MainActivity extends ActivityStub {
      * @param toastYES Set if you want to display a toast after saving file
      */
     private String saveFile(DialogInterface dialog,EditText et, boolean toastYES){
+
         //Link to audio file with temporary name
         from = new File(audio_filename);
 
@@ -57,14 +58,18 @@ public class MainActivity extends ActivityStub {
         String new_audio_filename = et.getText().toString().replaceAll(" ", "");
         new_audio_filename = new_audio_filename.replaceAll("\n", "");
 
+        // First letter must be Capitol letter
         if (new_audio_filename.compareTo("") != 0)
             new_audio_filename = new_audio_filename.substring(0, 1).toUpperCase() + new_audio_filename.substring(1);
+
+        // User set null name, call finalizeRecording()
         if (new_audio_filename.compareTo("") == 0) {
             Toast.makeText(getApplicationContext(), getString(R.string.noRename), Toast.LENGTH_LONG).show();
             finalizeRecording();
             dialog.dismiss();
             return null;
-        } else {
+
+        } else {    // Name could be valid
             //Check if file name is already in use
             for (int i = 0; i < file.length; i++)
                 if (new_audio_filename.compareTo(file[i].getName().substring(0, file[i].getName().length() - 4)) == 0) {
@@ -74,6 +79,7 @@ public class MainActivity extends ActivityStub {
                     return null;
                 }
         }
+
         File to = new File(audio_path + new_audio_filename + ".amr");
         if (from.renameTo(to) && toastYES)
             Toast.makeText(getApplicationContext(), new_audio_filename + " " + getString(R.string.saved), Toast.LENGTH_SHORT).show();
@@ -104,10 +110,9 @@ public class MainActivity extends ActivityStub {
     }
 
     /**
-     * Creates an AlertDialog that lets decide what to do with the just recorded audio
+     * Creates an AlertDialog that lets decide what to do with the recorded audio
      */
     private void finalizeRecording() {
-
 
         //Create AlertDialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -170,14 +175,14 @@ public class MainActivity extends ActivityStub {
     }
 
     /**
-     * Shows and saves last audio transcription (see @link ActivityStub.processFinish)
+     * Shows and saves last audio transcription (see @link ActivityStub.serverCallFinish)
      * @param file Name chosen for the recording
      * @param text Text retrieved from server
      */
-    protected void processFinish(String file, String text){
+    protected void serverCallFinish(String file, String text){
 
         if(text==null) {
-            Log.d(TAG, "null string received");
+            Log.d(TAG, "Null string received");
             return;
         }
 

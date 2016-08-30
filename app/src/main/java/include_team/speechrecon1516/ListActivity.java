@@ -18,13 +18,14 @@ import java.util.Date;
 public class ListActivity extends ActivityStub  {
 
     private static final String TAG = "ListActivityDebug";
+
     private ArrayList<ArrayEntry> arr_list = new ArrayList<>();
     private RecyclerView.Adapter mAdapter;
 
-        /**
-         * Creates DialogFragment for audio reproduction
-         * @param fileName File to be played
-         */
+    /**
+     * Creates DialogFragment for audio reproduction
+     * @param fileName File to be played
+     */
     protected void playRecord(String fileName){
 
         MyAlertDialogFragment diaPlay = MyAlertDialogFragment.newInstance();
@@ -84,11 +85,11 @@ public class ListActivity extends ActivityStub  {
     }
 
         /**
-         * Create and shows text file from server response (see @link ActivityStub.processFinish)
+         * Create and shows text file from server response (see @link ActivityStub.serverCallFinish)
          * @param file Chosen recording
          * @param text Server response
          */
-    protected void processFinish(String file, String text){
+    protected void serverCallFinish(String file, String text){
         if(text==null) {
             Log.d(TAG, "null string received");
             return;
@@ -198,17 +199,17 @@ public class ListActivity extends ActivityStub  {
         //Create and adjust setting of the recyclerView
         ////////////////////////////////////////////////
 
-        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
 
-        mRecyclerView.setHasFixedSize(true);
+        recyclerView.setHasFixedSize(true);
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setLayoutManager(mLayoutManager);
 
         mAdapter = new MyAdapter(arr_list, this);
-        mRecyclerView.setAdapter(mAdapter);
+        recyclerView.setAdapter(mAdapter);
 
-        mRecyclerView.addOnItemTouchListener(
+        recyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(cx, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, final int position) {
 
